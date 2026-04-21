@@ -1,0 +1,35 @@
+{
+  "name": "backend-mongodb",
+  "version": "1.0.0",
+  "description": "backend",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KarinaKold/Backend-MongoDB.git"
+  },
+  "keywords": [
+    "backend"
+  ],
+  "author": "KarinaKold",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KarinaKold/Backend-MongoDB/issues"
+  },
+  "homepage": "https://github.com/KarinaKold/Backend-MongoDB#readme",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "file-type": "^21.3.3",
+    "formidable": "^3.5.4",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.3.0",
+    "nodemon": "^3.1.14",
+    "validator": "^13.15.26"
+  }
+}

@@ -1,0 +1,37 @@
+{
+	"footer": {
+		"description": "Your reliable guide to the world of gastronomy. Book tables in the city's finest restaurants in just a few clicks. We value your time and help you create unforgettable moments.",
+		"contacts_title": "Contacts",
+		"address": "Russia",
+		"rights": "All rights reserved"
+	},
+	"titles": {
+		"logo": "Restaurants",
+		"restPage": "Restaurants",
+		"aboutPage": "About"
+	},
+	"modal": {
+		"log": "Sign in",
+		"reg": "Sign up",
+		"out": "Sign out"
+	},
+	"form": {
+		"username": "Username",
+		"email": "E-mail",
+		"phone": "Telephone",
+		"password": "Password"
+	},
+	"checkbox": {
+		"language": "Language"
+	},
+	"langs": {
+		"eng": "English",
+		"rus": "Russian"
+	},
+	"tables": "Tables",
+	"404": {
+		"title": "404 - Page Not Found",
+		"description": "Sorry, the page you are looking for does not exist.",
+		"backHome": "Back to Home"
+	}
+}
