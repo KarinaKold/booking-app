@@ -1,7 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router';
-import { router } from './router/router.ts';
 import { AppProvider } from './AppProvider.tsx';
+import { router } from './router/router.ts';
 import './index.css';
 import './i18n';
 
