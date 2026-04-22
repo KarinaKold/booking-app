@@ -1,0 +1,35 @@
+.themeSwitcher {
+	display: flex;
+	align-items: center;
+}
+
+.toggleLabel {
+	background: #e0e0e0;
+	border-radius: 50px;
+	box-shadow:
+		inset 6px 6px 10px #b8b8b8,
+		inset -6px -6px 10px #ffffff;
+	width: 50px;
+	height: 25px;
+	position: relative;
+	cursor: pointer;
+	display: flex;
+	justify-content: space-between;
+	padding: 0 5px;
+}
+
+#theme-toggle {
+	display: none;
+}
+
+#theme-toggle:checked + .toggle-label {
+	background: #333;
+}
+
+#theme-toggle:checked + .toggle-label .material-icons:first-child {
+	opacity: 0;
+}
+
+#theme-toggle:checked + .toggle-label .material-icons:last-child {
+	opacity: 1;
+}
