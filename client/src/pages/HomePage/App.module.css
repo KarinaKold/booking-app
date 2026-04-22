@@ -1,0 +1,219 @@
+#root {
+	max-width: 1280px;
+	margin: 0 auto;
+	padding: 2rem;
+	text-align: center;
+}
+
+.logo {
+	height: 6em;
+	padding: 1.5em;
+	will-change: filter;
+	transition: filter 300ms;
+}
+.logo:hover {
+	filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+	filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+.themeSwitcher {
+	display: flex;
+	align-items: center;
+}
+
+#theme-toggle {
+	display: none;
+}
+
+.toggleLabel {
+	cursor: pointer;
+	width: 50px;
+	height: 24px;
+	background-color: #ccc;
+	border-radius: 50px;
+	position: relative;
+	transition: background-color 0.3s ease;
+}
+
+.toggleLabel::before {
+	content: '';
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: 20px;
+	height: 20px;
+	background-color: white;
+	border-radius: 50%;
+	transition: transform 0.3s ease;
+}
+
+/* Стили для темной темы */
+#theme-toggle:checked + .toggleLabel {
+	background-color: #333;
+}
+
+#theme-toggle:checked + .toggleLabel::before {
+	transform: translateX(26px); /* Сдвиг переключателя */
+}
+
+@keyframes logo-spin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	a:nth-of-type(2) .logo {
+		animation: logo-spin infinite 20s linear;
+	}
+}
+
+.card {
+	padding: 2em;
+}
+
+.read-the-docs {
+	color: #888;
+}
+
+/**/
+
+.container {
+	padding-bottom: 50px;
+}
+
+.mainLayout {
+	display: flex;
+	max-width: 1400px;
+	margin: 30px auto;
+	padding: 0 20px;
+	gap: 50px;
+	align-items: flex-start;
+}
+
+.restaurantsContent {
+	flex-grow: 1;
+}
+
+.postList {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 30px;
+}
+
+.storyTitle {
+	font-size: 14px;
+	color: #333;
+	margin-top: 8px;
+	display: block;
+}
+
+@media (max-width: 1350px) {
+	.postList {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (max-width: 1050px) {
+	.postList {
+		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 800px) {
+	.mainLayout {
+		flex-direction: column;
+	}
+	.postList {
+		grid-template-columns: 1fr;
+	}
+}
+
+/*  */
+
+.paginationWrapper {
+	width: 100%;
+	margin: 40px 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: relative;
+}
+
+.paginationAnchor {
+	max-width: 1400px;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	/* position: relative;
+	display: inline-block; */
+}
+
+/* сториз */
+/* Контейнер для всего блока историй */
+.previewList {
+	display: flex;
+	gap: 20px;
+	padding: 10px 5px;
+	overflow-x: auto; /* Включаем горизонтальный скролл */
+	scrollbar-width: none; /* Скрываем скроллбар в Firefox */
+	-ms-overflow-style: none; /* Скрываем скроллбар в IE */
+}
+
+/* Скрываем скроллбар в Chrome/Safari */
+.previewList::-webkit-scrollbar {
+	display: none;
+}
+
+/* Элемент списка (одна история) */
+.previewItem {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	cursor: pointer;
+	min-width: 100px;
+	transition: transform 0.2s ease;
+}
+
+.previewItem:hover {
+	transform: scale(1.05);
+}
+
+/* Цветное кольцо вокруг истории */
+.avatarRing {
+	width: 100px;
+	height: 100px;
+	border-radius: 50%;
+	padding: 3px;
+	background: linear-gradient(135deg, #ffd700 0%, #00ced1 50%, #191970 100%);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-bottom: 8px;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Сама картинка */
+.avatar {
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	object-fit: cover;
+	background-color: #fff;
+	border: 2px solid #fff;
+}
+
+/* Текст под историей */
+.previewItem span {
+	font-weight: 500;
+	max-width: 80px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-align: center;
+}
