@@ -2,14 +2,25 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { FaUtensils, FaMapMarkerAlt, FaClock, FaStar, FaEdit } from 'react-icons/fa';
+import {
+	FaUtensils,
+	FaMapMarkerAlt,
+	FaClock,
+	FaStar,
+	FaEdit,
+	FaChevronDown,
+	FaChevronUp,
+	FaTimes,
+	FaChevronLeft,
+	FaChevronRight,
+} from 'react-icons/fa';
 import { Calendar } from '../../components/Calendar';
 import styled from 'styled-components';
 import { SpecialPanel } from '../special-panel/SpecialPanel';
 import { Loader } from '../../../../components';
 import { request } from '../../../../utils/request';
 import { setRestaurantData } from '../../../../actions';
-import { selectRestaurant, selectUserId, selectUserRole } from '../../../../selectors';
+import { selectRestaurant } from '../../../../selectors';
 import styles from '../../RestaurantPage.module.css';
 import { TableGrid } from '../TableGrid';
 import { Time } from '../Time';
@@ -21,6 +32,16 @@ const RestaurantContentContainer = ({ restaurant: { id, createdAt } }) => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const restaurant = useSelector(selectRestaurant);
+
+	// Состояния для галереи
+	const [sideOffset, setSideOffset] = useState(0);
+	const [viewerIndex, setViewerIndex] = useState(null);
+
+	// Логика слайдера превью
+	const itemsToShow = 2;
+	const sideImages = restaurant.images.slice(1);
+	const canScrollUp = sideOffset > 0;
+	const canScrollDown = sideOffset < sideImages.length - itemsToShow;
 
 	const [loading, setLoading] = useState(true);
 	const [isBooking, setIsBooking] = useState(false); // Состояние отправки
@@ -138,6 +159,29 @@ const RestaurantContentContainer = ({ restaurant: { id, createdAt } }) => {
 	if (loading) return <Loader />;
 	if (!restaurant) return <div>Ресторан не найден</div>;
 
+	const scrollUp = (e) => {
+		e.stopPropagation();
+		setSideOffset((prev) => prev - 1);
+	};
+	const scrollDown = (e) => {
+		e.stopPropagation();
+		setSideOffset((prev) => prev + 1);
+	};
+
+	// Логика полноэкранного вьювера
+	const openViewer = (index) => setViewerIndex(index);
+	const closeViewer = () => setViewerIndex(null);
+	const nextImg = (e) => {
+		e.stopPropagation();
+		setViewerIndex((prev) => (prev + 1) % restaurant.images.length);
+	};
+	const prevImg = (e) => {
+		e.stopPropagation();
+		setViewerIndex(
+			(prev) => (prev - 1 + restaurant.images.length) % restaurant.images.length,
+		);
+	};
+
 	return (
 		<>
 			<div className={styles.page}>
@@ -152,44 +196,106 @@ const RestaurantContentContainer = ({ restaurant: { id, createdAt } }) => {
 						/>
 					}
 				/>
-				{/* ВЕРХНИЙ БЛОК */}
+				{/* ВЕРХНИЙ БЛОК: ИНТЕРАКТИВНАЯ ГАЛЕРЕЯ И ИНФО */}
 				<div className={styles.topSection}>
 					<section className={styles.galleryGrid}>
-						<div className={styles.mainImage}>
+						<div className={styles.mainImage} onClick={() => openViewer(0)}>
 							<img src={restaurant.images[0]} alt="Main" />
 						</div>
-						<div className={styles.sideImages}>
-							{restaurant.images.slice(1, 4).map((img, index) => (
-								<div key={index} className={styles.sideImageWrapper}>
-									<img src={img} alt={`Side ${index}`} />
+						<div className={styles.sideGalleryContainer}>
+							<button
+								className={styles.navBtn}
+								onClick={scrollUp}
+								style={{ visibility: canScrollUp ? 'visible' : 'hidden' }}
+							>
+								<FaChevronUp />
+							</button>
+							<div className={styles.sideImagesWindow}>
+								<div
+									className={styles.sideImagesTrack}
+									style={{
+										transform: `translateY(-${sideOffset * 208}px)`,
+									}}
+								>
+									{sideImages.map((img, index) => (
+										<div
+											key={index}
+											className={styles.sideImageWrapper}
+											onClick={() => openViewer(index + 1)}
+										>
+											<img src={img} alt={`Side ${index}`} />
+										</div>
+									))}
 								</div>
-							))}
+							</div>
+							<button
+								className={styles.navBtn}
+								onClick={scrollDown}
+								style={{
+									visibility: canScrollDown ? 'visible' : 'hidden',
+								}}
+							>
+								<FaChevronDown />
+							</button>
 						</div>
 					</section>
 					<section className={styles.infoSide}>
 						<div className={styles.heroInfo}>
-							<h2>{restaurant.name}</h2>
+							<div className={styles.headerMain}>
+								<h2>{restaurant.name}</h2>
+								<div className={styles.ratingBadge}>
+									<FaStar /> {Number(restaurant.rating).toFixed(1)}
+								</div>
+							</div>
 							<div className={styles.meta}>
-								<span className={styles.rating}>
-									<FaStar /> {restaurant.rating}
-								</span>
 								<span>
 									<FaMapMarkerAlt /> {restaurant.address}
 								</span>
 								<span>
 									<FaClock /> {restaurant.workingHours}
 								</span>
-								<span className={styles.cuisine}>
+								<span>
 									<FaUtensils /> {restaurant.cuisine}
 								</span>
 							</div>
 						</div>
 						<div className={styles.aboutSection}>
 							<h3>{t('restaurant.about')}</h3>
-							<p>{restaurant.description}</p>
+							<p className={styles.descriptionText}>
+								{restaurant.description}
+							</p>
 						</div>
 					</section>
 				</div>
+				{/* LIGHTBOX: ПОЛНОЭКРАННЫЙ ПРОСМОТР */}
+				{viewerIndex !== null && (
+					<div className={styles.viewerOverlay} onClick={closeViewer}>
+						<button className={styles.closeViewer} onClick={closeViewer}>
+							<FaTimes />
+						</button>
+						<button className={styles.viewerNavLeft} onClick={prevImg}>
+							<FaChevronLeft />
+						</button>
+
+						<div
+							className={styles.viewerContent}
+							onClick={(e) => e.stopPropagation()}
+						>
+							<img
+								src={restaurant.images[viewerIndex]}
+								alt="Fullscreen view"
+							/>
+							<div className={styles.viewerCounter}>
+								{viewerIndex + 1} / {restaurant.images.length}
+							</div>
+						</div>
+
+						<button className={styles.viewerNavRight} onClick={nextImg}>
+							<FaChevronRight />
+						</button>
+					</div>
+				)}
+
 				{/* ВЫБОР СТОЛОВ И КОРЗИНА */}
 				<div className={styles.contentGrid}>
 					<div className={styles.mainInfo}>
@@ -287,12 +393,24 @@ const RestaurantContentContainer = ({ restaurant: { id, createdAt } }) => {
 };
 
 export const RestaurantContent = styled(RestaurantContentContainer)`
-	& img {
-		float: left;
-		margin: 0 20px 10px 0;
+	// & img {
+	// 	float: left;
+	// 	margin: 0 20px 10px 0;
+	// }
+
+	// & .post-text {
+	// 	font-size: 18px;
+	// 	white-space: pre-line;
+	// }
+
+	.description-text {
+		font-size: 18px;
+		white-space: pre-line;
+		line-height: 1.5;
+		color: #333;
 	}
 
-	& .post-text {
+	.post-text {
 		font-size: 18px;
 		white-space: pre-line;
 	}
