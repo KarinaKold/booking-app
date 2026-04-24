@@ -1,89 +1,20 @@
-import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router';
-import { useDispatch, useSelector } from 'react-redux';
-import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 import { FaEdit } from 'react-icons/fa';
 import { BookingSection, BookingWidget, Comments, Gallery, Info } from './components';
 import { SpecialPanel } from '../special-panel/SpecialPanel';
-import { Loader } from '../../../../components';
-import { formatDate, generateTimeSlots } from '../../utils';
-import { request } from '../../../../utils/request';
-import { setRestaurantData } from '../../../../actions';
 import { selectRestaurant } from '../../../../selectors';
 import styled from 'styled-components';
+import { useBooking } from '../../../../hooks/use-booking';
 
 export const RestaurantContent = ({ restaurant: { id, createdAt } }) => {
-	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const dispatch = useDispatch();
 	const restaurant = useSelector(selectRestaurant);
+	const { bookingState, bookingData, bookingHandlers } = useBooking(
+		id,
+		restaurant?.workingHours,
+	);
 
-	const [loading, setLoading] = useState(true);
-	const [isBooking, setIsBooking] = useState(false); // Состояние отправки
-	const [isSuccess, setIsSuccess] = useState(false);
-
-	const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-	const [selectedTime, setSelectedTime] = useState<string>('');
-	const [selectedTable, setSelectedTable] = useState<number | null>(null);
-	const [busyTableIds, setBusyTableIds] = useState<number[]>([]);
-
-	useEffect(() => {
-		setLoading(true);
-		request(`/restaurants/${id}`)
-			.then(({ data }) => {
-				dispatch(setRestaurantData(data));
-			})
-			.finally(() => setLoading(false));
-	}, [dispatch, id]);
-
-	useEffect(() => {
-		if (selectedDate && selectedTime && id) {
-			const dateStr = formatDate(selectedDate);
-			request(`/restaurants/${id}/busy-tables?date=${dateStr}&time=${selectedTime}`)
-				.then(({ data }) => {
-					setBusyTableIds(data || []);
-					setSelectedTable(null);
-				})
-				.catch((e) => console.error('Ошибка загрузки занятых столов:', e));
-		}
-	}, [selectedDate, selectedTime, id]);
-
-	const timeSlots = useMemo(() => {
-		return restaurant ? generateTimeSlots(restaurant.workingHours, selectedDate) : [];
-	}, [selectedDate, restaurant]);
-
-	const availableDates = useMemo(() => {
-		return Array.from({ length: 14 }, (_, i) => {
-			const date = new Date();
-			date.setDate(date.getDate() + i);
-			return formatDate(date);
-		});
-	}, []);
-
-	const handleBooking = async () => {
-		if (!selectedTable || !selectedTime) return;
-		setIsBooking(true);
-		const dateStr = formatDate(selectedDate);
-		try {
-			await request('/bookings', 'POST', {
-				restaurantId: id,
-				date: dateStr,
-				time: selectedTime,
-				tableNumber: selectedTable,
-			});
-			setIsSuccess(true);
-			const { data } = await request(
-				`/restaurants/${id}/busy-tables?date=${dateStr}&time=${selectedTime}`,
-			);
-			setBusyTableIds(data || []);
-		} catch (e) {
-			console.error('Ошибка бронирования:', e);
-		} finally {
-			setIsBooking(false);
-		}
-	};
-
-	if (loading) return <Loader />;
 	if (!restaurant) return <div>Ресторан не найден</div>;
 
 	return (
@@ -114,28 +45,17 @@ export const RestaurantContent = ({ restaurant: { id, createdAt } }) => {
 				</div>
 				<div className="booking">
 					<BookingSection
-						selectedDate={selectedDate}
-						onDateChange={setSelectedDate}
-						availableDates={availableDates}
-						timeSlots={timeSlots}
-						selectedTime={selectedTime}
-						onTimeSelect={setSelectedTime}
+						{...bookingState}
+						{...bookingData}
 						tables={restaurant.tables}
-						busyTableIds={busyTableIds}
-						selectedTable={selectedTable}
-						onTableSelect={setSelectedTable}
+						onDateChange={bookingHandlers.onDateChange}
+						onTimeSelect={bookingHandlers.onTimeSelect}
+						onTableSelect={bookingHandlers.onTableSelect}
 					/>
 					<BookingWidget
-						selectedDate={selectedDate}
-						selectedTime={selectedTime}
-						selectedTable={selectedTable}
-						isBooking={isBooking}
-						isSuccess={isSuccess}
-						onResetSuccess={() => {
-							setIsSuccess(false);
-							setSelectedTable(null);
-						}}
-						onBooking={handleBooking}
+						{...bookingState}
+						onResetSuccess={bookingHandlers.onResetBookingStatus}
+						onBooking={bookingHandlers.onBookingSubmit}
 					/>
 				</div>
 				<div className="comments-section">
