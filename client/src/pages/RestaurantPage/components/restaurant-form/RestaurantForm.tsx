@@ -13,6 +13,7 @@ import {
 	FaTrash,
 	FaUserFriends,
 } from 'react-icons/fa';
+import { Button } from '../../../../components/buttons/Button';
 
 const RestaurantFormContainer = ({
 	className,
@@ -34,7 +35,9 @@ const RestaurantFormContainer = ({
 	const [nameValue, setNameValue] = useState(name);
 	const [addressValue, setAddressValue] = useState(address);
 	const [cuisineValue, setCuisineValue] = useState(cuisine);
-	const [workingHoursValue, setWorkingHoursValue] = useState(workingHours);
+	const [startTime, setStartTime] = useState('10:00');
+	const [endTime, setEndTime] = useState('22:00');
+	// const [workingHoursValue, setWorkingHoursValue] = useState(workingHours);
 	const [hasBarCardValue, setHasBarCardValue] = useState(!!hasBarCard);
 	const [imagesValue, setImagesValue] = useState(images || ['', '', '', '']);
 	const [tablesValue, setTablesValue] = useState(tables || [{ number: 1, seats: 2 }]);
@@ -44,10 +47,16 @@ const RestaurantFormContainer = ({
 		setNameValue(name);
 		setAddressValue(address);
 		setCuisineValue(cuisine);
-		setWorkingHoursValue(workingHours);
+		// setWorkingHoursValue(workingHours);
 		setHasBarCardValue(!!hasBarCard);
 		setImagesValue(images?.length ? images : ['', '', '', '']);
 		setTablesValue(tables?.length ? tables : [{ number: 1, seats: 2 }]);
+
+		if (workingHours && workingHours.includes(' - ')) {
+			const [start, end] = workingHours.split(' - ');
+			setStartTime(start);
+			setEndTime(end);
+		}
 	}, [name, address, cuisine, workingHours, images, tables, hasBarCard]);
 
 	const onAddTable = () => {
@@ -72,12 +81,14 @@ const RestaurantFormContainer = ({
 
 	const onSave = () => {
 		const newDescription = sanitizeContent(descriptionRef.current.innerHTML);
+		const formattedWorkingHours = `${startTime} - ${endTime}`;
+
 		dispatch(
 			saveRestaurantAsync(id, {
 				name: nameValue,
 				address: addressValue,
 				cuisine: cuisineValue,
-				workingHours: workingHoursValue,
+				workingHours: formattedWorkingHours,
 				hasBarCard: hasBarCardValue,
 				images: imagesValue,
 				description: newDescription,
@@ -110,11 +121,31 @@ const RestaurantFormContainer = ({
 					placeholder="Кухня..."
 					onChange={({ target }) => setCuisineValue(target.value)}
 				/>
-				<Input
+				<div className="time-inputs-wrapper">
+					<div className="time-field">
+						<label>Часы работы:</label>
+						<Input
+							type="time"
+							value={startTime}
+							onChange={({ target }) => setStartTime(target.value)}
+							className="time-input"
+						/>
+						<span className="time-separator">—</span>
+						<Input
+							type="time"
+							value={endTime}
+							onChange={({ target }) => setEndTime(target.value)}
+							className="time-input"
+						/>
+					</div>
+				</div>
+
+				{/* <Input
 					value={workingHoursValue}
 					placeholder="Часы работы..."
 					onChange={({ target }) => setWorkingHoursValue(target.value)}
-				/>
+				/> */}
+
 				<div className="checkbox-wrapper">
 					<label className="checkbox-label">
 						<input
@@ -162,9 +193,9 @@ const RestaurantFormContainer = ({
 						</div>
 					))}
 				</div>
-				<button type="button" className="add-table-btn" onClick={onAddTable}>
+				<Button type="button" onClick={onAddTable}>
 					<FaPlus /> Добавить стол
-				</button>
+				</Button>
 			</div>
 			<SpecialPanel
 				id={id}
@@ -185,10 +216,60 @@ const RestaurantFormContainer = ({
 };
 
 export const RestaurantForm = styled(RestaurantFormContainer)`
+	max-width: 900px;
+	margin: 40px auto;
+	padding: 40px;
+
 	& .inputs {
 		display: flex;
 		flex-direction: column;
 		gap: 10px;
+	}
+
+	& .time-inputs-wrapper {
+		margin: 5px 0;
+		padding: 15px;
+		background: #f0f0f0;
+		border-radius: 12px;
+		box-shadow:
+			inset 4px 4px 8px #bebebe,
+			inset -4px -4px 8px #ffffff;
+	}
+
+	& .time-field {
+		display: flex;
+		align-items: center;
+		gap: 15px;
+		font-weight: 500;
+		color: #555;
+	}
+	& .time-field label {
+		width: 300px;
+	}
+
+	// & .time-input {
+	// 	border: none;
+	// 	background: #f0f0f0;
+	// 	padding: 8px 12px;
+	// 	border-radius: 8px;
+	// 	font-size: 16px;
+	// 	font-family: inherit;
+	// 	color: #333;
+	// 	box-shadow: 3px 3px 6px #bebebe, -3px -3px 6px #ffffff;
+	// 	cursor: pointer;
+	// 	outline: none;
+	// }
+
+	// & .time-input:focus {
+	// 	box-shadow:
+	// 		inset 2px 2px 5px #bebebe,
+	// 		inset -2px -2px 5px #ffffff;
+	// }
+
+	& .time-separator {
+		font-weight: bold;
+		color: #888;
+		padding-bottom: 12px;
 	}
 
 	& .checkbox-wrapper {
@@ -223,7 +304,7 @@ export const RestaurantForm = styled(RestaurantFormContainer)`
 	}
 
 	& .description-text {
-		border: 1px solid #ccc;
+		border: 3px solid #ccc;
 		padding: 15px;
 		min-height: 150px;
 		font-size: 16px;
@@ -249,20 +330,38 @@ export const RestaurantForm = styled(RestaurantFormContainer)`
 		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 	}
 
-	& .table-item input {
-		width: 50px;
-		padding: 3px;
+	& .table-item {
+		display: flex;
+		align-items: center;
+		gap: 15px;
+		margin-bottom: 15px;
+		padding: 10px 20px;
+		background: #f0f0f0;
+		border-radius: 12px;
+		box-shadow:
+			4px 4px 8px #bebebe,
+			-4px -4px 8px #ffffff;
+
+		span {
+			font-weight: 600;
+			min-width: 80px;
+		}
+		input {
+			border: none;
+			background: #f0f0f0;
+			padding: 8px;
+			border-radius: 8px;
+			box-shadow:
+				inset 2px 2px 5px #bebebe,
+				inset -2px -2px 5px #ffffff;
+			width: 60px;
+			text-align: center;
+		}
 	}
+
 	& .delete-table {
 		color: #cc0000;
 		cursor: pointer;
-	}
-	& .add-table-btn {
-		margin-top: 10px;
-		cursor: pointer;
-		display: flex;
-		align-items: center;
-		gap: 5px;
 	}
 
 	& img {
