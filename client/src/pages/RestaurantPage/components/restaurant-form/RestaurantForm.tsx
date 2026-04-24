@@ -6,7 +6,13 @@ import { saveRestaurantAsync } from '../../../../actions';
 import { sanitizeContent } from './utils';
 import styled from 'styled-components';
 import { Input } from '../../../../components';
-import { FaPlus, FaSave, FaTrash, FaUserFriends } from 'react-icons/fa';
+import {
+	FaGlassMartiniAlt,
+	FaPlus,
+	FaSave,
+	FaTrash,
+	FaUserFriends,
+} from 'react-icons/fa';
 
 const RestaurantFormContainer = ({
 	className,
@@ -16,31 +22,33 @@ const RestaurantFormContainer = ({
 		address,
 		cuisine,
 		workingHours,
+		hasBarCard,
 		description,
 		images,
 		createdAt,
 		tables,
 	},
 }) => {
+	const dispatch = useDispatch();
+	const navigate = useNavigate();
 	const [nameValue, setNameValue] = useState(name);
 	const [addressValue, setAddressValue] = useState(address);
 	const [cuisineValue, setCuisineValue] = useState(cuisine);
 	const [workingHoursValue, setWorkingHoursValue] = useState(workingHours);
+	const [hasBarCardValue, setHasBarCardValue] = useState(!!hasBarCard);
 	const [imagesValue, setImagesValue] = useState(images || ['', '', '', '']);
 	const [tablesValue, setTablesValue] = useState(tables || [{ number: 1, seats: 2 }]);
 	const descriptionRef = useRef(null);
-
-	const dispatch = useDispatch();
-	const navigate = useNavigate();
 
 	useLayoutEffect(() => {
 		setNameValue(name);
 		setAddressValue(address);
 		setCuisineValue(cuisine);
 		setWorkingHoursValue(workingHours);
+		setHasBarCardValue(!!hasBarCard);
 		setImagesValue(images?.length ? images : ['', '', '', '']);
 		setTablesValue(tables?.length ? tables : [{ number: 1, seats: 2 }]);
-	}, [name, address, cuisine, workingHours, images, tables]);
+	}, [name, address, cuisine, workingHours, images, tables, hasBarCard]);
 
 	const onAddTable = () => {
 		const nextNumber =
@@ -70,6 +78,7 @@ const RestaurantFormContainer = ({
 				address: addressValue,
 				cuisine: cuisineValue,
 				workingHours: workingHoursValue,
+				hasBarCard: hasBarCardValue,
 				images: imagesValue,
 				description: newDescription,
 				tables: tablesValue,
@@ -106,7 +115,17 @@ const RestaurantFormContainer = ({
 					placeholder="Часы работы..."
 					onChange={({ target }) => setWorkingHoursValue(target.value)}
 				/>
-
+				<div className="checkbox-wrapper">
+					<label className="checkbox-label">
+						<input
+							type="checkbox"
+							checked={hasBarCardValue}
+							onChange={({ target }) => setHasBarCardValue(target.checked)}
+						/>
+						<FaGlassMartiniAlt className="bar-icon" />
+						Барная карта
+					</label>
+				</div>
 				<div className="images-inputs">
 					{imagesValue.map((url, i) => (
 						<Input
@@ -147,7 +166,6 @@ const RestaurantFormContainer = ({
 					<FaPlus /> Добавить стол
 				</button>
 			</div>
-
 			<SpecialPanel
 				id={id}
 				createdAt={createdAt}
@@ -171,6 +189,37 @@ export const RestaurantForm = styled(RestaurantFormContainer)`
 		display: flex;
 		flex-direction: column;
 		gap: 10px;
+	}
+
+	& .checkbox-wrapper {
+		margin: 5px 0;
+		padding: 10px;
+		background: #f0f0f0;
+		border-radius: 8px;
+		box-shadow:
+			inset 2px 2px 5px #bebebe,
+			inset -2px -2px 5px #ffffff;
+		width: fit-content;
+	}
+
+	& .checkbox-label {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		cursor: pointer;
+		font-size: 16px;
+		color-: #333;
+	}
+
+	& .checkbox-label input {
+		width: 18px;
+		height: 18px;
+		cursor: pointer;
+		accent-color: #e91e63;
+	}
+
+	& .bar-icon {
+		color: #e91e63;
 	}
 
 	& .description-text {

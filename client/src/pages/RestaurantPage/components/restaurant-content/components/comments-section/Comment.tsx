@@ -1,10 +1,10 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { FaUserCircle, FaCalendarAlt, FaTrashAlt, FaStar } from 'react-icons/fa';
-import { removeCommentAsync } from '../../../actions';
-import { selectUserId, selectUserRole } from '../../../selectors';
-import { ROLE } from '../../../constants';
+import { useGetConfirmation } from '../../../../../../providers';
+import { selectUserId, selectUserRole } from '../../../../../../selectors';
+import { removeCommentAsync } from '../../../../../../actions';
+import { ROLE } from '../../../../../../constants';
 import styled from 'styled-components';
-import { useGetConfirmation } from '../../../providers';
 
 const CommentContainer = ({
 	className,

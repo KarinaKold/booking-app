@@ -8,7 +8,7 @@ import { selectRestaurant, selectUserId, selectUserRole } from '../../../../sele
 import { ROLE } from '../../../../constants';
 import styled from 'styled-components';
 
-const SpecialPanelContainer = ({ className, id, createdAt, editButton }) => {
+const SpecialPanelContainer = ({ className, margin, id, createdAt, editButton }) => {
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
 	const { getConfirmation } = useGetConfirmation();
@@ -59,20 +59,9 @@ const SpecialPanelContainer = ({ className, id, createdAt, editButton }) => {
 
 export const SpecialPanel = styled(SpecialPanelContainer)`
 	display: flex;
-	justify-content: space-between;
+	justify-content: flex-end;
 	margin: ${({ margin }) => margin};
 	font-size: 18px;
-
-	& .published-at {
-		display: flex;
-		align-items: center;
-	}
-
-	& .calendar-icon {
-		margin-right: 7px;
-		font-size: 18px;
-		color: #666;
-	}
 
 	& .buttons {
 		display: flex;
@@ -81,26 +70,17 @@ export const SpecialPanel = styled(SpecialPanelContainer)`
 
 	& i {
 		position: relative;
-		top: -1px;
 	}
+
 	& .trash-icon {
 		font-size: 21px;
-		margin-left: 10px;
+		margin: 0 30px;
 		cursor: pointer;
 		color: #333;
 		transition: color 0.2s;
 
 		&:hover {
 			color: #cc0000;
-		}
-	}
-
-	& svg {
-		cursor: pointer;
-		transition: opacity 0.2s;
-
-		&:hover {
-			opacity: 0.7;
 		}
 	}
 `;

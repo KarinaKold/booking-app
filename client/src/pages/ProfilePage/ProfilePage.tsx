@@ -13,7 +13,7 @@ import { ROLE } from '../../constants';
 export const ProfilePage = () => {
 	const { t } = useTranslation();
 	const dispatch = useDispatch();
-	// const { getConfirmation } = useGetConfirmation();
+	const { getConfirmation } = useGetConfirmation();
 	const roleId = useSelector(selectUserRole);
 	const userFavorites = useSelector(selectUserFavorites);
 	const [favoriteRestaurants, setFavoriteRestaurants] = useState([]);
@@ -24,34 +24,35 @@ export const ProfilePage = () => {
 	const loadProfileData = useCallback(async () => {
 		setLoading(true);
 		try {
-			const [bookingsRes, userRes, favDetailsRes] = await Promise.all([
+			const isOwner = [ROLE.MODERATOR, ROLE.ADMIN].includes(roleId);
+
+			const [bookingsRes, userRes, favDetailsRes, ownedRes] = await Promise.all([
 				request('/bookings/user'),
 				request('/users/me'),
 				request('/restaurants/favorites-details'),
+				...(isOwner ? [request('/restaurants/my')] : []),
 			]);
 
 			setBookings(bookingsRes.data || []);
+			setFavoriteRestaurants(favDetailsRes.data || []);
+
+			if (isOwner && ownedRes) {
+				setOwnedRestaurants(ownedRes.data || []);
+			}
 
 			if (userRes.data) {
 				dispatch(setUser(userRes.data));
-				setFavoriteRestaurants(favDetailsRes.data || []);
 			}
 		} catch (error) {
 			console.error('Ошибка загрузки профиля:', error);
 		} finally {
 			setLoading(false);
 		}
-	}, [dispatch]);
+	}, [dispatch, roleId]);
 
 	useEffect(() => {
 		loadProfileData();
 	}, [loadProfileData]);
-
-	// const handleCancel = (id: string) => {
-	// 	request(`/bookings/${id}`, 'DELETE').then(({ error }) => {
-	// 		if (!error) loadProfileData();
-	// 	});
-	// };
 
 	const handleCancel = async (id: string) => {
 		const confirmed = await getConfirmation({
@@ -71,14 +72,15 @@ export const ProfilePage = () => {
 		}
 	};
 
-	const handleFavorite = (id: string) => {
-		// dispatch(updateFavoritesAsync(id));
-		setFavoriteRestaurants((prev) =>
-			prev.filter((rest) => (rest.id || rest._id) !== id),
-		);
+	const handleFavorite = (id) => {
 		dispatch(updateFavoritesAsync(id)).then((res) => {
-			if (res.error) {
-				loadProfileData();
+			if (!res?.error) {
+				setFavoriteRestaurants((prev) =>
+					userFavorites.includes(id)
+						? prev.filter((r) => (r.id || r._id) !== id)
+						: prev,
+				);
+				if (userFavorites.includes(id)) loadProfileData();
 			}
 		});
 	};

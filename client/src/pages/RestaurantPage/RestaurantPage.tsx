@@ -1,8 +1,7 @@
 import { useState, useEffect, useLayoutEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useMatch, useParams } from 'react-router';
 import { Loader } from '../../components';
-import { Comments } from './components/Comments';
-import { useDispatch, useSelector } from 'react-redux';
 import { selectRestaurant, selectUserId, selectUserRole } from '../../selectors';
 import { loadRestaurantAsync, RESET_RESTAURANT_DATA } from '../../actions';
 import { ROLE } from '../../constants';
@@ -78,7 +77,6 @@ export const RestaurantPage = () => {
 		) : (
 			<div>
 				<RestaurantContent restaurant={restaurant} />
-				{/* <Comments comments={restaurant.comments} restaurantId={restaurant.id} /> */}
 			</div>
 		);
 	return error ? <Error error={error} /> : SpecificPage;

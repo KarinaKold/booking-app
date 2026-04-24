@@ -1,12 +1,12 @@
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { FaPaperPlane, FaStar } from 'react-icons/fa';
+import { selectUserRole } from '../../../../../../selectors';
+import { addCommentAsync } from '../../../../../../actions';
+import { ROLE } from '../../../../../../constants';
 import { Comment } from './Comment';
-import { selectUserRole } from '../../../selectors';
-import { addCommentAsync } from '../../../actions';
-import { ROLE } from '../../../constants';
 import styled from 'styled-components';
-import { Link } from 'react-router';
 
 const CommentsContainer = ({ className, comments, restaurantId }) => {
 	const dispatch = useDispatch();
