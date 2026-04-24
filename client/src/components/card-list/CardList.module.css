@@ -1,0 +1,7 @@
+.cardList {
+	display: flex;
+	flex-wrap: wrap;
+	background-color: #e0e5ec;
+	justify-content: space-around;
+	padding: 20px;
+}
