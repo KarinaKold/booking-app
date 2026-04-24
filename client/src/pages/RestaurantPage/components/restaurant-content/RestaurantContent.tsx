@@ -1,17 +1,14 @@
 import { useNavigate } from 'react-router';
-import { useSelector } from 'react-redux';
 import { FaEdit } from 'react-icons/fa';
 import { BookingSection, BookingWidget, Comments, Gallery, Info } from './components';
 import { SpecialPanel } from '../special-panel/SpecialPanel';
-import { selectRestaurant } from '../../../../selectors';
 import styled from 'styled-components';
 import { useBooking } from '../../../../hooks/use-booking';
 
-export const RestaurantContent = ({ restaurant: { id, createdAt } }) => {
+export const RestaurantContent = ({ restaurant }) => {
 	const navigate = useNavigate();
-	const restaurant = useSelector(selectRestaurant);
 	const { bookingState, bookingData, bookingHandlers } = useBooking(
-		id,
+		restaurant.id,
 		restaurant?.workingHours,
 	);
 
@@ -21,8 +18,8 @@ export const RestaurantContent = ({ restaurant: { id, createdAt } }) => {
 		<>
 			<StyledRestaurantContent>
 				<SpecialPanel
-					id={id}
-					createdAt={createdAt}
+					id={restaurant.id}
+					createdAt={restaurant.createdAt}
 					margin="10px 0 30px"
 					editButton={
 						<FaEdit
