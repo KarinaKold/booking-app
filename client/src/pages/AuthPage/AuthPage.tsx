@@ -43,6 +43,7 @@ interface AuthResponse {
 const StyledLink = styled(Link)`
 	text-align: center;
 	text-decoration: underline;
+	color: black;
 	margin: 20px 0;
 	font-size: 18px;
 `;
