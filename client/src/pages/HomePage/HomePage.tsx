@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { useSelector } from 'react-redux';
 import { useAppDispatch } from '../../hooks';
-import { type Story } from '../../components/story-block/StoryBlock';
 import { PAGINATION_LIMIT, ROLE } from '../../constants';
+import { MOCK_STORIES } from './constants/stories';
 import { debounce } from './utils';
 import { Card, Pagination, Search, SortPanel, StorySection } from './components';
 import { Loader, Sidebar } from '../../components';
@@ -15,48 +15,10 @@ import {
 	selectUserFavorites,
 	selectUserRole,
 } from '../../selectors';
-import styles from './App.module.css';
 import { ScrollToTop } from '../../components/sidebar/ScrollToTop';
 import type { RestaurantFilters, SortField, SortOrder } from './types';
 import type { Restaurant } from '../../types';
-
-const MOCK_STORIES: Story[] = [
-	{
-		id: 1,
-		title: 'Morning',
-		imageUrl:
-			'https://i.pinimg.com/736x/66/d1/d7/66d1d782ad32fed9a6cd32a15dc77a6a.jpg',
-		duration: 5000,
-	},
-	{
-		id: 2,
-		title: 'Today',
-		imageUrl:
-			'https://i.pinimg.com/236x/68/26/61/682661b9d4705f695bea49bf24ec6d82.jpg',
-		duration: 3000,
-	},
-	{
-		id: 3,
-		title: 'Travel',
-		imageUrl:
-			'https://i.pinimg.com/736x/66/d1/d7/66d1d782ad32fed9a6cd32a15dc77a6a.jpg',
-		duration: 7000,
-	},
-	{
-		id: 4,
-		title: 'Food',
-		imageUrl:
-			'https://i.pinimg.com/736x/52/f1/03/52f10339432a0db0ccf5a4e16c8eaa2e.jpg',
-		duration: 4000,
-	},
-	{
-		id: 5,
-		title: 'Restaurant',
-		imageUrl:
-			'https://avatars.mds.yandex.net/get-altay/11471993/2a0000018f3e9b87d0cc9bd56153d19b5057/L_height',
-		duration: 5000,
-	},
-];
+import styled from 'styled-components';
 
 export const HomePage = () => {
 	const dispatch = useAppDispatch();
@@ -132,16 +94,16 @@ export const HomePage = () => {
 	if (serverError) return <div className="error">{serverError}</div>;
 
 	return (
-		<div className={styles.container}>
+		<Main>
 			<StorySection stories={MOCK_STORIES} />
 			<Search searchPhrase={searchPhrase} onChange={onSearch} />
-			<div className={styles.mainLayout}>
+			<div className="layout">
 				<Sidebar
 					onFilterChange={onFilterChange}
 					amount={restaurants.length}
 					loading={loading}
 				/>
-				<div className={styles.restaurantsContent}>
+				<div className="content">
 					<SortPanel
 						sortBy={sortBy}
 						sortOrder={sortOrder}
@@ -150,7 +112,7 @@ export const HomePage = () => {
 					{loading ? (
 						<Loader />
 					) : restaurants.length ? (
-						<div className={styles.postList}>
+						<CardList>
 							{restaurants.map(
 								({
 									id,
@@ -171,20 +133,82 @@ export const HomePage = () => {
 									/>
 								),
 							)}
-						</div>
+						</CardList>
 					) : (
-						<div className={styles.noResults}>Рестораны не найдены</div>
+						<div className="no-results">
+							<p>Рестораны не найдены</p>
+						</div>
 					)}
 				</div>
 			</div>
 			{lastPage > 1 && restaurants.length > 0 && (
-				<div className={styles.paginationWrapper}>
-					<div ref={paginationRef} className={styles.paginationAnchor}>
+				<PaginationSection>
+					<div ref={paginationRef} className="anchor">
 						<Pagination page={page} setPage={setPage} lastPage={lastPage} />
 					</div>
 					<ScrollToTop paginationRef={paginationRef} />
-				</div>
+				</PaginationSection>
 			)}
-		</div>
+		</Main>
 	);
 };
+
+const Main = styled.main`
+	.layout {
+		display: flex;
+		max-width: 1400px;
+		margin: 30px auto;
+		padding: 0 20px;
+		gap: 50px;
+		align-items: flex-start;
+		width: 100%;
+
+		@media (max-width: 800px) {
+			flex-direction: column;
+		}
+	}
+
+	.content {
+		flex: 1 0 auto;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.no-results {
+		width: 100%;
+		text-align: center;
+		margin-top: 100px;
+		font-size: 1.2rem;
+		color: #888;
+	}
+`;
+
+const CardList = styled.div`
+	flex-grow: 1;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 30px;
+	width: 100%;
+
+	@media (max-width: 1350px) {
+		grid-template-columns: repeat(2, 1fr);
+	}
+	@media (max-width: 1050px) {
+		grid-template-columns: 1fr;
+	}
+`;
+
+const PaginationSection = styled.footer`
+	width: 100%;
+	margin: 40px 0;
+	display: flex;
+	justify-content: center;
+	position: relative;
+
+	.anchor {
+		max-width: 1400px;
+		width: 100%;
+		display: flex;
+		justify-content: center;
+	}
+`;

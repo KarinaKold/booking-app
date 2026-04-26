@@ -14,11 +14,15 @@ import {
 	FaUserFriends,
 } from 'react-icons/fa';
 import type { RestaurantData, Table } from '../../../HomePage/types';
-import type { ServerResponse } from '../../../../utils/request';
 
 interface RestaurantFormProps {
 	className?: string;
 	restaurant: RestaurantData;
+}
+
+interface RestaurantResponse {
+	data: RestaurantData | null;
+	error: string | null;
 }
 
 const RestaurantFormContainer = ({
@@ -89,7 +93,7 @@ const RestaurantFormContainer = ({
 				description: newDescription,
 				tables: tablesValue,
 			}),
-		) as unknown as Promise<ServerResponse<RestaurantData>>);
+		) as unknown as RestaurantResponse);
 
 		if (response?.data?.id) {
 			navigate(`/rest/${response.data.id}`);

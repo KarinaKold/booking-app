@@ -7,7 +7,7 @@ import { ERROR } from '../../constants';
 interface PrivateContentProps {
 	children: React.ReactNode;
 	access: number[];
-	check: boolean;
+	check?: boolean;
 	serverError?: string | null;
 }
 

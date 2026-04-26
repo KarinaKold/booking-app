@@ -1,15 +1,20 @@
 import type { Dispatch } from 'redux';
-import { request, type ServerResponse } from '../utils/request';
+import { request } from '../utils/request';
 import { setRestaurantData } from './set-restaurant-data';
 import type { RestaurantData } from '../pages/HomePage/types';
 import { ACTION_TYPE } from './action-type';
 
+interface RestaurantResponse {
+	data: RestaurantData | null;
+	error: string | null;
+}
+
 export const saveRestaurantAsync =
 	(id: string | undefined, newRestaurantData: Partial<RestaurantData>) =>
-	async (dispatch: Dispatch): Promise<ServerResponse<RestaurantData>> => {
+	async (dispatch: Dispatch): Promise<RestaurantResponse> => {
 		dispatch({ type: ACTION_TYPE.SET_RESTAURANT_REQUEST });
 		try {
-			const response = await request<RestaurantData>(
+			const response = await request<RestaurantResponse>(
 				id ? `/restaurants/${id}` : '/restaurants',
 				id ? 'PATCH' : 'POST',
 				newRestaurantData,

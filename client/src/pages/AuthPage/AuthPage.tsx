@@ -1,17 +1,19 @@
 import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Link, Navigate } from 'react-router';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Input } from '../../components';
+import { useTranslation } from 'react-i18next';
+import { useAppDispatch } from '../../hooks';
+import { Button, Input } from '../../components';
 import { setUser } from '../../actions';
 import { selectUserRole } from '../../selectors';
-import { ROLE } from '../../constants';
 import { useResetForm } from '../../hooks/use-reset-form';
 import { request } from '../../utils/request';
-import { Button } from '../../components/shared/buttons/Button';
+import { ROLE } from '../../constants';
 import styled from 'styled-components';
+import type { UserData } from '../../types';
 
 const authFormSchema = yup.object().shape({
 	login: yup
@@ -31,6 +33,13 @@ const authFormSchema = yup.object().shape({
 		.max(30, 'Неверно заполнен пароль. Максимум 30 символов'),
 });
 
+type AuthFormData = yup.InferType<typeof authFormSchema>;
+
+interface AuthResponse {
+	user: UserData;
+	error: string | null;
+}
+
 const StyledLink = styled(Link)`
 	text-align: center;
 	text-decoration: underline;
@@ -38,13 +47,13 @@ const StyledLink = styled(Link)`
 	font-size: 18px;
 `;
 
-const AuthorizationContainer = ({ className }) => {
+const AuthorizationContainer = ({ className }: { className?: string }) => {
 	const {
 		register,
 		reset,
 		handleSubmit,
 		formState: { errors },
-	} = useForm({
+	} = useForm<AuthFormData>({
 		defaultValues: {
 			login: '',
 			password: '',
@@ -52,21 +61,33 @@ const AuthorizationContainer = ({ className }) => {
 		resolver: yupResolver(authFormSchema),
 	});
 
-	const [serverError, setServerError] = useState(null);
-	const dispatch = useDispatch();
+	const { t } = useTranslation();
+	const dispatch = useAppDispatch();
+	const [serverError, setServerError] = useState<string | null>(null);
 	const roleId = useSelector(selectUserRole);
 	useResetForm(reset);
 
-	const onSubmit = ({ login, password }) => {
-		request('/login', 'POST', { login, password }).then(({ error, user }) => {
+	const onSubmit = async ({ login, password }: AuthFormData) => {
+		try {
+			setServerError(null);
+			const { error, user } = await request<AuthResponse>('/login', 'POST', {
+				login,
+				password,
+			});
+
 			if (error) {
 				setServerError(`Ошибка запроса: ${error}`);
 				return;
 			}
 
-			dispatch(setUser(user));
-			sessionStorage.setItem('userData', JSON.stringify(user));
-		});
+			if (user) {
+				dispatch(setUser(user));
+				sessionStorage.setItem('userData', JSON.stringify(user));
+			}
+		} catch (error) {
+			console.error(error);
+			setServerError('Произошла непредвиденная ошибка. Попробуйте позже.');
+		}
 	};
 
 	const formError = errors?.login?.message || errors?.password?.message;
@@ -82,7 +103,7 @@ const AuthorizationContainer = ({ className }) => {
 			<form onSubmit={handleSubmit(onSubmit)}>
 				<Input
 					type="text"
-					name="login"
+					id="login"
 					placeholder="Логин..."
 					{...register('login', {
 						onChange: () => setServerError(null),
@@ -90,17 +111,17 @@ const AuthorizationContainer = ({ className }) => {
 				/>
 				<Input
 					type="password"
-					name="password"
+					id="password"
 					placeholder="Пароль..."
 					{...register('password', {
 						onChange: () => setServerError(null),
 					})}
 				/>
 				<Button type="submit" disabled={!!formError}>
-					Авторизоваться
+					{t('auth.login')}
 				</Button>
 				{errorMessage && <AuthFormError>{errorMessage}</AuthFormError>}
-				<StyledLink to="/register">Регистрация</StyledLink>
+				<StyledLink to="/register">{t('auth.register')}</StyledLink>
 			</form>
 		</div>
 	);

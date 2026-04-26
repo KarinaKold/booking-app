@@ -8,34 +8,44 @@ import { selectUserRole } from '../../selectors';
 import { request } from '../../utils/request';
 import { PrivateContent } from '../../components/private-content/PrivateContent';
 import styled from 'styled-components';
+import type { UserData } from '../../types';
 
-const UsersContainer = ({ className }) => {
+interface Role {
+	id: number;
+	name: string;
+}
+
+interface ServerResponse<T> {
+	data: T;
+	error: string | null;
+}
+
+const UsersContainer = ({ className }: { className?: string }) => {
 	const { getConfirmation } = useGetConfirmation();
-	const [users, setUsers] = useState([]);
-	const [roles, setRoles] = useState([]);
-	const [errorMessage, setErrorMessage] = useState(null);
-	const [shouldUpdateUserList, setShouldUpdateUserList] = useState(false);
 	const userRole = useSelector(selectUserRole);
+	const [users, setUsers] = useState<UserData[]>([]);
+	const [roles, setRoles] = useState<Role[]>([]);
+	const [errorMessage, setErrorMessage] = useState<string | null>(null);
+	const [shouldUpdateUserList, setShouldUpdateUserList] = useState(false);
 
 	useEffect(() => {
-		if (!checkAccess([ROLE.ADMIN], userRole)) {
-			return;
-		}
+		if (!checkAccess([ROLE.ADMIN], userRole)) return;
 
-		Promise.all([request('/users'), request('/users/roles')]).then(
-			([usersRes, rolesRes]) => {
-				if (usersRes.error || rolesRes.error) {
-					setErrorMessage(usersRes.error || rolesRes.error);
-					return;
-				}
+		Promise.all([
+			request<ServerResponse<UserData[]>>('/users'),
+			request<ServerResponse<Role[]>>('/users/roles'),
+		]).then(([usersRes, rolesRes]) => {
+			if (usersRes.error || rolesRes.error) {
+				setErrorMessage(usersRes.error || rolesRes.error);
+				return;
+			}
 
-				setUsers(usersRes.data);
-				setRoles(rolesRes.data);
-			},
-		);
+			setUsers(usersRes.data);
+			setRoles(rolesRes.data);
+		});
 	}, [shouldUpdateUserList, userRole]);
 
-	const onUserRemove = async (userId, userLogin) => {
+	const onUserRemove = async (userId: string, userLogin: string) => {
 		const confirmed = await getConfirmation({
 			title: 'Удаление пользователя',
 			description: `Вы действительно хотите удалить пользователя ${userLogin}?`,
@@ -44,9 +54,13 @@ const UsersContainer = ({ className }) => {
 		});
 
 		if (confirmed) {
-			request(`/users/${userId}`, 'DELETE').then(() => {
+			try {
+				await request(`/users/${userId}`, 'DELETE');
 				setShouldUpdateUserList(!shouldUpdateUserList);
-			});
+			} catch (error) {
+				console.error(error);
+				setErrorMessage('Не удалось удалить пользователя');
+			}
 		}
 	};
 
