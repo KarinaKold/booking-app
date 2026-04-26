@@ -7,7 +7,7 @@ const Div = styled.div`
 	font-size: 18px;
 `;
 
-export const Error = ({ error }) =>
+export const Error = ({ error }: any) =>
 	error && (
 		<Div>
 			<h2>Ошибка</h2>

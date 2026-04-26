@@ -4,15 +4,16 @@ import { Navigate } from 'react-router';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Input } from '../../components';
+import { Button, Input } from '../../components';
 import { setUser } from '../../actions';
 import { selectUserRole } from '../../selectors';
 import { ROLE } from '../../constants';
 import { useAppDispatch, useResetForm } from '../../hooks';
 import { request } from '../../utils/request';
-import { Button } from '../../components/shared/buttons/Button';
+
 import styled from 'styled-components';
 import type { UserData } from '../../types';
+import { AuthFormError } from '../AuthPage/AuthPage';
 
 const regFormSchema = yup.object().shape({
 	login: yup
@@ -139,11 +140,4 @@ export const RegPage = styled(RegistrationContainer)`
 		flex-direction: column;
 		width: 260px;
 	}
-`;
-
-export const AuthFormError = styled.div`
-	background-color: #fcadad;
-	padding: 10px;
-	margin: 10px 0 0;
-	font-size: 18px;
 `;
