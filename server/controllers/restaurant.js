@@ -37,15 +37,21 @@ async function getRestaurants(params) {
     minRating,
     hasBarCard,
     openNow,
+    sortBy = "createdAt",
+    sortOrder = "desc",
   } = params;
   const query = {};
   if (search) query.name = { $regex: search, $options: "i" };
   if (cuisines) query.cuisine = { $in: cuisines.split(",") };
   if (minRating) query.rating = { $gte: Number(minRating) };
   if (hasBarCard === "true" || hasBarCard === true) query.hasBarCard = true;
-  // все рестораны, подходящие под фильтры
-  let restaurants = await Restaurant.find(query).sort({ createdAt: -1 });
-  // Фильтрация "Открыто сейчас" на стороне сервера
+
+  const sortDirection = sortOrder === "desc" ? -1 : 1;
+  let restaurants = await Restaurant.find(query).sort({
+    [sortBy]: sortDirection,
+  });
+  // let restaurants = await Restaurant.find(query).sort({ createdAt: -1 });
+
   if (openNow === "true" || openNow === true) {
     const now = new Date();
     const currentTime = now.getHours() * 60 + now.getMinutes(); // Текущее время в минутах
@@ -60,12 +66,9 @@ async function getRestaurants(params) {
 
       const startMinutes = startH * 60 + startM;
       let endMinutes = endH * 60 + endM;
-
-      // работающие после полуночи (например, до 02:00)
       if (endMinutes <= startMinutes) {
         endMinutes += 24 * 60;
       }
-      // Если ночь и проверяем
       const isCurrentNight =
         currentTime < startMinutes && currentTime < endMinutes - 24 * 60;
       const effectiveCurrentTime = isCurrentNight
