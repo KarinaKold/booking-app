@@ -8,6 +8,16 @@ import {
 } from 'react-icons/fa';
 import styled from 'styled-components';
 
+interface InfoProps {
+	name: string;
+	rating: number;
+	address: string;
+	workingHours: string;
+	cuisine: string;
+	hasBarCard: boolean;
+	description: string;
+}
+
 export const Info = ({
 	name,
 	rating,
@@ -16,7 +26,7 @@ export const Info = ({
 	cuisine,
 	hasBarCard,
 	description,
-}) => {
+}: InfoProps) => {
 	const { t } = useTranslation();
 	return (
 		<StyledInfo>

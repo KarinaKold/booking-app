@@ -1,8 +1,8 @@
 import { Link } from 'react-router';
-import { useDispatch, useSelector } from 'react-redux';
-import { LangSwitcher, ThemeSwitcher } from '../../../../components';
+import { useSelector } from 'react-redux';
+import { useAppDispatch } from '../../../../hooks';
+import { Button, LangSwitcher, ThemeSwitcher } from '../../../../components';
 import { useGetConfirmation } from '../../../../providers';
-import { Button } from '../../../buttons/Button';
 import { selectUserLogin, selectUserRole } from '../../../../selectors';
 import { logout } from '../../../../actions';
 import { checkAccess } from '../../../../utils';
@@ -21,6 +21,9 @@ const UserName = styled.div`
 	font-weight: bold;
 	a {
 		color: #0ea5e9;
+		&:hover {
+			text-decoration: none;
+		}
 	}
 `;
 
@@ -28,18 +31,20 @@ const PrivateLink = styled.div`
 	margin-right: 16px;
 	font-size: 18px;
 	font-weight: bold;
+
 	a {
+		text-decoration: none;
 		color: #0ea5e9;
 	}
 `;
 
-export const ControlPanelContainer = ({ className }) => {
-	const dispatch = useDispatch();
+export const ControlPanelContainer = ({ className }: { className?: string }) => {
+	const dispatch = useAppDispatch();
 	const { getConfirmation } = useGetConfirmation();
 	const roleId = useSelector(selectUserRole);
 	const login = useSelector(selectUserLogin);
 
-	const onLogout = async () => {
+	const onLogout = async (): Promise<void> => {
 		const confirmed = await getConfirmation({
 			title: 'Выход из аккаунта',
 			description: 'Вы уверены, что хотите выйти?',
@@ -73,9 +78,9 @@ export const ControlPanelContainer = ({ className }) => {
 				)}
 				{isModerator && (
 					<>
-						<UserName>
+						<PrivateLink>
 							<Link to="/rest">Create!</Link>
-						</UserName>
+						</PrivateLink>
 					</>
 				)}
 			</RightAligned>

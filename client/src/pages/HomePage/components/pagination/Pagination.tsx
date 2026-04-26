@@ -1,14 +1,21 @@
-import styled from 'styled-components';
-import { Button } from '../../../../components/buttons/Button';
+import { PaginationButton } from '../../../../components';
 import {
 	FaAngleDoubleLeft,
 	FaAngleDoubleRight,
 	FaAngleLeft,
 	FaAngleRight,
 } from 'react-icons/fa';
+import styled from 'styled-components';
 
-const PaginationContainer = ({ className, page, setPage, lastPage }) => {
-	const handleChangePage = (newPage) => {
+interface PaginationProps {
+	className?: string;
+	page: number;
+	lastPage: number;
+	setPage: (page: number) => void;
+}
+
+const PaginationContainer = ({ className, page, setPage, lastPage }: PaginationProps) => {
+	const handleChangePage = (newPage: number): void => {
 		setPage(newPage);
 
 		setTimeout(() => {
@@ -24,30 +31,43 @@ const PaginationContainer = ({ className, page, setPage, lastPage }) => {
 
 	return (
 		<div className={className}>
-			<Button disabled={page === 1} onClick={() => handleChangePage(1)}>
+			<PaginationButton disabled={page === 1} onClick={() => handleChangePage(1)}>
 				<FaAngleDoubleLeft />
-			</Button>
-			<Button disabled={page === 1} onClick={() => handleChangePage(page - 1)}>
+			</PaginationButton>
+			<PaginationButton
+				disabled={page === 1}
+				onClick={() => handleChangePage(page - 1)}
+			>
 				<FaAngleLeft />
-			</Button>
-
-			<div className="current-page">{page}</div>
-
-			<Button
+			</PaginationButton>
+			<CurrentPage className="current-page">{page}</CurrentPage>
+			<PaginationButton
 				disabled={page === lastPage}
 				onClick={() => handleChangePage(page + 1)}
 			>
 				<FaAngleRight />
-			</Button>
-			<Button
+			</PaginationButton>
+			<PaginationButton
 				disabled={page === lastPage}
 				onClick={() => handleChangePage(lastPage)}
 			>
 				<FaAngleDoubleRight />
-			</Button>
+			</PaginationButton>
 		</div>
 	);
 };
+
+const CurrentPage = styled.div`
+	min-width: 60px;
+	height: 40px;
+	font-size: 18px;
+	font-weight: 700;
+	line-height: 38px;
+	text-align: center;
+	border-radius: 10px;
+	background: #fff;
+	color: #333;
+`;
 
 export const Pagination = styled(PaginationContainer)`
 	display: flex;
@@ -56,27 +76,4 @@ export const Pagination = styled(PaginationContainer)`
 	margin: 30px 0;
 	width: 100%;
 	gap: 20px;
-
-	& button {
-		margin: 0;
-		padding: 0;
-		width: 40px;
-		height: 40px;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		font-size: 18px;
-	}
-
-	& .current-page {
-		min-width: 60px;
-		height: 40px;
-		font-size: 18px;
-		font-weight: 700;
-		line-height: 38px;
-		text-align: center;
-		border-radius: 10px;
-		background: #fff;
-		color: #333;
-	}
 `;

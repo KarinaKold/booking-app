@@ -1,29 +1,44 @@
-import { useState } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import { Link } from 'react-router';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { FaPaperPlane, FaStar } from 'react-icons/fa';
 import { selectUserRole } from '../../../../../../selectors';
 import { addCommentAsync } from '../../../../../../actions';
 import { ROLE } from '../../../../../../constants';
-import { Comment } from './Comment';
+import { Comment as CommentItem } from './Comment';
 import styled from 'styled-components';
+import type { CommentData } from '../../../../../HomePage/types';
+import { useAppDispatch } from '../../../../../../hooks';
 
-const CommentsContainer = ({ className, comments, restaurantId }) => {
-	const dispatch = useDispatch();
+interface CommentsProps {
+	className?: string;
+	comments: CommentData[];
+	restaurantId: string;
+}
+
+const CommentsContainer = ({ className, comments, restaurantId }: CommentsProps) => {
+	const dispatch = useAppDispatch();
 	const userRole = useSelector(selectUserRole);
-	const [newComment, setNewComment] = useState('');
-	const [rating, setRating] = useState(5);
-	const [hoverRating, setHoverRating] = useState(0);
+	const [newComment, setNewComment] = useState<string>('');
+	const [rating, setRating] = useState<number>(5);
+	const [hoverRating, setHoverRating] = useState<number>(0);
 
-	const onNewCommentAdd = (restaurantId, content, ratingValue) => {
+	const onNewCommentAdd = (
+		restaurantId: string,
+		content: string,
+		ratingValue: number,
+	): void => {
 		if (!content.trim()) return;
 		dispatch(addCommentAsync(restaurantId, { content, rating: ratingValue }));
-		// dispatch(addCommentAsync(restaurantId, content));
 		setNewComment('');
 		setRating(5);
 	};
 
 	const isGuest = userRole === ROLE.GUEST;
+
+	const onTextareaChange = ({ target }: ChangeEvent<HTMLTextAreaElement>) => {
+		setNewComment(target.value);
+	};
 
 	return (
 		<div className={className}>
@@ -53,7 +68,7 @@ const CommentsContainer = ({ className, comments, restaurantId }) => {
 							value={newComment}
 							name="comment"
 							placeholder="Оставить отзыв..."
-							onChange={({ target }) => setNewComment(target.value)}
+							onChange={onTextareaChange}
 						></textarea>
 						<button
 							className="send-button"
@@ -70,7 +85,7 @@ const CommentsContainer = ({ className, comments, restaurantId }) => {
 				{comments.length > 0
 					? comments.map(
 							({ id, author, authorId, content, rating, publishedAt }) => (
-								<Comment
+								<CommentItem
 									key={id}
 									restaurantId={restaurantId}
 									id={id}
@@ -83,7 +98,7 @@ const CommentsContainer = ({ className, comments, restaurantId }) => {
 							),
 						)
 					: isGuest && (
-							<div>
+							<div className="login-link">
 								<Link to="/login">Войдите</Link>, чтобы оставить свой
 								первый отзыв.
 							</div>
@@ -153,19 +168,9 @@ export const Comments = styled(CommentsContainer)`
 		cursor: not-allowed;
 	}
 
-	// margin: 0 auto;
-	// width: 580px;
-
-	// & .new-comment {
-	// 	display: flex;
-	// 	width: 100%;
-	// 	margin: 20px 0 0;
-	// }
-
-	// & .new-comment textarea {
-	// 	width: 550px;
-	// 	height: 120px;
-	// 	font-size: 18px;
-	// 	resize: none;
-	// }
+	& .login-link a {
+		text-decoration: none;
+		color: #0ea5e9;;
+		font-weight: 600;
+	}
 `;

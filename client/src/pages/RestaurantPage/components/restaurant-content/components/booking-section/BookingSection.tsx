@@ -1,6 +1,20 @@
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { Calendar, TableGrid, Time } from './components';
+import type { Table } from '../../../../../HomePage/types';
+
+interface BookingSectionProps {
+	selectedDate: Date;
+	onDateChange: (date: Date) => void;
+	availableDates: Date[];
+	timeSlots: string[];
+	selectedTime: string | null;
+	onTimeSelect: (time: string) => void;
+	tables: Table[];
+	busyTableIds: number[];
+	selectedTable: number | null;
+	onTableSelect: (tableNumber: number) => void;
+}
 
 export const BookingSection = ({
 	selectedDate,
@@ -13,7 +27,7 @@ export const BookingSection = ({
 	busyTableIds,
 	selectedTable,
 	onTableSelect,
-}) => {
+}: BookingSectionProps) => {
 	const { t } = useTranslation();
 
 	return (
@@ -46,7 +60,6 @@ export const BookingSection = ({
 };
 
 const StyledSection = styled.div`
-	// flex: 1;
 	min-width: 0;
 
 	.controls {

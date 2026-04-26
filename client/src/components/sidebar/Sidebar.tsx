@@ -1,21 +1,32 @@
 import { useState, useEffect } from 'react';
-import { request } from '../../utils/request';
-import styles from './Sidebar.module.css';
 import { FaFilter, FaUndoAlt } from 'react-icons/fa';
+import { request } from '../../utils/request';
+import type { RestaurantFilters } from '../../pages/HomePage/types';
+import styled from 'styled-components';
 
-export const Sidebar = ({ onFilterChange, amount, loading }) => {
-	const initialFilters = {
+interface SidebarProps {
+	onFilterChange: (filters: RestaurantFilters) => void;
+	amount: number;
+	loading: boolean;
+}
+
+interface Metadata {
+	cuisines: string[];
+}
+
+export const Sidebar = ({ onFilterChange, amount, loading }: SidebarProps) => {
+	const initialFilters: RestaurantFilters = {
 		cuisines: [],
 		minRating: 0,
 		openNow: false,
 		hasBarCard: false,
 	};
 
-	const [filters, setFilters] = useState(initialFilters);
-	const [metadata, setMetadata] = useState({ cuisines: [] });
+	const [filters, setFilters] = useState<RestaurantFilters>(initialFilters);
+	const [metadata, setMetadata] = useState<Metadata>({ cuisines: [] });
 
 	useEffect(() => {
-		request('/restaurants/filters/metadata').then(({ data }) => {
+		request<Metadata>('/restaurants/filters/metadata').then(({ data }) => {
 			if (data) setMetadata(data);
 		});
 	}, []);
@@ -28,7 +39,7 @@ export const Sidebar = ({ onFilterChange, amount, loading }) => {
 		setFilters(initialFilters);
 	};
 
-	const toggleCuisine = (cuisine) => {
+	const toggleCuisine = (cuisine: string) => {
 		setFilters((prev) => ({
 			...prev,
 			cuisines: prev.cuisines.includes(cuisine)
@@ -38,43 +49,35 @@ export const Sidebar = ({ onFilterChange, amount, loading }) => {
 	};
 
 	return (
-		<aside className={styles.sidebar}>
-			<div className={styles.header}>
-				<div className={styles.title}>
+		<StyledSidebar>
+			<div className="header">
+				<div className="title">
 					<FaFilter /> <span>Фильтры</span>
 				</div>
-				<button
-					className={styles.resetButton}
-					onClick={handleReset}
-					title="Сбросить все"
-				>
+				<button className="reset-btn" onClick={handleReset} title="Сбросить все">
 					<FaUndoAlt />
 				</button>
 			</div>
-			<div className={styles.resultsInfo}>
-				{loading ? 'Загрузка...' : `Найдено: ${amount}`}
-			</div>
-			<div className={styles.filterGroups}>
-				<section className={styles.section}>
+			<ResultsBadge>{loading ? 'Загрузка...' : `Найдено: ${amount}`}</ResultsBadge>
+			<div>
+				<FilterSection>
 					<h4>Кухня</h4>
-					<div className={styles.cuisineList}>
+					<div className="cuisine-list">
 						{metadata.cuisines.map((c) => (
-							<label key={c} className={styles.checkboxLabel}>
+							<CheckboxLabel key={c}>
 								<input
 									type="checkbox"
 									checked={filters.cuisines.includes(c)}
 									onChange={() => toggleCuisine(c)}
 								/>{' '}
 								{c}
-							</label>
+							</CheckboxLabel>
 						))}
 					</div>
-				</section>
-
-				<section className={styles.section}>
+				</FilterSection>
+				<FilterSection>
 					<h4>Рейтинг</h4>
-					<select
-						className={styles.select}
+					<StyledSelect
 						value={filters.minRating}
 						onChange={({ target }) =>
 							setFilters({ ...filters, minRating: Number(target.value) })
@@ -84,10 +87,10 @@ export const Sidebar = ({ onFilterChange, amount, loading }) => {
 						<option value="3">От 3.0 ★</option>
 						<option value="4">От 4.0 ★</option>
 						<option value="4.5">От 4.5 ★</option>
-					</select>
-				</section>
-				<section className={styles.section}>
-					<label className={styles.checkboxLabel}>
+					</StyledSelect>
+				</FilterSection>
+				<FilterSection className="switches">
+					<CheckboxLabel>
 						<input
 							type="checkbox"
 							checked={filters.openNow}
@@ -96,8 +99,8 @@ export const Sidebar = ({ onFilterChange, amount, loading }) => {
 							}
 						/>{' '}
 						Открыто сейчас
-					</label>
-					<label className={styles.checkboxLabel}>
+					</CheckboxLabel>
+					<CheckboxLabel>
 						<input
 							type="checkbox"
 							checked={filters.hasBarCard}
@@ -106,91 +109,134 @@ export const Sidebar = ({ onFilterChange, amount, loading }) => {
 							}
 						/>{' '}
 						Барная карта
-					</label>
-				</section>
+					</CheckboxLabel>
+				</FilterSection>
 			</div>
-		</aside>
+		</StyledSidebar>
 	);
 };
 
-// interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
-// 	label?: string;
-// 	options: string[];
-// 	placeholder?: string;
-// }
+const FilterSection = styled.section`
+	margin-bottom: 24px;
 
-// export const Select = ({ label, options, placeholder, ...props }: SelectProps) => (
-// 	<div className={styles.wrapper}>
-// 		{label && <label className={styles.label}>{label}</label>}
-// 		<select className={styles.select} {...props}>
-// 			{placeholder && <option value="">{placeholder}</option>}
-// 			{options.map((opt) => (
-// 				<option key={opt} value={opt}>
-// 					{opt}
-// 				</option>
-// 			))}
-// 		</select>
-// 	</div>
-// );
+	h4 {
+		margin-bottom: 12px;
+		font-size: 15px;
+		font-weight: 700;
+		color: #888;
+		text-transform: uppercase;
+		letter-spacing: 1px;
+	}
+`;
 
+const StyledSelect = styled.select`
+	width: 100%;
+	padding: 10px 12px;
+	background: #f8f9fa;
+	border: 1px solid #eee;
+	border-radius: 12px;
+	font-size: 14px;
+	color: #333;
+	outline: none;
+	cursor: pointer;
+	transition: all 0.2s ease;
 
-// interface CheckboxProps extends React.InputHTMLAttributes<HTMLInputElement> {
-// 	label: string;
-// 	icon?: React.ReactNode;
-// }
+	&:focus {
+		border-color: #0ea5e9;
+		background: #fff;
+		box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+	}
+`;
 
-// export const Checkbox = ({ label, icon, ...props }: CheckboxProps) => (
-// 	<label className={styles.checkboxLabel}>
-// 		<input type="checkbox" className={styles.input} {...props} />
-// 		{icon}
-// 		<span>{label}</span>
-// 	</label>
-// );
+const CheckboxLabel = styled.label`
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	cursor: pointer;
+	font-size: 15px;
+	color: #555;
+	padding: 4px 0;
+	transition: color 0.2s;
 
+	&:hover {
+		color: #0ea5e9;
+	}
 
-// export const FilterSection = ({
-// 	title,
-// 	children,
-// }: {
-// 	title: string;
-// 	children: React.ReactNode;
-// }) => (
-// 	<div className={styles.section}>
-// 		<h4 className={styles.sectionTitle}>{title}</h4>
-// 		{children}
-// 	</div>
-// );
+	input[type='checkbox'] {
+		width: 18px;
+		height: 18px;
+		cursor: pointer;
+		accent-color: #0ea5e9;
+	}
+`;
 
+const ResultsBadge = styled.div`
+	font-size: 13px;
+	font-weight: 600;
+	color: #0ea5e9;
+	background: #eef6ff;
+	padding: 8px 12px;
+	border-radius: 10px;
+	margin-bottom: 5px;
+	display: inline-block;
+`;
 
-// export const Sidebar = ({ filters, setFilters, options }: SidebarProps) => {
-	// const { t } = useTranslation();
+const StyledSidebar = styled.aside`
+	width: 280px;
+	padding: 24px;
+	background: #ffffff;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+	border-radius: 20px;
+	height: fit-content;
+	border: 1px solid #f0f0f0;
+	transition: all 0.3s ease;
 
-// 	return (
-// 		<aside className={styles.sidebar}>
-// 			<FilterSection title={t('sidebar.location')}>
-// 				<Select
-// 					options={options.cities}
-// 					value={filters.city}
-// 					onChange={(e) => setFilters({ ...filters, city: e.target.value })}
-// 					placeholder={t('sidebar.all_cities')}
-// 				/>
-// 			</FilterSection>
-// 			<FilterSection title={t('sidebar.cuisine')}>
-// 				<Select
-// 					options={options.cuisines}
-// 					value={filters.cuisine}
-// 					onChange={(e) => setFilters({ ...filters, cuisine: e.target.value })}
-// 					placeholder={t('sidebar.any_cuisine')}
-// 				/>
-// 			</FilterSection>
-// 			<FilterSection title={t('sidebar.additional')}>
-// 				<Checkbox
-// 					label={t('sidebar.bar_card')}
-// 					// icon={<Wine size={16} />}
-// 					checked={filters.hasBar}
-// 					onChange={(e) => setFilters({ ...filters, hasBar: e.target.checked })}
-// 				/>
-// 			</FilterSection>
-// 		</aside>
-// 	);
-// };
+	.header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 20px;
+	}
+
+	.title {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		font-weight: 700;
+		font-size: 19px;
+		color: #333;
+	}
+
+	.cuisine-list {
+		display: flex;
+		flex-direction: column;
+		gap: 5px;
+	}
+
+	.reset-btn {
+		background: #f5f5f5;
+		border: none;
+		width: 32px;
+		height: 32px;
+		border-radius: 8px;
+		cursor: pointer;
+		color: #888;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: all 0.2s;
+
+		&:hover {
+			background: #ffebee;
+			color: #ff5252;
+		}
+	}
+
+	.switches {
+		padding-top: 20px;
+		border-top: 2px solid #f8f8f8;
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
+`;

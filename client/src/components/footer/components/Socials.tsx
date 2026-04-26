@@ -1,5 +1,5 @@
 import { FaInstagram, FaFacebookF, FaTelegramPlane, FaYoutube } from 'react-icons/fa';
-import styles from '../Footer.module.css';
+import styled from 'styled-components';
 
 const socialLinks = [
 	{ id: 'inst', icon: <FaInstagram />, href: 'https://instagram.com' },
@@ -10,12 +10,12 @@ const socialLinks = [
 
 export const Socials = () => {
 	return (
-		<div className={styles.socials}>
+		<StyledSocials>
 			{socialLinks.map((social) => (
 				<a
 					key={social.id}
 					href={social.href}
-					className={styles.socialIcon}
+					className="socialIcon"
 					target="_blank"
 					rel="noreferrer"
 					aria-label={social.id}
@@ -23,6 +23,34 @@ export const Socials = () => {
 					{social.icon}
 				</a>
 			))}
-		</div>
+		</StyledSocials>
 	);
 };
+
+const StyledSocials = styled.div`
+	display: flex;
+	gap: 12px;
+
+	.socialIcon {
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		background: #2d2d2d;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: #fff;
+		font-size: 1.1rem;
+		text-decoration: none;
+		transition: all 0.3s ease;
+
+		&:hover {
+			background-color: #0ea5e9;
+			transform: translateY(-3px);
+		}
+	}
+
+	@media (max-width: 768px) {
+		justify-content: center;
+	}
+`;

@@ -10,7 +10,7 @@ import { selectUserRole } from '../../selectors';
 import { ROLE } from '../../constants';
 import { useResetForm } from '../../hooks/use-reset-form';
 import { request } from '../../utils/request';
-import { Button } from '../../components/buttons/Button';
+import { Button } from '../../components/shared/buttons/Button';
 import styled from 'styled-components';
 
 const authFormSchema = yup.object().shape({

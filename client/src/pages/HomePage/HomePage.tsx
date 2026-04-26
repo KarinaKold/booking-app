@@ -1,27 +1,36 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { StoryBlock, type Story } from '../../components/story-block/StoryBlock';
-import { request } from '../../utils/request';
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
+import { useSelector } from 'react-redux';
+import { useAppDispatch } from '../../hooks';
+import { type Story } from '../../components/story-block/StoryBlock';
 import { PAGINATION_LIMIT, ROLE } from '../../constants';
 import { debounce } from './utils';
-import { Card, Pagination, Search } from './components';
+import { Card, Pagination, Search, SortPanel, StorySection } from './components';
 import { Loader, Sidebar } from '../../components';
-import { useDispatch, useSelector } from 'react-redux';
-import { selectUserFavorites, selectUserRole } from '../../selectors';
-import { updateFavoritesAsync } from '../../actions/update-favorites-async';
+import { loadRestaurantsAsync, updateFavoritesAsync } from '../../actions';
+import {
+	selectLastPage,
+	selectRestaurants,
+	selectRestaurantsError,
+	selectRestaurantsLoading,
+	selectUserFavorites,
+	selectUserRole,
+} from '../../selectors';
 import styles from './App.module.css';
 import { ScrollToTop } from '../../components/sidebar/ScrollToTop';
+import type { RestaurantFilters, SortField, SortOrder } from './types';
+import type { Restaurant } from '../../types';
 
 const MOCK_STORIES: Story[] = [
 	{
 		id: 1,
-		title: 'Nature',
+		title: 'Morning',
 		imageUrl:
 			'https://i.pinimg.com/736x/66/d1/d7/66d1d782ad32fed9a6cd32a15dc77a6a.jpg',
 		duration: 5000,
 	},
 	{
 		id: 2,
-		title: 'Cities',
+		title: 'Today',
 		imageUrl:
 			'https://i.pinimg.com/236x/68/26/61/682661b9d4705f695bea49bf24ec6d82.jpg',
 		duration: 3000,
@@ -41,8 +50,8 @@ const MOCK_STORIES: Story[] = [
 		duration: 4000,
 	},
 	{
-		id: 4,
-		title: 'Food',
+		id: 5,
+		title: 'Restaurant',
 		imageUrl:
 			'https://avatars.mds.yandex.net/get-altay/11471993/2a0000018f3e9b87d0cc9bd56153d19b5057/L_height',
 		duration: 5000,
@@ -50,40 +59,35 @@ const MOCK_STORIES: Story[] = [
 ];
 
 export const HomePage = () => {
-	const dispatch = useDispatch();
+	const dispatch = useAppDispatch();
 	const roleId = useSelector(selectUserRole);
+	const restaurants = useSelector(selectRestaurants);
+	const loading = useSelector(selectRestaurantsLoading);
+	const lastPage = useSelector(selectLastPage);
+	const serverError = useSelector(selectRestaurantsError);
 	const userFavorites = useSelector(selectUserFavorites);
-
-	const [selectedStoryIndex, setSelectedStoryIndex] = useState<number | null>(null);
-	const [restaurants, setRestaurants] = useState([]);
-	const [page, setPage] = useState(1);
-	const [lastPage, setLastPage] = useState(1);
-	const [searchPhrase, setSearchPhrase] = useState('');
-	const [shouldSearch, setShouldSearch] = useState(false);
-	const [loading, setLoading] = useState(true);
-	const [filters, setFilters] = useState({});
-	const paginationRef = useRef(null);
-
-	// useEffect(() => {
-	// 	setLoading(true);
-	// 	request(
-	// 		`/restaurants?search=${searchPhrase}&page=${page}&limit=${PAGINATION_LIMIT}`,
-	// 	).then(({ data: { restaurants, lastPage } }) => {
-	// 		setRestaurants(restaurants);
-	// 		setLastPage(lastPage);
-	// 		setLoading(false);
-	// 	});
-	// }, [page, shouldSearch]);
+	const [page, setPage] = useState<number>(1);
+	const [searchPhrase, setSearchPhrase] = useState<string>('');
+	const [shouldSearch, setShouldSearch] = useState<boolean>(false);
+	const [filters, setFilters] = useState<RestaurantFilters>({
+		cuisines: [],
+		minRating: 0,
+		hasBarCard: false,
+		openNow: false,
+	});
+	const [sortBy, setSortBy] = useState<SortField>('createdAt');
+	const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+	const paginationRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
-		setLoading(true);
-
-		const params = {
+		const params: Record<string, string | number> = {
 			search: searchPhrase || '',
-			page: page.toString(),
-			limit: PAGINATION_LIMIT.toString(),
+			page,
+			limit: PAGINATION_LIMIT,
+			sortBy,
+			sortOrder,
 		};
-		// фильтры только если выбраны
+
 		if (filters.cuisines?.length > 0) {
 			params.cuisines = filters.cuisines.join(',');
 		}
@@ -94,31 +98,26 @@ export const HomePage = () => {
 		if (filters.openNow) {
 			params.openNow = 'true';
 		}
-
-		const queryParams = new URLSearchParams(params).toString();
-
-		request(`/restaurants?${queryParams}`).then(({ data, error }) => {
-			if (data) {
-				setRestaurants(data.restaurants || []);
-				setLastPage(data.lastPage || 1);
-			}
-			if (error) {
-				console.error('Ошибка загрузки:', error);
-			}
-			setLoading(false);
-		});
-	}, [page, shouldSearch, filters]);
+		dispatch(loadRestaurantsAsync(params));
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [page, shouldSearch, filters, sortBy, sortOrder]);
 
 	const startDelayedSearch = useMemo(() => debounce(setShouldSearch, 2000), []);
 
-	const onSearch = ({ target }) => {
+	const onSearch = ({ target }: ChangeEvent<HTMLInputElement>) => {
 		setSearchPhrase(target.value);
 		startDelayedSearch(!shouldSearch);
 		setPage(1);
 	};
 
-	const onFilterChange = (newFilters) => {
+	const onFilterChange = (newFilters: RestaurantFilters) => {
 		setFilters(newFilters);
+		setPage(1);
+	};
+
+	const handleSort = (field: SortField, order: SortOrder): void => {
+		setSortBy(field);
+		setSortOrder(order);
 		setPage(1);
 	};
 
@@ -130,42 +129,11 @@ export const HomePage = () => {
 		dispatch(updateFavoritesAsync(id));
 	};
 
+	if (serverError) return <div className="error">{serverError}</div>;
+
 	return (
 		<div className={styles.container}>
-			<div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
-				{/* Горизонтальный список превью */}
-				<div className={styles.storiesWrapper}>
-					<div className={styles.previewList}>
-						{MOCK_STORIES.map((story, index) => (
-							<div
-								key={story.id}
-								className={styles.previewItem}
-								onClick={() => setSelectedStoryIndex(index)}
-							>
-								<div className={styles.avatarRing}>
-									<img
-										src={story.imageUrl}
-										className={styles.avatar}
-										alt={story.title}
-									/>
-								</div>
-								<span style={{ fontSize: '14px', color: '#333' }}>
-									{story.title}
-								</span>
-							</div>
-						))}
-					</div>
-				</div>
-
-				{/* Модальное окно плеера */}
-				{selectedStoryIndex !== null && (
-					<StoryBlock
-						stories={MOCK_STORIES}
-						initialIndex={selectedStoryIndex}
-						onClose={() => setSelectedStoryIndex(null)}
-					/>
-				)}
-			</div>
+			<StorySection stories={MOCK_STORIES} />
 			<Search searchPhrase={searchPhrase} onChange={onSearch} />
 			<div className={styles.mainLayout}>
 				<Sidebar
@@ -174,17 +142,28 @@ export const HomePage = () => {
 					loading={loading}
 				/>
 				<div className={styles.restaurantsContent}>
+					<SortPanel
+						sortBy={sortBy}
+						sortOrder={sortOrder}
+						onSortChange={handleSort}
+					/>
 					{loading ? (
 						<Loader />
 					) : restaurants.length ? (
 						<div className={styles.postList}>
 							{restaurants.map(
-								({ id, name, imageUrl, description, rating }) => (
+								({
+									id,
+									name,
+									images,
+									description,
+									rating,
+								}: Restaurant) => (
 									<Card
 										key={id}
 										id={id}
 										title={name}
-										imageUrl={imageUrl}
+										imageUrl={images[0]}
 										description={description}
 										rating={rating}
 										isFavorite={userFavorites.includes(id)}
@@ -206,15 +185,6 @@ export const HomePage = () => {
 					<ScrollToTop paginationRef={paginationRef} />
 				</div>
 			)}
-			{/* {data.map((item) => (
-				<div key={item.id}>
-					{item.title}
-					<button onClick={handleDelete.bind(null, item.id)}>
-						Удалить задачу
-					</button>
-				</div>
-			))}
-			<button onClick={handleOpen}>Открыть окно</button> */}
 		</div>
 	);
 };

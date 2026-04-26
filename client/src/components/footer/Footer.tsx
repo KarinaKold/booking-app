@@ -2,35 +2,35 @@ import { useTranslation } from 'react-i18next';
 import { FaCode } from 'react-icons/fa';
 import { Contacts, Socials } from './components';
 import { MAIN_TITLE } from '../../constants/titles';
-import styles from './Footer.module.css';
+import styled from 'styled-components';
 
-export const Footer = () => {
+const FooterContainer = ({ className }: { className?: string }) => {
 	const { t } = useTranslation();
 	const currentYear = new Date().getFullYear();
 
 	return (
-		<footer className={styles.footer}>
-			<div className={styles.container}>
-				<div className={styles.info}>
-					<h2 className={styles.logo}>{MAIN_TITLE}</h2>
-					<p className={styles.description}>{t('footer.description')}</p>
+		<footer className={className}>
+			<div className="container">
+				<div className="info">
+					<h2 className="logo">{MAIN_TITLE}</h2>
+					<p className="description">{t('footer.description')}</p>
 					<Socials />
 				</div>
 				<Contacts />
 			</div>
-			<div className={styles.bottom}>
-				<div className={styles.container}>
+			<div className="bottom">
+				<div className="container">
 					<p>
 						© {currentYear} {MAIN_TITLE}. {t('footer.rights')}
 					</p>
-					<div className={styles.creator}>
-						<FaCode className={styles.creatorIcon} />
+					<div className="creator">
+						<FaCode className="creatorIcon" />
 						<span>created by</span>
 						<a
 							href="https://github.com/KarinaKold"
 							target="_blank"
 							rel="noreferrer"
-							className={styles.authorLink}
+							className="authorLink"
 						>
 							karinakold
 						</a>
@@ -41,73 +41,79 @@ export const Footer = () => {
 	);
 };
 
-// const FooterContainer = ({ className }) => {
-// 	const [city, setCity] = useState('');
-// 	const [temperature, setTemperature] = useState('');
-// 	const [weather, setWeather] = useState('');
+export const Footer = styled(FooterContainer)`
+	background-color: #18181a;
+	color: #ffffff;
+	padding-top: 20px;
+	margin-top: auto;
+	width: 100%;
 
-// 	useEffect(() => {
-// 		fetch(
-// 			'https://api.openweathermap.org/data/2.5/weather?q=Moscow&units=metric&lang=ru&appid=acd4f346c669d7400f4dbbeb7f1350e0',
-// 		)
-// 			.then((res) => res.json())
-// 			.then(({ name, main, weather }) => {
-// 				setCity(name);
-// 				setTemperature(Math.round(main.temp));
-// 				setWeather(weather[0].description);
-// 			});
-// 	}, []);
+	.container {
+		max-width: 1280px;
+		margin: 0 auto;
+		padding: 0 1.5rem;
+		display: grid;
+		grid-template-columns: 2fr 1fr;
+		gap: 40px;
+	}
 
-// 	return (
-// 		<div className={className}>
-// 			<div>
-// 				<div>Блог веб-разработчика</div>
-// 				<div>web@developer.ru</div>
-// 			</div>
-// 			<div>
-// 				<div>
-// 					{city},{' '}
-// 					{new Date().toLocaleString('ru', { day: 'numeric', month: 'long' })}
-// 				</div>
-// 				<div>
-// 					{temperature} градусов, {weather}
-// 				</div>
-// 			</div>
-// 		</div>
-// 	);
-// };
+	.logo {
+		color: #0ea5e9;
+		font-size: 1.5rem;
+		font-weight: 800;
+		margin-bottom: 1rem;
+	}
 
-// export const Footer = () => {
+	.description {
+		color: #aaa;
+		font-style: inherit;
+		font-size: 0.8rem;
+		line-height: 1.6;
+		max-width: 400px;
+		margin-bottom: 1.5rem;
+	}
 
-// const [city, setCity] = useState('');
-// const [temperature, setTemperature] = useState('');
-// const [weather, setWeather] = useState('');
+	.bottom {
+		border-top: 1px solid #333;
+		margin-top: 40px;
+		padding: 10px 0;
+		text-align: center;
+		color: #666;
+		font-size: 0.85rem;
+	}
 
-// useEffect(() => {
-// 	fetch(
-// 		'https://api.openweathermap.org/data/2.5/weather?q=Moscow&units=metric&lang=ru&appid=acd4f346c669d7400f4dbbeb7f1350e0',
-// 	)
-// 		.then((res) => res.json())
-// 		.then(({ name, main, weather }) => {
-// 			setCity(name);
-// setTemperature(Math.round(main.temp));
-// setWeather(weather[0].description);
-// 		});
-// }, []);
+	.creator {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		font-size: 0.85rem;
+		color: #888;
+	}
 
-// return (
-// 	<div>
-// 		<div>
-// 			<div>Блог веб-разработчика</div>
-// 			<div>web@developer.ru</div>
-// 		</div>
-// 		<div>
-// 			<div>
-// 				{city},{' '}
-// 				{new Date().toLocaleString('ru', { day: 'numeric', month: 'long' })}
-// 			</div>
-// 			<div>{/* {temperature} градусов, {weather} */}</div>
-// 		</div>
-// 	</div>
-// );
-// };
+	.creatorIcon {
+		color: gray;
+	}
+
+	.authorLink {
+		color: #fff;
+		text-decoration: none;
+		font-weight: 600;
+		transition: color 0.2s;
+	}
+	.authorLink:hover {
+		color: gray;
+	}
+
+	@media (max-width: 768px) {
+		.container {
+			grid-template-columns: 1fr;
+			text-align: center;
+		}
+
+		.description,
+		.logo {
+			margin-left: auto;
+			margin-right: auto;
+		}
+	}
+`;

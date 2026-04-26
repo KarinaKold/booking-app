@@ -1,10 +1,17 @@
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { FaUserCircle, FaCalendarAlt, FaTrashAlt, FaStar } from 'react-icons/fa';
 import { useGetConfirmation } from '../../../../../../providers';
 import { selectUserId, selectUserRole } from '../../../../../../selectors';
 import { removeCommentAsync } from '../../../../../../actions';
 import { ROLE } from '../../../../../../constants';
 import styled from 'styled-components';
+import type { CommentData } from '../../../../../HomePage/types';
+import { useAppDispatch } from '../../../../../../hooks';
+
+interface CommentProps extends CommentData {
+	className?: string;
+	restaurantId: string;
+}
 
 const CommentContainer = ({
 	className,
@@ -15,13 +22,13 @@ const CommentContainer = ({
 	publishedAt,
 	content,
 	rating,
-}) => {
-	const dispatch = useDispatch();
+}: CommentProps) => {
+	const dispatch = useAppDispatch();
 	const { getConfirmation } = useGetConfirmation();
 	const userRole = useSelector(selectUserRole);
 	const currentUserId = useSelector(selectUserId);
 
-	const onCommentRemove = async (id) => {
+	const onCommentRemove = async (id: string): Promise<void> => {
 		const confirmed = await getConfirmation({
 			title: 'Удалить отзыв',
 			description: 'Вы уверены, что хотите удалить отзыв?',

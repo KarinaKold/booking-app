@@ -1,11 +1,11 @@
-import { useLayoutEffect, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { useAppDispatch } from '../../../../hooks';
 import { SpecialPanel } from '../special-panel/SpecialPanel';
 import { saveRestaurantAsync } from '../../../../actions';
 import { sanitizeContent } from './utils';
 import styled from 'styled-components';
-import { Input } from '../../../../components';
+import { Button, Input } from '../../../../components';
 import {
 	FaGlassMartiniAlt,
 	FaPlus,
@@ -13,7 +13,13 @@ import {
 	FaTrash,
 	FaUserFriends,
 } from 'react-icons/fa';
-import { Button } from '../../../../components/buttons/Button';
+import type { RestaurantData, Table } from '../../../HomePage/types';
+import type { ServerResponse } from '../../../../utils/request';
+
+interface RestaurantFormProps {
+	className?: string;
+	restaurant: RestaurantData;
+}
 
 const RestaurantFormContainer = ({
 	className,
@@ -29,35 +35,23 @@ const RestaurantFormContainer = ({
 		createdAt,
 		tables,
 	},
-}) => {
-	const dispatch = useDispatch();
+}: RestaurantFormProps) => {
+	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
-	const [nameValue, setNameValue] = useState(name);
-	const [addressValue, setAddressValue] = useState(address);
-	const [cuisineValue, setCuisineValue] = useState(cuisine);
-	const [startTime, setStartTime] = useState('10:00');
-	const [endTime, setEndTime] = useState('22:00');
-	// const [workingHoursValue, setWorkingHoursValue] = useState(workingHours);
-	const [hasBarCardValue, setHasBarCardValue] = useState(!!hasBarCard);
-	const [imagesValue, setImagesValue] = useState(images || ['', '', '', '']);
-	const [tablesValue, setTablesValue] = useState(tables || [{ number: 1, seats: 2 }]);
-	const descriptionRef = useRef(null);
-
-	useLayoutEffect(() => {
-		setNameValue(name);
-		setAddressValue(address);
-		setCuisineValue(cuisine);
-		// setWorkingHoursValue(workingHours);
-		setHasBarCardValue(!!hasBarCard);
-		setImagesValue(images?.length ? images : ['', '', '', '']);
-		setTablesValue(tables?.length ? tables : [{ number: 1, seats: 2 }]);
-
-		if (workingHours && workingHours.includes(' - ')) {
-			const [start, end] = workingHours.split(' - ');
-			setStartTime(start);
-			setEndTime(end);
-		}
-	}, [name, address, cuisine, workingHours, images, tables, hasBarCard]);
+	const [nameValue, setNameValue] = useState<string>(name || '');
+	const [addressValue, setAddressValue] = useState<string>(address || '');
+	const [cuisineValue, setCuisineValue] = useState<string>(cuisine || '');
+	const [start, end] = workingHours?.includes(' - ')
+		? workingHours.split(' - ')
+		: ['10:00', '22:00'];
+	const [startTime, setStartTime] = useState<string>(start);
+	const [endTime, setEndTime] = useState<string>(end);
+	const [hasBarCardValue, setHasBarCardValue] = useState<boolean>(!!hasBarCard);
+	const [imagesValue, setImagesValue] = useState<string[]>(images || ['', '', '', '']);
+	const [tablesValue, setTablesValue] = useState<Table[]>(
+		tables?.length ? tables : [{ number: 1, seats: 2 }],
+	);
+	const descriptionRef = useRef<HTMLDivElement>(null);
 
 	const onAddTable = () => {
 		const nextNumber =
@@ -67,11 +61,11 @@ const RestaurantFormContainer = ({
 		setTablesValue([...tablesValue, { number: nextNumber, seats: 2 }]);
 	};
 
-	const onRemoveTable = (number) => {
+	const onRemoveTable = (number: number) => {
 		setTablesValue(tablesValue.filter((t) => t.number !== number));
 	};
 
-	const onSeatsChange = (number, seats) => {
+	const onSeatsChange = (number: number, seats: string) => {
 		setTablesValue(
 			tablesValue.map((t) =>
 				t.number === number ? { ...t, seats: Number(seats) } : t,
@@ -79,11 +73,12 @@ const RestaurantFormContainer = ({
 		);
 	};
 
-	const onSave = () => {
-		const newDescription = sanitizeContent(descriptionRef.current.innerHTML);
+	const onSave = async () => {
+		const descriptionRefElement = descriptionRef.current?.innerHTML || '';
+		const newDescription = sanitizeContent(descriptionRefElement);
 		const formattedWorkingHours = `${startTime} - ${endTime}`;
 
-		dispatch(
+		const response = await (dispatch(
 			saveRestaurantAsync(id, {
 				name: nameValue,
 				address: addressValue,
@@ -94,10 +89,14 @@ const RestaurantFormContainer = ({
 				description: newDescription,
 				tables: tablesValue,
 			}),
-		).then(({ id }) => navigate(`/rest/${id}`));
+		) as unknown as Promise<ServerResponse<RestaurantData>>);
+
+		if (response?.data?.id) {
+			navigate(`/rest/${response.data.id}`);
+		}
 	};
 
-	const onImageChange = (index, value) => {
+	const onImageChange = (index: number, value: string) => {
 		const newImages = [...imagesValue];
 		newImages[index] = value;
 		setImagesValue(newImages);
@@ -139,13 +138,6 @@ const RestaurantFormContainer = ({
 						/>
 					</div>
 				</div>
-
-				{/* <Input
-					value={workingHoursValue}
-					placeholder="Часы работы..."
-					onChange={({ target }) => setWorkingHoursValue(target.value)}
-				/> */}
-
 				<div className="checkbox-wrapper">
 					<label className="checkbox-label">
 						<input
@@ -168,7 +160,6 @@ const RestaurantFormContainer = ({
 					))}
 				</div>
 			</div>
-
 			<div className="tables-constructor">
 				<h3>
 					<FaUserFriends /> Конструктор столов
