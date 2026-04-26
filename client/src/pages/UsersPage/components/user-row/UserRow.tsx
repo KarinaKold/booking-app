@@ -1,8 +1,19 @@
-import { useState } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import { FaSave, FaTrashAlt } from 'react-icons/fa';
 import { TableRow } from '../table-row/TableRow';
 import { request } from '../../../../utils/request';
 import styled from 'styled-components';
+import type { Role } from '../../../../types';
+
+interface UserRowProps {
+	className?: string;
+	id: string;
+	login: string;
+	registeredAt: string;
+	roleId: number;
+	roles: Role[];
+	onUserRemove: () => void;
+}
 
 const UserRowContainer = ({
 	className,
@@ -12,15 +23,15 @@ const UserRowContainer = ({
 	roleId: userRoleId,
 	roles,
 	onUserRemove,
-}) => {
+}: UserRowProps) => {
 	const [initialRoleId, setInitialRoleId] = useState(userRoleId);
 	const [selectedRoleId, setSelectedRoleId] = useState(userRoleId);
 
-	const onRoleChange = ({ target }) => {
+	const onRoleChange = ({ target }: ChangeEvent<HTMLSelectElement>) => {
 		setSelectedRoleId(Number(target.value));
 	};
 
-	const onRoleSave = (userId, newUserRoleId) => {
+	const onRoleSave = (userId: string, newUserRoleId: number) => {
 		request(`/users/${userId}`, 'PATCH', { roleId: newUserRoleId }).then(() => {
 			setInitialRoleId(newUserRoleId);
 		});

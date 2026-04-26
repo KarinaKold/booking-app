@@ -1,8 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type RefObject } from 'react';
 import { FaArrowUp } from 'react-icons/fa';
 import styled from 'styled-components';
 
-const ScrollButton = styled.button`
+interface ScrollButtonProps {
+	$visible: boolean;
+	$isDocked: boolean;
+}
+
+const ScrollButton = styled.button<ScrollButtonProps>`
 	position: fixed;
 	bottom: 40px;
 	left: 40px;
@@ -24,33 +29,37 @@ const ScrollButton = styled.button`
 	opacity: ${({ $visible }) => ($visible ? '1' : '0')};
 	visibility: ${({ $visible }) => ($visible ? 'visible' : 'hidden')};
 
-	&.docked {
+	${({ $isDocked }) =>
+		$isDocked &&
+		`
 		position: absolute;
 		left: calc(40px - (100vw - 100%) / 2);
 		bottom: auto;
 		top: 50%;
 		transform: translateY(-50%);
-	}
+	`}
 
 	&:hover {
 		background-color: #45a049;
 	}
 `;
 
-export const ScrollToTop = ({ paginationRef }) => {
-	const [isVisible, setIsVisible] = useState(false);
-	const [isDocked, setIsDocked] = useState(false);
+interface ScrollToTopProps {
+	paginationRef: RefObject<HTMLDivElement | null>;
+}
+
+export const ScrollToTop = ({ paginationRef }: ScrollToTopProps) => {
+	const [isVisible, setIsVisible] = useState<boolean>(false);
+	const [isDocked, setIsDocked] = useState<boolean>(false);
 
 	useEffect(() => {
-		// после прокрутки 400px
 		const toggleVisibility = () => {
-			if (window.pageYOffset > 400) {
+			if (window.scrollY > 400) {
 				setIsVisible(true);
 			} else {
 				setIsVisible(false);
 			}
 		};
-		// пагинация
 		const observer = new IntersectionObserver(
 			([entry]) => {
 				setIsDocked(entry.isIntersecting);
@@ -58,15 +67,17 @@ export const ScrollToTop = ({ paginationRef }) => {
 			{ threshold: 0.1 },
 		);
 
-		if (paginationRef.current) {
-			observer.observe(paginationRef.current);
+		const refElement = paginationRef.current;
+
+		if (refElement) {
+			observer.observe(refElement);
 		}
 
 		window.addEventListener('scroll', toggleVisibility);
 
 		return () => {
 			window.removeEventListener('scroll', toggleVisibility);
-			if (paginationRef.current) observer.unobserve(paginationRef.current);
+			if (refElement) observer.unobserve(refElement);
 		};
 	}, [paginationRef]);
 
@@ -75,11 +86,7 @@ export const ScrollToTop = ({ paginationRef }) => {
 	};
 
 	return (
-		<ScrollButton
-			$visible={isVisible}
-			onClick={scrollToTop}
-			className={isDocked ? 'docked' : ''}
-		>
+		<ScrollButton $visible={isVisible} $isDocked={isDocked} onClick={scrollToTop}>
 			<FaArrowUp size="20px" />
 		</ScrollButton>
 	);

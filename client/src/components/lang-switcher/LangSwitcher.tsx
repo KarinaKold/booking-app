@@ -2,6 +2,15 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 
+interface Language {
+	code: 'ru' | 'en';
+	label: string;
+}
+
+interface LangOptionProps {
+	$active: boolean;
+}
+
 const SwitcherWrapper = styled.div`
 	position: relative;
 	cursor: pointer;
@@ -25,28 +34,28 @@ const Dropdown = styled.div`
 	min-width: 120px;
 `;
 
-const LangOption = styled.div`
+const LangOption = styled.div<LangOptionProps>`
 	padding: 8px 16px;
 	transition: background 0.2s;
 	&:hover {
 		background: #f0f0f0;
-		color: #ff4d4f;
+		color: #0ea5e9;
 	}
-	${({ $active }) => $active && `font-weight: bold; color: #ff4d4f;`}
+	${({ $active }) => $active && `font-weight: bold; color: #0ea5e9;`}
 `;
 
 export const LangSwitcher = () => {
 	const { i18n } = useTranslation();
-	const [isOpen, setIsOpen] = useState(false);
+	const [isOpen, setIsOpen] = useState<boolean>(false);
 
-	const languages = [
+	const languages: Language[] = [
 		{ code: 'ru', label: 'Русский' },
 		{ code: 'en', label: 'English' },
 	];
 
 	const toggleDropdown = () => setIsOpen(!isOpen);
 
-	const changeLanguage = (code) => {
+	const changeLanguage = (code: Language['code']): void => {
 		i18n.changeLanguage(code);
 		setIsOpen(false);
 	};

@@ -1,44 +1,30 @@
-import { useState, useEffect, useLayoutEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useEffect, useLayoutEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { useMatch, useParams } from 'react-router';
 import { Loader } from '../../components';
-import { selectRestaurant, selectUserId, selectUserRole } from '../../selectors';
+import {
+	selectRestaurant,
+	selectRestaurantError,
+	selectRestaurantLoading,
+	selectUserId,
+	selectUserRole,
+} from '../../selectors';
 import { loadRestaurantAsync, RESET_RESTAURANT_DATA } from '../../actions';
 import { ROLE } from '../../constants';
 import { RestaurantContent } from './components/restaurant-content/RestaurantContent';
 import { RestaurantForm } from './components/restaurant-form/RestaurantForm';
 import { PrivateContent } from '../../components/private-content/PrivateContent';
-import { Error } from '../../components/error/Error';
-
-// export interface Comment {
-// 	id: string;
-// 	author: string;
-// 	authorId: string;
-// 	content: string;
-// 	publishedAt: string;
-// }
-// interface RestaurantData {
-// 	id: string;
-// 	name: string;
-// 	rating: number;
-// 	images: string[];
-// 	address: string;
-// 	workingHours: string;
-// 	cuisine: string;
-// 	description: string;
-// 	tables: Array<{ _id: string; number: number; seats: number }>;
-// 	comments: Comment[];
-// }
+import { Error } from '../../components/shared/error/Error';
+import { useAppDispatch } from '../../hooks';
 
 export const RestaurantPage = () => {
-	const dispatch = useDispatch();
-	const params = useParams();
-	const [error, setError] = useState(null);
-	const [isLoading, setIsLoading] = useState(true);
+	const dispatch = useAppDispatch();
+	const params = useParams<{ id: string }>();
 	const isCreating = !!useMatch('/rest');
 	const isEditing = !!useMatch('/rest/:id/edit');
 	const restaurant = useSelector(selectRestaurant);
-
+	const loading = useSelector(selectRestaurantLoading);
+	const error = useSelector(selectRestaurantError);
 	const userId = useSelector(selectUserId);
 	const userRole = useSelector(selectUserRole);
 
@@ -48,18 +34,14 @@ export const RestaurantPage = () => {
 
 	useEffect(() => {
 		if (isCreating) {
-			setIsLoading(false);
 			return;
 		}
-		dispatch(loadRestaurantAsync(params.id)).then((res) => {
-			if (res.error) {
-				setError(res.error);
-			}
-			setIsLoading(false);
-		});
+		if (params.id) {
+			dispatch(loadRestaurantAsync(params.id));
+		}
 	}, [dispatch, params.id, isCreating]);
 
-	if (isLoading) return <Loader />;
+	if (loading) return <Loader />;
 
 	const isOwner = restaurant.owner === userId;
 	const isAdmin = userRole === ROLE.ADMIN;
@@ -75,9 +57,9 @@ export const RestaurantPage = () => {
 				<RestaurantForm restaurant={restaurant} />
 			</PrivateContent>
 		) : (
-			<div>
-				<RestaurantContent restaurant={restaurant} />
-			</div>
+			<>
+				<RestaurantContent key={restaurant.id || 'new-restaurant'} restaurant={restaurant} />
+			</>
 		);
 	return error ? <Error error={error} /> : SpecificPage;
 };

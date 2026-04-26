@@ -2,6 +2,7 @@ export * from './action-type';
 export * from './set-user';
 export * from './logout';
 export * from './load-restaurant-async';
+export * from './load-restaurants-async';
 export * from './set-restaurant-data';
 export * from './add-comment-async';
 export * from './remove-comment-async';

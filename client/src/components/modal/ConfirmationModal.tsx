@@ -1,16 +1,3 @@
-// export const ConfirmationModal = ({ modalParams }) => {
-// 	return (
-// 		<UIModal isOpen onClose={modalParams.onClose}>
-// 			<UIModal.Header>{modalParams.title}</UIModal.Header>
-// 			<UIModal.Body>{modalParams.description}</UIModal.Body>
-// 			<UIModal.Footer>
-// 				<button onClick={modalParams.onClose}>{modalParams.closeText}</button>
-// 				<button onClick={modalParams.onConfirm}>{modalParams.confirmText}</button>
-// 			</UIModal.Footer>
-// 		</UIModal>
-// 	);
-// };
-
 import { UIModal } from './UI/UIModal';
 import styled from 'styled-components';
 
@@ -61,7 +48,20 @@ const ModalBody = styled.div`
 	line-height: 1.5;
 `;
 
-export const ConfirmationModal = ({ modalParams }) => {
+interface ModalParams {
+	title: string;
+	description: string;
+	onClose: () => void;
+	onConfirm: () => void;
+	closeText?: string;
+	confirmText?: string;
+}
+
+interface ConfirmationModalProps {
+	modalParams: ModalParams;
+}
+
+export const ConfirmationModal = ({ modalParams }: ConfirmationModalProps) => {
 	return (
 		<UIModal isOpen onClose={modalParams.onClose}>
 			<ModalHeader>{modalParams.title}</ModalHeader>

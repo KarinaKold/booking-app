@@ -1,25 +1,21 @@
-import { createContext, useContext, useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { ConfirmationModal } from '../components/modal/ConfirmationModal';
+import { ConfirmationContext, type ConfirmationParams } from './ConfirmationContext';
 
-const ConfirmationContext = createContext();
+interface ModalState extends ConfirmationParams {
+	onClose: () => void;
+	onConfirm: () => void;
+}
 
-export const useGetConfirmation = () => {
-	const context = useContext(ConfirmationContext);
-
-	if (!context) {
-		throw new Error('useConfirmation must be used within a ConfirmationProvider');
-	}
-	return context;
-};
-export const ConfirmationProvider = ({ children }: { children: React.ReactNode }) => {
-	const [modalParams, setModalParams] = useState();
+export const ConfirmationProvider = ({ children }: { children: ReactNode }) => {
+	const [modalParams, setModalParams] = useState<ModalState | null>(null);
 
 	const closeConfirmation = () => {
-		modalParams.onClose();
+		modalParams?.onClose();
 	};
 
-	const getConfirmation = (params) => {
-		return new Promise((resolve, reject) => {
+	const getConfirmation = (params: ConfirmationParams): Promise<boolean> => {
+		return new Promise((resolve) => {
 			setModalParams({
 				...params,
 				onClose: () => {

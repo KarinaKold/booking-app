@@ -1,6 +1,8 @@
-import { useDispatch, useSelector } from 'react-redux';
+import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router';
+import { useSelector } from 'react-redux';
 import { FaRegTrashAlt } from 'react-icons/fa';
+import { useAppDispatch } from '../../../../hooks';
 import { useGetConfirmation } from '../../../../providers';
 import { removeRestaurantAsync } from '../../../../actions';
 // import { checkAccess } from '../../../../utils';
@@ -8,15 +10,28 @@ import { selectRestaurant, selectUserId, selectUserRole } from '../../../../sele
 import { ROLE } from '../../../../constants';
 import styled from 'styled-components';
 
-const SpecialPanelContainer = ({ className, margin, id, createdAt, editButton }) => {
-	const dispatch = useDispatch();
+interface SpecialPanelProps {
+	className?: string;
+	margin?: string;
+	id: string;
+	createdAt: string;
+	editButton: ReactNode;
+}
+
+const SpecialPanelContainer = ({
+	className,
+	id,
+	createdAt,
+	editButton,
+}: SpecialPanelProps) => {
+	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 	const { getConfirmation } = useGetConfirmation();
 	const userRole = useSelector(selectUserRole);
 	const userId = useSelector(selectUserId);
 	const restaurant = useSelector(selectRestaurant);
 
-	const onRestaurantRemove = async (restaurantId) => {
+	const onRestaurantRemove = async (restaurantId: string): Promise<void> => {
 		const confirmed = await getConfirmation({
 			title: 'Удаление ресторана',
 			description:
@@ -26,9 +41,10 @@ const SpecialPanelContainer = ({ className, margin, id, createdAt, editButton })
 		});
 
 		if (confirmed) {
-			dispatch(removeRestaurantAsync(restaurantId)).then(() => {
+			const response = dispatch(removeRestaurantAsync(restaurantId));
+			if (response && !('error' in response && response.error)) {
 				navigate('/');
-			});
+			}
 		}
 	};
 

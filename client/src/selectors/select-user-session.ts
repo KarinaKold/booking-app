@@ -1,1 +1,3 @@
-export const selectUserSession = ({ user }) => user.session;
+import type { RootState } from '../store';
+
+export const selectUserSession = (state: RootState) => state.user.session;

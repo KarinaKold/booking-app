@@ -1,11 +1,6 @@
 import { FaUserFriends } from 'react-icons/fa';
 import styles from './TableGrid.module.css';
-
-interface Table {
-	_id: string;
-	number: number;
-	seats: number;
-}
+import type { Table } from '../../../../../../HomePage/types';
 
 interface TableGridProps {
 	tables: Table[];
@@ -25,7 +20,6 @@ export const TableGrid = ({
 	return (
 		<div className={styles.grid}>
 			{tables.map((table) => {
-				// Вычисляем доступность стола
 				const isBusy = busyTableIds.includes(table.number);
 				const isSelected = selectedId === table.number;
 

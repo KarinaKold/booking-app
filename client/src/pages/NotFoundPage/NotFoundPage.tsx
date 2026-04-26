@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { Button } from '../../components/buttons/Button';
+import { Button } from '../../components/shared/buttons/Button';
 import styled from 'styled-components';
 
 export const NotFoundPage = () => {

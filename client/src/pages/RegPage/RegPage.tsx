@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
@@ -8,10 +8,11 @@ import { Input } from '../../components';
 import { setUser } from '../../actions';
 import { selectUserRole } from '../../selectors';
 import { ROLE } from '../../constants';
-import { useResetForm } from '../../hooks';
-import styled from 'styled-components';
+import { useAppDispatch, useResetForm } from '../../hooks';
 import { request } from '../../utils/request';
-import { Button } from '../../components/buttons/Button';
+import { Button } from '../../components/shared/buttons/Button';
+import styled from 'styled-components';
+import type { UserData } from '../../types';
 
 const regFormSchema = yup.object().shape({
 	login: yup
@@ -32,10 +33,17 @@ const regFormSchema = yup.object().shape({
 	passcheck: yup
 		.string()
 		.required('Заполните повтор пароля')
-		.oneOf([yup.ref('password'), null], 'Повтор пароля не совпадает'),
+		.oneOf([yup.ref<string>('password')], 'Повтор пароля не совпадает'),
 });
 
-const RegistrationContainer = ({ className }) => {
+type RegFormData = yup.InferType<typeof regFormSchema>;
+
+interface AuthResponse {
+	user: UserData | null;
+	error: string | null;
+}
+
+const RegistrationContainer = ({ className }: { className?: string }) => {
 	const {
 		register,
 		reset,
@@ -50,21 +58,30 @@ const RegistrationContainer = ({ className }) => {
 		resolver: yupResolver(regFormSchema),
 	});
 
-	const [serverError, setServerError] = useState(null);
-	const dispatch = useDispatch();
+	const [serverError, setServerError] = useState<string | null>(null);
+	const dispatch = useAppDispatch();
 	const roleId = useSelector(selectUserRole);
 	useResetForm(reset);
 
-	const onSubmit = ({ login, password }) => {
-		request('/register', 'POST', { login, password }).then(({ error, user }) => {
+	const onSubmit = async ({ login, password }: RegFormData) => {
+		try {
+			const { error, user } = await request<AuthResponse>('/register', 'POST', {
+				login,
+				password,
+			});
+
 			if (error) {
 				setServerError(`Ошибка запроса: ${error}`);
 				return;
 			}
 
-			dispatch(setUser(user));
-			sessionStorage.setItem('userData', JSON.stringify(user));
-		});
+			if (user) {
+				dispatch(setUser(user));
+				sessionStorage.setItem('userData', JSON.stringify(user));
+			}
+		} catch {
+			setServerError('Ошибка сервера. Попробуйте позже.');
+		}
 	};
 
 	const formError =
@@ -81,7 +98,7 @@ const RegistrationContainer = ({ className }) => {
 			<form onSubmit={handleSubmit(onSubmit)}>
 				<Input
 					type="text"
-					name="login"
+					id="login"
 					placeholder="Логин..."
 					{...register('login', {
 						onChange: () => setServerError(null),
@@ -89,7 +106,7 @@ const RegistrationContainer = ({ className }) => {
 				/>
 				<Input
 					type="password"
-					name="password"
+					id="password"
 					placeholder="Пароль..."
 					{...register('password', {
 						onChange: () => setServerError(null),
@@ -97,7 +114,7 @@ const RegistrationContainer = ({ className }) => {
 				/>
 				<Input
 					type="password"
-					name="passcheck"
+					id="passcheck"
 					placeholder="Проверка пароля..."
 					{...register('passcheck', {
 						onChange: () => setServerError(null),

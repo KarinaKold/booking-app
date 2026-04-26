@@ -1,6 +1,13 @@
+import type { ReactNode } from 'react';
 import styled from 'styled-components';
 
-const TableRowContainer = ({ className, children }) => (
+interface TableRowProps {
+	children: ReactNode;
+	className?: string;
+	border?: boolean;
+}
+
+const TableRowContainer = ({ className, children }: TableRowProps) => (
 	<div className={className}>{children}</div>
 );
 

@@ -1,40 +1,38 @@
-import { useState } from 'react';
-import {
-	FaChevronUp,
-	FaChevronDown,
-	FaChevronLeft,
-	FaChevronRight,
-	FaTimes,
-} from 'react-icons/fa';
+import { useState, type MouseEvent } from 'react';
+import { FaChevronUp, FaChevronDown } from 'react-icons/fa';
+import { FullscreenViewer } from '../../../../../../components';
 import styled from 'styled-components';
 
-export const Gallery = ({ images, name }) => {
-	const [sideOffset, setSideOffset] = useState(0);
-	const [viewerIndex, setViewerIndex] = useState(null);
+interface GalleryProps {
+	images: string[];
+	name: string;
+}
+
+export const Gallery = ({ images, name }: GalleryProps) => {
+	const [sideOffset, setSideOffset] = useState<number>(0);
+	const [viewerIndex, setViewerIndex] = useState<number | null>(null);
 
 	const itemsToShow = 2;
 	const sideImages = images.slice(1);
 	const canScrollUp = sideOffset > 0;
 	const canScrollDown = sideOffset < sideImages.length - itemsToShow;
 
-	const scrollUp = (e) => {
+	const scrollUp = (e: MouseEvent<HTMLButtonElement>) => {
 		e.stopPropagation();
 		setSideOffset((prev) => prev - 1);
 	};
-	const scrollDown = (e) => {
+	const scrollDown = (e: MouseEvent<HTMLButtonElement>) => {
 		e.stopPropagation();
 		setSideOffset((prev) => prev + 1);
 	};
 
-	const openViewer = (index) => setViewerIndex(index);
+	const openViewer = (index: number) => setViewerIndex(index);
 	const closeViewer = () => setViewerIndex(null);
-	const nextImg = (e) => {
-		e.stopPropagation();
-		setViewerIndex((prev) => (prev + 1) % images.length);
+	const nextImg = () => {
+		setViewerIndex((prev) => prev && ((prev + 1) % images.length));
 	};
-	const prevImg = (e) => {
-		e.stopPropagation();
-		setViewerIndex((prev) => (prev - 1 + images.length) % images.length);
+	const prevImg = () => {
+		setViewerIndex((prev) => prev && ((prev - 1 + images.length) % images.length));
 	};
 
 	return (
@@ -43,7 +41,6 @@ export const Gallery = ({ images, name }) => {
 				<div className="main-image" onClick={() => openViewer(0)}>
 					<img src={images[0]} alt={name} />
 				</div>
-
 				<div className="side-container">
 					<button
 						className="nav-btn"
@@ -52,7 +49,6 @@ export const Gallery = ({ images, name }) => {
 					>
 						<FaChevronUp />
 					</button>
-
 					<div className="images-window">
 						<div
 							className="images-track"
@@ -80,25 +76,25 @@ export const Gallery = ({ images, name }) => {
 					</button>
 				</div>
 			</div>
-			{viewerIndex !== null && (
-				<div className="viewer-overlay">
-					<button className="close-btn" onClick={closeViewer}>
-						<FaTimes />
-					</button>
-					<button className="arrow prev" onClick={prevImg}>
-						<FaChevronLeft />
-					</button>
-					<div className="viewer-content" onClick={(e) => e.stopPropagation()}>
-						<img src={images[viewerIndex]} alt="Fullscreen view" />
-						<div className="viewer-counter">
-							{viewerIndex + 1} / {images.length}
-						</div>
-					</div>
-					<button className="arrow next" onClick={nextImg}>
-						<FaChevronRight />
-					</button>
-				</div>
-			)}
+			<FullscreenViewer
+				isOpen={viewerIndex !== null}
+				onClose={closeViewer}
+				onNext={prevImg}
+				onPrev={nextImg}
+				currentIndex={viewerIndex ?? 0}
+				totalItems={images.length}
+			>
+				<img
+					src={images[viewerIndex ?? 0]}
+					alt="Fullscreen"
+					style={{
+						maxWidth: '100%',
+						maxHeight: '80vh',
+						objectFit: 'contain',
+						borderRadius: '10px',
+					}}
+				/>
+			</FullscreenViewer>
 		</StyledGallery>
 	);
 };
