@@ -13,6 +13,7 @@ export interface UserData {
 
 export interface Restaurant {
 	id: string;
+	_id?: string;
 	name: string;
 	images: string[];
 	description: string;

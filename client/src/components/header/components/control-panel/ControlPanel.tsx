@@ -69,9 +69,6 @@ export const ControlPanelContainer = ({ className }: { className?: string }) => 
 				{isAdmin && (
 					<>
 						<PrivateLink>
-							<Link to="/rest">Create!</Link>
-						</PrivateLink>
-						<PrivateLink>
 							<Link to="/users">Users</Link>
 						</PrivateLink>
 					</>

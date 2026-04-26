@@ -30,8 +30,11 @@ const StyledFavorite = styled(Button)`
 	align-items: center;
 	justify-content: center;
 	z-index: 2;
-
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+	&:focus {
+		box-shadow: none;
+	}
 
 	&:hover {
 		transform: scale(1.1);

@@ -51,7 +51,10 @@ const RestaurantFormContainer = ({
 	const [startTime, setStartTime] = useState<string>(start);
 	const [endTime, setEndTime] = useState<string>(end);
 	const [hasBarCardValue, setHasBarCardValue] = useState<boolean>(!!hasBarCard);
-	const [imagesValue, setImagesValue] = useState<string[]>(images || ['', '', '', '']);
+	// const [imagesValue, setImagesValue] = useState<string[]>(images || ['', '', '', '']);
+	const [imagesValue, setImagesValue] = useState<string[]>(
+		images && images.length > 0 ? images : [''],
+	);
 	const [tablesValue, setTablesValue] = useState<Table[]>(
 		tables?.length ? tables : [{ number: 1, seats: 2 }],
 	);
@@ -77,6 +80,24 @@ const RestaurantFormContainer = ({
 		);
 	};
 
+	const onAddImage = () => {
+		setImagesValue([...imagesValue, '']);
+	};
+
+	const onRemoveImage = (index: number) => {
+		if (imagesValue.length <= 1) {
+			setImagesValue(['']);
+			return;
+		}
+		setImagesValue(imagesValue.filter((_, i) => i !== index));
+	};
+
+	const onImageChange = (index: number, value: string) => {
+		const newImages = [...imagesValue];
+		newImages[index] = value;
+		setImagesValue(newImages);
+	};
+
 	const onSave = async () => {
 		const descriptionRefElement = descriptionRef.current?.innerHTML || '';
 		const newDescription = sanitizeContent(descriptionRefElement);
@@ -98,12 +119,6 @@ const RestaurantFormContainer = ({
 		if (response?.data?.id) {
 			navigate(`/rest/${response.data.id}`);
 		}
-	};
-
-	const onImageChange = (index: number, value: string) => {
-		const newImages = [...imagesValue];
-		newImages[index] = value;
-		setImagesValue(newImages);
 	};
 
 	return (
@@ -153,20 +168,37 @@ const RestaurantFormContainer = ({
 						Барная карта
 					</label>
 				</div>
-				<div className="images-inputs">
-					{imagesValue.map((url, i) => (
-						<Input
-							key={i}
-							value={url}
-							placeholder={`URL изображения ${i + 1}...`}
-							onChange={({ target }) => onImageChange(i, target.value)}
-						/>
-					))}
+				<div className="images-section">
+					<h3>Изображения (URL)</h3>
+					<div className="images-inputs">
+						{imagesValue.map((url, i) => (
+							<div key={i} className="image-input-wrapper">
+								<Input
+									value={url}
+									placeholder={`URL изображения ${i + 1}...`}
+									onChange={({ target }) =>
+										onImageChange(i, target.value)
+									}
+								/>
+								<FaTrash
+									className="delete-image"
+									onClick={() => onRemoveImage(i)}
+								/>
+							</div>
+						))}
+					</div>
+					<Button
+						type="button"
+						onClick={onAddImage}
+						style={{ marginTop: '10px', width: 'fit-content' }}
+					>
+						<FaPlus /> Добавить фото
+					</Button>
 				</div>
 			</div>
 			<div className="tables-constructor">
 				<h3>
-					<FaUserFriends /> Конструктор столов
+					<FaUserFriends /> Столы
 				</h3>
 				<div className="tables-list">
 					{tablesValue.map((table) => (
@@ -221,6 +253,14 @@ export const RestaurantForm = styled(RestaurantFormContainer)`
 		gap: 10px;
 	}
 
+	// & .images-section {
+	// 	margin: 20px 0;
+	// 	padding: 20px;
+	// 	background: #f8f8f8;
+	// 	border-radius: 12px;
+	// 	border: 1px solid #eee;
+	// }
+
 	& .time-inputs-wrapper {
 		margin: 5px 0;
 		padding: 15px;
@@ -229,6 +269,18 @@ export const RestaurantForm = styled(RestaurantFormContainer)`
 		box-shadow:
 			inset 4px 4px 8px #bebebe,
 			inset -4px -4px 8px #ffffff;
+	}
+
+	& .delete-image {
+		display: flex;
+		margin-top: 10px;
+		color: #888;
+		cursor: pointer;
+		transition: color 0.2s;
+	}
+
+	& .delete-image:hover {
+		color: #ff4d4f;
 	}
 
 	& .time-field {
@@ -242,24 +294,16 @@ export const RestaurantForm = styled(RestaurantFormContainer)`
 		width: 300px;
 	}
 
-	// & .time-input {
-	// 	border: none;
-	// 	background: #f0f0f0;
-	// 	padding: 8px 12px;
-	// 	border-radius: 8px;
-	// 	font-size: 16px;
-	// 	font-family: inherit;
-	// 	color: #333;
-	// 	box-shadow: 3px 3px 6px #bebebe, -3px -3px 6px #ffffff;
-	// 	cursor: pointer;
-	// 	outline: none;
-	// }
+	& .images-inputs {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 15px;
+		margin: 15px 0;
+	}
 
-	// & .time-input:focus {
-	// 	box-shadow:
-	// 		inset 2px 2px 5px #bebebe,
-	// 		inset -2px -2px 5px #ffffff;
-	// }
+	& .images-inputs input {
+		margin-bottom: 0;
+	}
 
 	& .time-separator {
 		font-weight: bold;
