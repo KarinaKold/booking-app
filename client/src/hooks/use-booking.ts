@@ -2,23 +2,47 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { request } from '../utils/request';
 import { formatDate, generateTimeSlots } from '../pages/RestaurantPage/utils';
 
-export const useBooking = (restaurantId, workingHours) => {
-	const [isBooking, setIsBooking] = useState(false);
-	const [isSuccess, setIsSuccess] = useState(false);
+export interface BookingState {
+	selectedDate: Date;
+	selectedTime: string | null;
+	selectedTable: number | null;
+	busyTableIds: number[];
+	isBooking: boolean;
+	isSuccess: boolean;
+}
 
-	const [selectedDate, setSelectedDate] = useState(new Date());
-	const [selectedTime, setSelectedTime] = useState('');
-	const [selectedTable, setSelectedTable] = useState(null);
-	const [busyTableIds, setBusyTableIds] = useState([]);
+export interface BookingData {
+	timeSlots: string[];
+	availableDates: Date[];
+}
+export interface BookingHandlers {
+	onDateChange: (date: Date) => void;
+	onTimeSelect: (time: string) => void;
+	onTableSelect: (tableNumber: number) => void;
+	onResetBookingStatus: () => void;
+	onBookingSubmit: () => Promise<void>;
+}
+
+export const useBooking = (restaurantId: string, workingHours: string) => {
+	const [isBooking, setIsBooking] = useState<boolean>(false);
+	const [isSuccess, setIsSuccess] = useState<boolean>(false);
+	const [selectedDate, setSelectedDate] = useState<Date>(() => {
+		const d = new Date();
+		d.setHours(0, 0, 0, 0);
+		return d;
+	});
+	const [selectedTime, setSelectedTime] = useState<string | null>(null);
+	const [selectedTable, setSelectedTable] = useState<number | null>(null);
+	const [busyTableIds, setBusyTableIds] = useState<number[]>([]);
 
 	useEffect(() => {
 		if (selectedDate && selectedTime && restaurantId) {
 			const dateStr = formatDate(selectedDate);
-			request(
+			request<string[]>(
 				`/restaurants/${restaurantId}/busy-tables?date=${dateStr}&time=${selectedTime}`,
 			)
 				.then(({ data }) => {
-					setBusyTableIds(data || []);
+					setBusyTableIds(data ? data.map(Number) : []);
 					setSelectedTable(null);
 				})
 				.catch((e) => console.error('Ошибка загрузки столов:', e));
@@ -34,24 +58,25 @@ export const useBooking = (restaurantId, workingHours) => {
 		() =>
 			Array.from({ length: 14 }, (_, i) => {
 				const date = new Date();
+				date.setHours(0, 0, 0, 0);
 				date.setDate(date.getDate() + i);
-				return formatDate(date);
+				return date;
 			}),
 		[],
 	);
 
-	const onDateChange = useCallback((date) => {
+	const onDateChange = useCallback((date: Date) => {
 		setSelectedDate(date);
 		setSelectedTime('');
 		setSelectedTable(null);
 	}, []);
 
-	const onTimeSelect = useCallback((time) => {
+	const onTimeSelect = useCallback((time: string) => {
 		setSelectedTime(time);
 		setSelectedTable(null);
 	}, []);
 
-	const onTableSelect = useCallback((tableId) => {
+	const onTableSelect = useCallback((tableId: number) => {
 		setSelectedTable(tableId);
 	}, []);
 
@@ -75,10 +100,10 @@ export const useBooking = (restaurantId, workingHours) => {
 			});
 			if (!error) {
 				setIsSuccess(true);
-				const { data } = await request(
+				const { data } = await request<string[]>(
 					`/restaurants/${restaurantId}/busy-tables?date=${dateStr}&time=${selectedTime}`,
 				);
-				setBusyTableIds(data || []);
+				setBusyTableIds(data ? data.map(Number) : []);
 			}
 		} catch (e) {
 			console.log('Ошибка при бронировании:', e);
@@ -95,17 +120,17 @@ export const useBooking = (restaurantId, workingHours) => {
 			busyTableIds,
 			isBooking,
 			isSuccess,
-		},
+		} as BookingState,
 		bookingData: {
 			timeSlots,
 			availableDates,
-		},
+		} as BookingData,
 		bookingHandlers: {
 			onDateChange,
 			onTimeSelect,
 			onTableSelect,
 			onResetBookingStatus,
 			onBookingSubmit,
-		},
+		} as BookingHandlers,
 	};
 };

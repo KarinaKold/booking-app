@@ -2,10 +2,11 @@ import { useNavigate } from 'react-router';
 import { FaEdit } from 'react-icons/fa';
 import { BookingSection, BookingWidget, Comments, Gallery, Info } from './components';
 import { SpecialPanel } from '../special-panel/SpecialPanel';
-import styled from 'styled-components';
 import { useBooking } from '../../../../hooks/use-booking';
+import styled from 'styled-components';
+import type { RestaurantData } from '../../../HomePage/types';
 
-export const RestaurantContent = ({ restaurant }) => {
+export const RestaurantContent = ({ restaurant }: { restaurant: RestaurantData }) => {
 	const navigate = useNavigate();
 	const { bookingState, bookingData, bookingHandlers } = useBooking(
 		restaurant.id,
@@ -24,7 +25,7 @@ export const RestaurantContent = ({ restaurant }) => {
 					editButton={
 						<FaEdit
 							className="edit-icon"
-							onClick={() => navigate(`/rest/${id}/edit`)}
+							onClick={() => navigate(`/rest/${restaurant.id}/edit`)}
 						/>
 					}
 				/>

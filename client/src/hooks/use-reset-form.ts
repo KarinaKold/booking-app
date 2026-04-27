@@ -1,14 +1,20 @@
 import { useEffect } from 'react';
 import { useStore } from 'react-redux';
 
-export const useResetForm = (reset) => {
-	const store = useStore();
+interface AppState {
+	app: {
+		wasLogout: boolean;
+	};
+}
+
+export const useResetForm = (reset: () => void): void => {
+	const store = useStore<AppState>();
 
 	useEffect(() => {
 		let currentWasLogout = store.getState().app.wasLogout;
 
 		return store.subscribe(() => {
-			let prevWasLogout = currentWasLogout;
+			const prevWasLogout = currentWasLogout;
 			currentWasLogout = store.getState().app.wasLogout;
 
 			if (currentWasLogout !== prevWasLogout) {

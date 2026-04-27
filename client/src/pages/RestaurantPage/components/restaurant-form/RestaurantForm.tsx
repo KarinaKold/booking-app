@@ -1,11 +1,11 @@
-import { useLayoutEffect, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { useAppDispatch } from '../../../../hooks';
 import { SpecialPanel } from '../special-panel/SpecialPanel';
 import { saveRestaurantAsync } from '../../../../actions';
 import { sanitizeContent } from './utils';
 import styled from 'styled-components';
-import { Input } from '../../../../components';
+import { Button, Input } from '../../../../components';
 import {
 	FaGlassMartiniAlt,
 	FaPlus,
@@ -13,6 +13,17 @@ import {
 	FaTrash,
 	FaUserFriends,
 } from 'react-icons/fa';
+import type { RestaurantData, Table } from '../../../HomePage/types';
+
+interface RestaurantFormProps {
+	className?: string;
+	restaurant: RestaurantData;
+}
+
+interface RestaurantResponse {
+	data: RestaurantData | null;
+	error: string | null;
+}
 
 const RestaurantFormContainer = ({
 	className,
@@ -28,27 +39,26 @@ const RestaurantFormContainer = ({
 		createdAt,
 		tables,
 	},
-}) => {
-	const dispatch = useDispatch();
+}: RestaurantFormProps) => {
+	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
-	const [nameValue, setNameValue] = useState(name);
-	const [addressValue, setAddressValue] = useState(address);
-	const [cuisineValue, setCuisineValue] = useState(cuisine);
-	const [workingHoursValue, setWorkingHoursValue] = useState(workingHours);
-	const [hasBarCardValue, setHasBarCardValue] = useState(!!hasBarCard);
-	const [imagesValue, setImagesValue] = useState(images || ['', '', '', '']);
-	const [tablesValue, setTablesValue] = useState(tables || [{ number: 1, seats: 2 }]);
-	const descriptionRef = useRef(null);
-
-	useLayoutEffect(() => {
-		setNameValue(name);
-		setAddressValue(address);
-		setCuisineValue(cuisine);
-		setWorkingHoursValue(workingHours);
-		setHasBarCardValue(!!hasBarCard);
-		setImagesValue(images?.length ? images : ['', '', '', '']);
-		setTablesValue(tables?.length ? tables : [{ number: 1, seats: 2 }]);
-	}, [name, address, cuisine, workingHours, images, tables, hasBarCard]);
+	const [nameValue, setNameValue] = useState<string>(name || '');
+	const [addressValue, setAddressValue] = useState<string>(address || '');
+	const [cuisineValue, setCuisineValue] = useState<string>(cuisine || '');
+	const [start, end] = workingHours?.includes(' - ')
+		? workingHours.split(' - ')
+		: ['10:00', '22:00'];
+	const [startTime, setStartTime] = useState<string>(start);
+	const [endTime, setEndTime] = useState<string>(end);
+	const [hasBarCardValue, setHasBarCardValue] = useState<boolean>(!!hasBarCard);
+	// const [imagesValue, setImagesValue] = useState<string[]>(images || ['', '', '', '']);
+	const [imagesValue, setImagesValue] = useState<string[]>(
+		images && images.length > 0 ? images : [''],
+	);
+	const [tablesValue, setTablesValue] = useState<Table[]>(
+		tables?.length ? tables : [{ number: 1, seats: 2 }],
+	);
+	const descriptionRef = useRef<HTMLDivElement>(null);
 
 	const onAddTable = () => {
 		const nextNumber =
@@ -58,11 +68,11 @@ const RestaurantFormContainer = ({
 		setTablesValue([...tablesValue, { number: nextNumber, seats: 2 }]);
 	};
 
-	const onRemoveTable = (number) => {
+	const onRemoveTable = (number: number) => {
 		setTablesValue(tablesValue.filter((t) => t.number !== number));
 	};
 
-	const onSeatsChange = (number, seats) => {
+	const onSeatsChange = (number: number, seats: string) => {
 		setTablesValue(
 			tablesValue.map((t) =>
 				t.number === number ? { ...t, seats: Number(seats) } : t,
@@ -70,26 +80,45 @@ const RestaurantFormContainer = ({
 		);
 	};
 
-	const onSave = () => {
-		const newDescription = sanitizeContent(descriptionRef.current.innerHTML);
-		dispatch(
+	const onAddImage = () => {
+		setImagesValue([...imagesValue, '']);
+	};
+
+	const onRemoveImage = (index: number) => {
+		if (imagesValue.length <= 1) {
+			setImagesValue(['']);
+			return;
+		}
+		setImagesValue(imagesValue.filter((_, i) => i !== index));
+	};
+
+	const onImageChange = (index: number, value: string) => {
+		const newImages = [...imagesValue];
+		newImages[index] = value;
+		setImagesValue(newImages);
+	};
+
+	const onSave = async () => {
+		const descriptionRefElement = descriptionRef.current?.innerHTML || '';
+		const newDescription = sanitizeContent(descriptionRefElement);
+		const formattedWorkingHours = `${startTime} - ${endTime}`;
+
+		const response = await (dispatch(
 			saveRestaurantAsync(id, {
 				name: nameValue,
 				address: addressValue,
 				cuisine: cuisineValue,
-				workingHours: workingHoursValue,
+				workingHours: formattedWorkingHours,
 				hasBarCard: hasBarCardValue,
 				images: imagesValue,
 				description: newDescription,
 				tables: tablesValue,
 			}),
-		).then(({ id }) => navigate(`/rest/${id}`));
-	};
+		) as unknown as RestaurantResponse);
 
-	const onImageChange = (index, value) => {
-		const newImages = [...imagesValue];
-		newImages[index] = value;
-		setImagesValue(newImages);
+		if (response?.data?.id) {
+			navigate(`/rest/${response.data.id}`);
+		}
 	};
 
 	return (
@@ -110,11 +139,24 @@ const RestaurantFormContainer = ({
 					placeholder="Кухня..."
 					onChange={({ target }) => setCuisineValue(target.value)}
 				/>
-				<Input
-					value={workingHoursValue}
-					placeholder="Часы работы..."
-					onChange={({ target }) => setWorkingHoursValue(target.value)}
-				/>
+				<div className="time-inputs-wrapper">
+					<div className="time-field">
+						<label>Часы работы:</label>
+						<Input
+							type="time"
+							value={startTime}
+							onChange={({ target }) => setStartTime(target.value)}
+							className="time-input"
+						/>
+						<span className="time-separator">—</span>
+						<Input
+							type="time"
+							value={endTime}
+							onChange={({ target }) => setEndTime(target.value)}
+							className="time-input"
+						/>
+					</div>
+				</div>
 				<div className="checkbox-wrapper">
 					<label className="checkbox-label">
 						<input
@@ -126,21 +168,37 @@ const RestaurantFormContainer = ({
 						Барная карта
 					</label>
 				</div>
-				<div className="images-inputs">
-					{imagesValue.map((url, i) => (
-						<Input
-							key={i}
-							value={url}
-							placeholder={`URL изображения ${i + 1}...`}
-							onChange={({ target }) => onImageChange(i, target.value)}
-						/>
-					))}
+				<div className="images-section">
+					<h3>Изображения (URL)</h3>
+					<div className="images-inputs">
+						{imagesValue.map((url, i) => (
+							<div key={i} className="image-input-wrapper">
+								<Input
+									value={url}
+									placeholder={`URL изображения ${i + 1}...`}
+									onChange={({ target }) =>
+										onImageChange(i, target.value)
+									}
+								/>
+								<FaTrash
+									className="delete-image"
+									onClick={() => onRemoveImage(i)}
+								/>
+							</div>
+						))}
+					</div>
+					<Button
+						type="button"
+						onClick={onAddImage}
+						style={{ marginTop: '10px', width: 'fit-content' }}
+					>
+						<FaPlus /> Добавить фото
+					</Button>
 				</div>
 			</div>
-
 			<div className="tables-constructor">
 				<h3>
-					<FaUserFriends /> Конструктор столов
+					<FaUserFriends /> Столы
 				</h3>
 				<div className="tables-list">
 					{tablesValue.map((table) => (
@@ -162,9 +220,9 @@ const RestaurantFormContainer = ({
 						</div>
 					))}
 				</div>
-				<button type="button" className="add-table-btn" onClick={onAddTable}>
+				<Button type="button" onClick={onAddTable}>
 					<FaPlus /> Добавить стол
-				</button>
+				</Button>
 			</div>
 			<SpecialPanel
 				id={id}
@@ -185,10 +243,72 @@ const RestaurantFormContainer = ({
 };
 
 export const RestaurantForm = styled(RestaurantFormContainer)`
+	max-width: 900px;
+	margin: 40px auto;
+	padding: 40px;
+
 	& .inputs {
 		display: flex;
 		flex-direction: column;
 		gap: 10px;
+	}
+
+	// & .images-section {
+	// 	margin: 20px 0;
+	// 	padding: 20px;
+	// 	background: #f8f8f8;
+	// 	border-radius: 12px;
+	// 	border: 1px solid #eee;
+	// }
+
+	& .time-inputs-wrapper {
+		margin: 5px 0;
+		padding: 15px;
+		background: #f0f0f0;
+		border-radius: 12px;
+		box-shadow:
+			inset 4px 4px 8px #bebebe,
+			inset -4px -4px 8px #ffffff;
+	}
+
+	& .delete-image {
+		display: flex;
+		margin-top: 10px;
+		color: #888;
+		cursor: pointer;
+		transition: color 0.2s;
+	}
+
+	& .delete-image:hover {
+		color: #ff4d4f;
+	}
+
+	& .time-field {
+		display: flex;
+		align-items: center;
+		gap: 15px;
+		font-weight: 500;
+		color: #555;
+	}
+	& .time-field label {
+		width: 300px;
+	}
+
+	& .images-inputs {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 15px;
+		margin: 15px 0;
+	}
+
+	& .images-inputs input {
+		margin-bottom: 0;
+	}
+
+	& .time-separator {
+		font-weight: bold;
+		color: #888;
+		padding-bottom: 12px;
 	}
 
 	& .checkbox-wrapper {
@@ -223,7 +343,7 @@ export const RestaurantForm = styled(RestaurantFormContainer)`
 	}
 
 	& .description-text {
-		border: 1px solid #ccc;
+		border: 3px solid #ccc;
 		padding: 15px;
 		min-height: 150px;
 		font-size: 16px;
@@ -249,20 +369,38 @@ export const RestaurantForm = styled(RestaurantFormContainer)`
 		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 	}
 
-	& .table-item input {
-		width: 50px;
-		padding: 3px;
+	& .table-item {
+		display: flex;
+		align-items: center;
+		gap: 15px;
+		margin-bottom: 15px;
+		padding: 10px 20px;
+		background: #f0f0f0;
+		border-radius: 12px;
+		box-shadow:
+			4px 4px 8px #bebebe,
+			-4px -4px 8px #ffffff;
+
+		span {
+			font-weight: 600;
+			min-width: 80px;
+		}
+		input {
+			border: none;
+			background: #f0f0f0;
+			padding: 8px;
+			border-radius: 8px;
+			box-shadow:
+				inset 2px 2px 5px #bebebe,
+				inset -2px -2px 5px #ffffff;
+			width: 60px;
+			text-align: center;
+		}
 	}
+
 	& .delete-table {
 		color: #cc0000;
 		cursor: pointer;
-	}
-	& .add-table-btn {
-		margin-top: 10px;
-		cursor: pointer;
-		display: flex;
-		align-items: center;
-		gap: 5px;
 	}
 
 	& img {

@@ -1,6 +1,16 @@
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
-import { Button } from '../../../../../../components/buttons/Button';
+import { Button } from '../../../../../../components/shared/buttons/Button';
+
+interface BookingWidgetProps {
+	selectedDate: Date;
+	selectedTime: string | null;
+	selectedTable: number | null;
+	isBooking: boolean;
+	isSuccess: boolean;
+	onResetSuccess: () => void;
+	onBooking: () => void;
+}
 
 export const BookingWidget = ({
 	selectedDate,
@@ -10,7 +20,7 @@ export const BookingWidget = ({
 	isSuccess,
 	onResetSuccess,
 	onBooking,
-}) => {
+}: BookingWidgetProps) => {
 	const { t } = useTranslation();
 
 	return (

@@ -33,5 +33,56 @@
 		"title": "404 - Page Not Found",
 		"description": "Sorry, the page you are looking for does not exist.",
 		"backHome": "Back to Home"
+	},
+	"auth": {
+		"title": "Authorization",
+		"login": "Sign in",
+		"register": "Sign up",
+		"placeholder_login": "Login...",
+		"placeholder_password": "Password...",
+		"error": {
+			"login_required": "Login is required",
+			"login_matches": "Invalid login. Only letters and numbers are allowed",
+			"login_min": "Minimum 3 characters",
+			"login_max": "Maximum 15 characters",
+			"password_required": "Password is required",
+			"password_matches": "Invalid password. Letters, numbers and # % are allowed",
+			"password_min": "Minimum 6 characters",
+			"password_max": "Maximum 30 characters",
+			"server_error": "Request error",
+			"unexpected_error": "An unexpected error occurred"
+		}
+	},
+	"profile": {
+		"my_bookings": "My Bookings",
+		"favorites": "Favorites",
+		"my_restaurants": "My Restaurants",
+		"no_bookings": "You have no bookings yet.",
+		"no_favorites": "No favorite restaurants yet.",
+		"no_owned": "You haven't created any restaurants yet.",
+		"add_restaurant": "Add Restaurant"
+	},
+	"restaurant": {
+		"date": "Date",
+		"time": "Time",
+		"table": "Table",
+		"select_datetime": "Select Date and Time",
+		"choose_table": "Choose a Table",
+		"ready": "Done!",
+		"booked_at": "Table №{{table}} is booked for {{time}}",
+		"book_more": "Book more",
+		"your_booking": "Your booking",
+		"book_btn": "Book now",
+		"bar_card": "Bar menu available",
+		"about": "About"
+	},
+	"common": {
+		"confirm_cancel_title": "Cancel Booking",
+		"confirm_cancel_desc": "Are you sure you want to cancel?",
+		"yes": "Yes",
+		"no": "No",
+		"cancel_booking": "Cancel booking",
+		"unknown_restaurant": "Unknown restaurant",
+		"not_selected": "not selected"
 	}
 }

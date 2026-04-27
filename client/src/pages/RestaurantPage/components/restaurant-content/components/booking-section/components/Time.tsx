@@ -2,7 +2,7 @@ import styles from './Time.module.css';
 
 interface TimeGridProps {
 	slots: string[];
-	selectedTime: string;
+	selectedTime: string | null;
 	onSelect: (time: string) => void;
 }
 

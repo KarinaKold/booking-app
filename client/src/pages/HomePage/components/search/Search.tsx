@@ -1,8 +1,15 @@
-import styled from 'styled-components';
+import type { ChangeEvent } from 'react';
 import { FaSearch } from 'react-icons/fa';
 import { Input } from '../../../../components';
+import styled from 'styled-components';
 
-export const SearchContainer = ({ className, searchPhrase, onChange }) => {
+interface SearchProps {
+	className?: string;
+	searchPhrase: string;
+	onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+}
+
+export const SearchContainer = ({ className, searchPhrase, onChange }: SearchProps) => {
 	return (
 		<div className={className} id="restaurant-list-start">
 			<Input

@@ -65,7 +65,6 @@ async function updateFavorites(userId, restaurantId) {
     throw new Error("Пользователь не найден");
   }
 
-  // const isFavorite = user.favorites.includes(restaurantId);
   const isFavorite = user.favorites.some(
     (fav) =>
       (fav._id ? fav._id.toString() : fav.toString()) ===
@@ -77,19 +76,6 @@ async function updateFavorites(userId, restaurantId) {
     : { $addToSet: { favorites: restaurantId } };
 
   await User.findByIdAndUpdate(userId, update);
-  // if (isFavorite) {
-  //   await User.findByIdAndUpdate(userId, {
-  //     $pull: { favorites: restaurantId },
-  //   });
-  // } else {
-  //   await User.findByIdAndUpdate(userId, {
-  //     $addToSet: { favorites: restaurantId },
-  //   });
-  // }
-
-  // const updatedUser = await User.findById(userId, update, {
-  //   new: true,
-  // }).populate("favorites");
 
   const updatedUser = await User.findById(userId);
   return updatedUser.favorites;

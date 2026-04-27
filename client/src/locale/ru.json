@@ -33,5 +33,56 @@
 		"title": "404 - Страница не найдена",
 		"description": "К сожалению, запрашиваемая страница не существует.",
 		"backHome": "На главную"
+	},
+	"auth": {
+		"title": "Авторизация",
+		"login": "Войти",
+		"register": "Регистрация",
+		"placeholder_login": "Логин...",
+		"placeholder_password": "Пароль...",
+		"error": {
+			"login_required": "Заполните логин",
+			"login_matches": "Неверно заполнен логин. Допускаются только буквы и цифры",
+			"login_min": "Минимум 3 символа",
+			"login_max": "Максимум 15 символов",
+			"password_required": "Заполните пароль",
+			"password_matches": "Неверно заполнен пароль. Допускаются буквы, цифры и знаки # %",
+			"password_min": "Минимум 6 символов",
+			"password_max": "Максимум 30 символов",
+			"server_error": "Ошибка запроса",
+			"unexpected_error": "Произошла непредвиденная ошибка"
+		}
+	},
+	"profile": {
+		"my_bookings": "Мои бронирования",
+		"favorites": "Избранное",
+		"my_restaurants": "Мои заведения",
+		"no_bookings": "У вас пока нет бронирований.",
+		"no_favorites": "Список избранного пуст.",
+		"no_owned": "У вас еще нет созданных заведений.",
+		"add_restaurant": "Добавить заведение"
+	},
+	"restaurant": {
+		"date": "Дата",
+		"time": "Время",
+		"table": "Стол",
+		"select_datetime": "Выберите дату и время",
+		"choose_table": "Выберите столик",
+		"ready": "Готово!",
+		"booked_at": "Стол №{{table}} забронирован на {{time}}",
+		"book_more": "Забронировать еще",
+		"your_booking": "Ваше бронирование",
+		"book_btn": "Забронировать",
+		"bar_card": "Есть барная карта",
+		"about": "О заведении"
+	},
+	"common": {
+		"confirm_cancel_title": "Отмена бронирования",
+		"confirm_cancel_desc": "Вы уверены?",
+		"yes": "Да",
+		"no": "Нет",
+		"cancel_booking": "Отменить бронь",
+		"unknown_restaurant": "Неизвестное заведение",
+		"not_selected": "не выбрано"
 	}
 }

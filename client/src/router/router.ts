@@ -20,9 +20,9 @@ export const router = createBrowserRouter([
 			{ path: 'register', Component: RegPage },
 			{ path: 'users', Component: UsersPage },
 			{ path: 'profile', Component: ProfilePage },
-			{ path: 'rest', Component: RestaurantPage }, //создание
-			{ path: 'rest/:id', Component: RestaurantPage }, //ресторан
-			{ path: 'rest/:id/edit', Component: RestaurantPage }, //редактирование
+			{ path: 'rest', Component: RestaurantPage },
+			{ path: 'rest/:id', Component: RestaurantPage },
+			{ path: 'rest/:id/edit', Component: RestaurantPage },
 			{
 				path: '*',
 				Component: NotFoundPage,
