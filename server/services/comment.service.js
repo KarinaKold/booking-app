@@ -1,7 +1,7 @@
 const Comment = require("../models/Comment");
 const Restaurant = require("../models/Restaurant");
 
-const updateRestaurantRating = async (restaurantId) => {
+async function updateRestaurantRating(restaurantId) {
   const allComments = await Comment.find({ restaurant: restaurantId });
 
   if (allComments.length === 0) {
@@ -15,7 +15,7 @@ const updateRestaurantRating = async (restaurantId) => {
   const roundedRating = Math.round(averageRating * 10) / 10;
 
   await Restaurant.findByIdAndUpdate(restaurantId, { rating: roundedRating });
-};
+}
 
 async function addComment(restaurantId, commentData) {
   const newComment = await Comment.create({

@@ -33,8 +33,21 @@ async function deleteBooking(bookingId, userId, userRole) {
   await Booking.deleteOne({ _id: bookingId });
 }
 
+async function getUserBookings(userId) {
+  const booking = await Booking.find({ user: userId })
+    .populate("restaurant", "name address")
+    .sort({ createdAt: -1 });
+
+  if (!booking) {
+    throw new Error("Бронирование не найдено");
+  }
+
+  return booking;
+}
+
 module.exports = {
   getBusyTables,
   addBooking,
   deleteBooking,
+  getUserBookings,
 };
