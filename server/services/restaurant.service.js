@@ -1,5 +1,6 @@
-const Restaurant = require("../models/Restaurant");
 const mongoose = require("mongoose");
+const Restaurant = require("../models/Restaurant");
+
 async function addRestaurant(restaurant) {
   const newRestaurant = await Restaurant.create(restaurant);
 
@@ -24,7 +25,7 @@ async function editRestaurant(id, restaurant) {
   return newRestaurant;
 }
 
-function deleteRestaurant(id) {
+async function deleteRestaurant(id) {
   return Restaurant.deleteOne({ _id: id });
 }
 
@@ -50,11 +51,10 @@ async function getRestaurants(params) {
   let restaurants = await Restaurant.find(query).sort({
     [sortBy]: sortDirection,
   });
-  // let restaurants = await Restaurant.find(query).sort({ createdAt: -1 });
 
   if (openNow === "true" || openNow === true) {
     const now = new Date();
-    const currentTime = now.getHours() * 60 + now.getMinutes(); // Текущее время в минутах
+    const currentTime = now.getHours() * 60 + now.getMinutes();
 
     restaurants = restaurants.filter((rest) => {
       if (!rest.workingHours || !rest.workingHours.includes(" - "))
@@ -84,18 +84,24 @@ async function getRestaurants(params) {
 
   const count = restaurants.length;
   const pagedRestaurants = restaurants.slice((page - 1) * limit, page * limit);
-  // const pagedRestaurants = restaurants.skip((page - 1) * limit);
+
   return {
     restaurants: pagedRestaurants,
     lastPage: Math.ceil(count / limit),
   };
 }
 
-function getRestaurant(id) {
-  return Restaurant.findById(id).populate({
+async function getRestaurant(id) {
+  const restaurant = await Restaurant.findById(id).populate({
     path: "comments",
     populate: "author",
   });
+
+  if (!restaurant) {
+    throw new Error("Ресторан не найден");
+  }
+
+  return restaurant;
 }
 
 async function getOwnRestaurants(ownerId) {
@@ -106,29 +112,26 @@ async function getOwnRestaurants(ownerId) {
   return restaurants;
 }
 
-const getFavoritesDetails = async (favoriteIds) => {
+async function getFavoritesDetails(favoriteIds) {
   try {
-    // Если избранного нет, сразу возвращаем пустой массив
     if (!favoriteIds || favoriteIds.length === 0) {
       return [];
     }
-    // Очищаем массив
     const validIds = favoriteIds
       .filter((id) => mongoose.Types.ObjectId.isValid(id))
       .map((id) => new mongoose.Types.ObjectId(id));
-    // Выполняем поиск
     return await Restaurant.find({
       _id: { $in: validIds },
     });
   } catch (error) {
-    throw new Error("Ошибка базы данных при получении избранного");
+    throw new Error("Ошибка при получении избранного");
   }
-};
+}
 
-const getFiltersMetadata = async () => {
+async function getFiltersMetadata() {
   const cuisines = await Restaurant.distinct("cuisine");
   return cuisines.filter(Boolean);
-};
+}
 
 module.exports = {
   addRestaurant,
