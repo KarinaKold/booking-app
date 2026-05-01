@@ -94,6 +94,7 @@ async function getRestaurants(params) {
 async function getRestaurant(id) {
   const restaurant = await Restaurant.findById(id).populate({
     path: "comments",
+    options: { sort: { createdAt: -1 } },
     populate: "author",
   });
 

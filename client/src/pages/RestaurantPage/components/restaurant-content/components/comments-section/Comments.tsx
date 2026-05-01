@@ -2,13 +2,17 @@ import { useState, type ChangeEvent } from 'react';
 import { Link } from 'react-router';
 import { useSelector } from 'react-redux';
 import { FaPaperPlane, FaStar } from 'react-icons/fa';
-import { selectUserRole } from '../../../../../../selectors';
+import { useAppDispatch } from '../../../../../../hooks';
+import {
+	selectCommentError,
+	selectCommentSubmitting,
+	selectUserRole,
+} from '../../../../../../selectors';
 import { addCommentAsync } from '../../../../../../actions';
 import { ROLE } from '../../../../../../constants';
 import { Comment as CommentItem } from './Comment';
-import styled from 'styled-components';
 import type { CommentData } from '../../../../../HomePage/types';
-import { useAppDispatch } from '../../../../../../hooks';
+import styled from 'styled-components';
 
 interface CommentsProps {
 	className?: string;
@@ -19,19 +23,27 @@ interface CommentsProps {
 const CommentsContainer = ({ className, comments, restaurantId }: CommentsProps) => {
 	const dispatch = useAppDispatch();
 	const userRole = useSelector(selectUserRole);
+	const isCommentSubmitting = useSelector(selectCommentSubmitting);
+	const commentError = useSelector(selectCommentError);
 	const [newComment, setNewComment] = useState<string>('');
 	const [rating, setRating] = useState<number>(5);
 	const [hoverRating, setHoverRating] = useState<number>(0);
 
-	const onNewCommentAdd = (
+	const onNewCommentAdd = async (
 		restaurantId: string,
 		content: string,
 		ratingValue: number,
-	): void => {
-		if (!content.trim()) return;
-		dispatch(addCommentAsync(restaurantId, { content, rating: ratingValue }));
-		setNewComment('');
-		setRating(5);
+	) => {
+		if (!content.trim() || isCommentSubmitting) return;
+
+		const response = await dispatch(
+			addCommentAsync(restaurantId, { content, rating: ratingValue }),
+		);
+
+		if (response && !response.error) {
+			setNewComment('');
+			setRating(5);
+		}
 	};
 
 	const isGuest = userRole === ROLE.GUEST;
@@ -69,15 +81,27 @@ const CommentsContainer = ({ className, comments, restaurantId }: CommentsProps)
 							name="comment"
 							placeholder="Оставить отзыв..."
 							onChange={onTextareaChange}
+							disabled={isCommentSubmitting}
 						></textarea>
 						<button
+							type="button"
 							className="send-button"
-							onClick={() =>
-								onNewCommentAdd(restaurantId, newComment, rating)
-							}
+							disabled={isCommentSubmitting}
+							onClick={(e) => {
+								e.preventDefault(); // Блокируем нативное событие
+								onNewCommentAdd(restaurantId, newComment, rating);
+							}}
+							// onClick={() =>
+							// 	onNewCommentAdd(restaurantId, newComment, rating)
+							// }
 						>
-							<FaPaperPlane size="18px" />
+							{isCommentSubmitting ? (
+								<FaPaperPlane size="18px" style={{ opacity: 0.5 }} />
+							) : (
+								<FaPaperPlane size="18px" />
+							)}
 						</button>
+						{commentError && <div className="error">{commentError}</div>}
 					</div>
 				</>
 			)}
@@ -170,7 +194,7 @@ export const Comments = styled(CommentsContainer)`
 
 	& .login-link a {
 		text-decoration: none;
-		color: #0ea5e9;;
+		color: #0ea5e9;
 		font-weight: 600;
 	}
 `;

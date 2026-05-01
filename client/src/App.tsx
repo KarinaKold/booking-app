@@ -1,11 +1,11 @@
 import { useLayoutEffect } from 'react';
-import { useDispatch } from 'react-redux';
 import { Outlet } from 'react-router';
+import { useAppDispatch } from './hooks';
 import { Header, Footer } from './components';
 import { setUser } from './actions';
 
 export const App = () => {
-	const dispatch = useDispatch();
+	const dispatch = useAppDispatch();
 
 	useLayoutEffect(() => {
 		const currentUserDataJSON = sessionStorage.getItem('userData');

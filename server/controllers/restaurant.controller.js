@@ -15,7 +15,9 @@ async function getFavoritesDetails(req, res) {
     );
     res.send({ data: restaurants.map(mapRestaurant) });
   } catch (e) {
-    res.status(500).send({ error: "Не удалось загрузить детали избранного" });
+    res
+      .status(500)
+      .send({ error: e.message || "Не удалось загрузить детали избранного" });
   }
 }
 
@@ -24,7 +26,9 @@ async function getFiltersMetadata(req, res) {
     const cuisines = await restaurantService.getFiltersMetadata();
     res.send({ data: { cuisines } });
   } catch (e) {
-    res.status(500).send({ error: "Не удалось загрузить данные фильтров" });
+    res
+      .status(500)
+      .send({ error: e.message || "Не удалось загрузить данные фильтров" });
   }
 }
 
@@ -40,7 +44,9 @@ async function getRestaurants(req, res) {
       },
     });
   } catch (e) {
-    res.status(500).send({ error: "Ошибка при получении списка ресторанов" });
+    res
+      .status(500)
+      .send({ error: e.message || "Ошибка при получении списка ресторанов" });
   }
 }
 
@@ -51,7 +57,9 @@ async function getOwnRestaurants(req, res) {
     );
     res.send({ data: myRestaurants.map(mapRestaurant) });
   } catch (e) {
-    res.status(500).send({ error: "Не удалось загрузить ваши рестораны" });
+    res
+      .status(500)
+      .send({ error: e.message || "Не удалось загрузить ваши рестораны" });
   }
 }
 
@@ -60,7 +68,7 @@ async function getRestaurant(req, res) {
     const restaurant = await restaurantService.getRestaurant(req.params.id);
     res.send({ data: mapRestaurant(restaurant) });
   } catch (e) {
-    res.status(404).send({ error: "Ресторан не найден" });
+    res.status(404).send({ error: e.message || "Ресторан не найден" });
   }
 }
 
@@ -72,7 +80,9 @@ async function addRestaurant(req, res) {
     });
     res.send({ data: mapRestaurant(newRestaurant), error: null });
   } catch (e) {
-    res.status(400).send({ error: "Не удалось добавить ресторан" });
+    res
+      .status(400)
+      .send({ error: e.message || "Не удалось добавить ресторан" });
   }
 }
 
@@ -84,7 +94,9 @@ async function editRestaurant(req, res) {
     );
     res.send({ data: mapRestaurant(updatedRestaurant), error: null });
   } catch (e) {
-    res.status(400).send({ error: "Не удалось обновить данные ресторана" });
+    res
+      .status(400)
+      .send({ error: e.message || "Не удалось обновить данные ресторана" });
   }
 }
 
@@ -93,7 +105,7 @@ async function deleteRestaurant(req, res) {
     await restaurantService.deleteRestaurant(req.params.id);
     res.send({ error: null });
   } catch (e) {
-    res.status(400).send({ error: "Не удалось удалить ресторан" });
+    res.status(400).send({ error: e.message || "Не удалось удалить ресторан" });
   }
 }
 

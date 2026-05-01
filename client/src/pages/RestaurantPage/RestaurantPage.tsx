@@ -41,7 +41,13 @@ export const RestaurantPage = () => {
 		}
 	}, [dispatch, params.id, isCreating]);
 
-	if (loading) return <Loader />;
+	if (loading && !restaurant.id && !isCreating) {
+		return <Loader />;
+	}
+
+	if (error && !restaurant.id) {
+		return <Error error={error} />;
+	}
 
 	const isOwner = restaurant.owner === userId;
 	const isAdmin = userRole === ROLE.ADMIN;
@@ -57,9 +63,10 @@ export const RestaurantPage = () => {
 				<RestaurantForm restaurant={restaurant} />
 			</PrivateContent>
 		) : (
-			<>
-				<RestaurantContent key={restaurant.id || 'new-restaurant'} restaurant={restaurant} />
-			</>
+			<RestaurantContent
+				key={restaurant.id || 'new-restaurant'}
+				restaurant={restaurant}
+			/>
 		);
 	return error ? <Error error={error} /> : SpecificPage;
 };

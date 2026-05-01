@@ -6,8 +6,9 @@ async function updateRestaurantRating(restaurantId) {
 
   if (allComments.length === 0) {
     await Restaurant.findByIdAndUpdate(restaurantId, { rating: 0 });
-    return;
+    return 0;
   }
+
   const totalRating = allComments.reduce((acc, comment) => {
     return acc + (comment.rating || 0);
   }, 0);
@@ -15,6 +16,7 @@ async function updateRestaurantRating(restaurantId) {
   const roundedRating = Math.round(averageRating * 10) / 10;
 
   await Restaurant.findByIdAndUpdate(restaurantId, { rating: roundedRating });
+  return roundedRating;
 }
 
 async function addComment(restaurantId, commentData) {
@@ -23,21 +25,36 @@ async function addComment(restaurantId, commentData) {
     restaurant: restaurantId,
   });
 
-  await Restaurant.findByIdAndUpdate(restaurantId, {
+  const updatedRating = await updateRestaurantRating(restaurantId);
+
+  const updatedRestaurant = await Restaurant.findByIdAndUpdate(restaurantId, {
     $push: { comments: newComment._id },
   });
-  await updateRestaurantRating(restaurantId);
+
+  if (!updatedRestaurant) {
+    throw new Error("Не удалось обновить данные ресторана");
+  }
+
   await newComment.populate("author");
 
-  return newComment;
+  return {
+    comment: newComment,
+    newRating: updatedRating,
+  };
 }
 
 async function deleteComment(restaurantId, commentId) {
-  await Comment.deleteOne({ _id: commentId });
+  const deleteResult = await Comment.deleteOne({ _id: commentId });
+
+  if (deleteResult.deletedCount === 0) {
+    throw new Error("Комментарий не найден");
+  }
+
   await Restaurant.findByIdAndUpdate(restaurantId, {
     $pull: { comments: commentId },
   });
-  await updateRestaurantRating(restaurantId);
+
+  return await updateRestaurantRating(restaurantId);
 }
 
 module.exports = {

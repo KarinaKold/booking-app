@@ -29,9 +29,6 @@ export const BookingWidget = ({
 				{isSuccess ? (
 					<div className="success-message">
 						<h4>{t('restaurant.ready', 'Готово!')}</h4>
-						{/* <p>
-							Стол №{selectedTable} забронирован на {selectedTime}
-						</p> */}
 						<p>
 							{t(
 								'restaurant.booked_at',

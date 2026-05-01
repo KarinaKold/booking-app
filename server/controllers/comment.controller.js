@@ -3,14 +3,25 @@ const mapComment = require("../helpers/mapComment");
 
 async function addComment(req, res) {
   try {
-    const newComment = await commentService.addComment(req.params.id, {
-      content: req.body.content,
-      rating: req.body.rating,
-      author: req.user.id,
+    const { comment, newRating } = await commentService.addComment(
+      req.params.id,
+      {
+        content: req.body.content,
+        rating: req.body.rating,
+        author: req.user.id,
+      },
+    );
+
+    res.send({
+      data: {
+        comment: mapComment(comment),
+        updatedRating: newRating,
+      },
     });
-    res.send({ data: mapComment(newComment) });
   } catch (e) {
-    res.status(500).send({ error: "Не удалось добавить комментарий" });
+    res
+      .status(500)
+      .send({ error: e.message || "Не удалось добавить комментарий" });
   }
 }
 
@@ -20,9 +31,15 @@ async function deleteComment(req, res) {
       req.params.restaurantId,
       req.params.commentId,
     );
-    res.send({ error: null });
+
+    res.send({
+      data: { updatedRating: newRating },
+      error: null,
+    });
   } catch (e) {
-    res.status(400).send({ error: "Не удалось удалить комментарий" });
+    res
+      .status(500)
+      .send({ error: e.message || "Не удалось удалить комментарий" });
   }
 }
 

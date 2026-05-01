@@ -1,12 +1,12 @@
 import { useSelector } from 'react-redux';
 import { FaUserCircle, FaCalendarAlt, FaTrashAlt, FaStar } from 'react-icons/fa';
 import { useGetConfirmation } from '../../../../../../providers';
+import { useAppDispatch } from '../../../../../../hooks';
 import { selectUserId, selectUserRole } from '../../../../../../selectors';
 import { removeCommentAsync } from '../../../../../../actions';
 import { ROLE } from '../../../../../../constants';
 import styled from 'styled-components';
 import type { CommentData } from '../../../../../HomePage/types';
-import { useAppDispatch } from '../../../../../../hooks';
 
 interface CommentProps extends CommentData {
 	className?: string;

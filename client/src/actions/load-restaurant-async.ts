@@ -11,9 +11,11 @@ export const loadRestaurantAsync =
 			const response = await request<RestaurantData>(
 				`/restaurants/${restaurantId}`,
 			);
+
 			if (response.data) {
 				dispatch(setRestaurantData(response.data));
 			}
+
 			if (response.error) {
 				dispatch({
 					type: ACTION_TYPE.SET_RESTAURANT_FAILURE,
@@ -21,10 +23,12 @@ export const loadRestaurantAsync =
 				});
 				return { error: response.error };
 			}
+
 			return response;
 		} catch (err: unknown) {
 			const errorMessage = err instanceof Error ? err.message : 'Ошибка сервера';
 			dispatch({ type: ACTION_TYPE.SET_RESTAURANT_FAILURE, payload: errorMessage });
+
 			return { data: null, error: errorMessage };
 		}
 	};
