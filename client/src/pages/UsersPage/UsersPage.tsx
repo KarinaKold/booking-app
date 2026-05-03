@@ -1,51 +1,61 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
 import { useSelector } from 'react-redux';
+import { useAppDispatch } from '../../hooks';
 import { useGetConfirmation } from '../../providers';
-import { UserRow, TableRow } from './components';
-import { ROLE } from '../../constants';
 import { checkAccess } from '../../utils';
-import { selectUserRole } from '../../selectors';
-import { request } from '../../utils/request';
 import { PrivateContent } from '../../components/private-content/PrivateContent';
-import styled from 'styled-components';
+import { UserRow, TableRow } from './components';
+import { request } from '../../utils/request';
+import {
+	selectUserRole,
+	selectUsersData,
+	selectUsersDataError,
+	selectUsersDataLastPage,
+	selectUsersDataLoading,
+	selectUsersRoles,
+} from '../../selectors';
+import { loadUsersAsync } from '../../actions';
+import { ROLE } from '../../constants';
 import type { UserData } from '../../types';
+import styled from 'styled-components';
+import { Loader } from '../../components';
+import { Pagination, Search } from '../HomePage/components';
+import { debounce } from '../HomePage/utils';
 
 interface Role {
 	id: number;
 	name: string;
 }
 
-interface ServerResponse<T> {
-	data: T;
-	error: string | null;
-}
+const PAGINATION_LIMIT = 5;
 
 const UsersContainer = ({ className }: { className?: string }) => {
+	const dispatch = useAppDispatch();
 	const { getConfirmation } = useGetConfirmation();
+	const users = useSelector(selectUsersData);
+	const roles = useSelector(selectUsersRoles);
+	const lastPage = useSelector(selectUsersDataLastPage);
+	const loading = useSelector(selectUsersDataLoading);
+	const errorMessage = useSelector(selectUsersDataError);
 	const userRole = useSelector(selectUserRole);
-	const [users, setUsers] = useState<UserData[]>([]);
-	const [roles, setRoles] = useState<Role[]>([]);
-	const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+	const [page, setPage] = useState(1);
+	const [searchPhrase, setSearchPhrase] = useState('');
+	const [shouldSearch, setShouldSearch] = useState('');
+	const [sort, setSort] = useState({ field: 'createdAt', order: 'desc' });
 	const [shouldUpdateUserList, setShouldUpdateUserList] = useState(false);
+
+	const [removeError, setRemoveError] = useState<string | null>(null);
 
 	useEffect(() => {
 		if (!checkAccess([ROLE.ADMIN], userRole)) return;
-
-		Promise.all([
-			request<ServerResponse<UserData[]>>('/users'),
-			request<ServerResponse<Role[]>>('/users/roles'),
-		]).then(([usersRes, rolesRes]) => {
-			if (usersRes.error || rolesRes.error) {
-				setErrorMessage(usersRes.error || rolesRes.error);
-				return;
-			}
-
-			setUsers(usersRes.data);
-			setRoles(rolesRes.data);
-		});
-	}, [shouldUpdateUserList, userRole]);
+		dispatch(
+			loadUsersAsync(searchPhrase, page, PAGINATION_LIMIT, sort.field, sort.order),
+		);
+	}, [dispatch, page, shouldSearch, sort, shouldUpdateUserList, userRole]);
 
 	const onUserRemove = async (userId: string, userLogin: string) => {
+		setRemoveError(null);
 		const confirmed = await getConfirmation({
 			title: 'Удаление пользователя',
 			description: `Вы действительно хотите удалить пользователя ${userLogin}?`,
@@ -59,36 +69,84 @@ const UsersContainer = ({ className }: { className?: string }) => {
 				setShouldUpdateUserList(!shouldUpdateUserList);
 			} catch (error) {
 				console.error(error);
-				setErrorMessage('Не удалось удалить пользователя');
+				setRemoveError('Не удалось удалить пользователя');
 			}
 		}
 	};
 
+	const handleSort = (field) => {
+		setSort((prev) => ({
+			field,
+			order: prev.field === field && prev.order === 'desc' ? 'asc' : 'desc',
+		}));
+	};
+
+	const sortStatus = (field) => {
+		if (sort.field === field) {
+			return sort.order === 'asc' ? '▲' : '▼';
+		}
+		return '↕sort';
+	};
+
+	const startDelayedSearch = useMemo(
+		() =>
+			debounce((value) => {
+				setShouldSearch(value);
+				setPage(1);
+			}, 2000),
+		[],
+	);
+
+	const onSearch = ({ target }: ChangeEvent<HTMLInputElement>) => {
+		setRemoveError(null);
+		setSearchPhrase(target.value);
+		startDelayedSearch(target.value);
+	};
+
+	const error = errorMessage || removeError;
+
 	return (
-		<PrivateContent access={[ROLE.ADMIN]} serverError={errorMessage}>
+		<PrivateContent access={[ROLE.ADMIN]} serverError={error}>
 			<div className={className}>
 				<h2>Пользователи</h2>
-				<div>
-					<TableRow>
-						<div className="login-column">Логин</div>
-						<div className="registered-at-column">Дата регистрации</div>
-						<div className="role-column">Роль</div>
-						<div className="actions-column"></div>
-					</TableRow>
-					{users.map(({ id, login, registeredAt, roleId }) => (
-						<UserRow
-							key={id}
-							id={id}
-							login={login}
-							registeredAt={registeredAt}
-							roleId={roleId}
-							roles={roles.filter(
-								({ id: roleId }) => roleId !== ROLE.GUEST,
-							)}
-							onUserRemove={() => onUserRemove(id, login)}
-						/>
-					))}
-				</div>
+				<Search searchPhrase={searchPhrase} onChange={onSearch} />
+				<TableRow>
+					<div className="login-column" onClick={() => handleSort('login')}>
+						Логин {sortStatus('login')}
+					</div>
+					<div
+						className="registered-at-column"
+						onClick={() => handleSort('createdAt')}
+					>
+						Дата регистрации {sortStatus('createdAt')}
+					</div>
+					<div className="role-column">Роль</div>
+					<div className="actions-column"></div>
+				</TableRow>
+				{loading ? (
+					<Loader />
+				) : users.length ? (
+					<div className="table-content">
+						{users.map(({ id, login, registeredAt, roleId }) => (
+							<UserRow
+								key={id}
+								id={id}
+								login={login}
+								registeredAt={registeredAt}
+								roleId={roleId}
+								roles={roles.filter(
+									({ id: roleId }) => roleId !== ROLE.GUEST,
+								)}
+								onUserRemove={() => onUserRemove(id, login)}
+							/>
+						))}
+					</div>
+				) : (
+					<div>Пользователи не найдены</div>
+				)}
+				{!loading && lastPage > 1 && users.length > 0 && (
+					<Pagination page={page} setPage={setPage} lastPage={lastPage} />
+				)}
 			</div>
 		</PrivateContent>
 	);
@@ -106,7 +164,6 @@ export const UsersPage = styled(UsersContainer)`
 	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
 
 	& h2 {
-		margin-bottom: 30px;
 		font-size: 28px;
 		color: #1a1a1a;
 		align-self: flex-start;

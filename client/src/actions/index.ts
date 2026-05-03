@@ -11,3 +11,4 @@ export * from './remove-restaurant-async';
 export * from './reset-restaurant-data';
 export * from './update-favorites';
 export * from './update-favorites-async';
+export * from './load-users-async';

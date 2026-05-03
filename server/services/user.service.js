@@ -1,8 +1,27 @@
 const User = require("../models/User");
 const ROLES = require("../constants/roles");
 
-function getUsers() {
-  return User.find();
+async function getUsers(
+  search = "",
+  limit = 10,
+  page = 1,
+  sortBy = "createdAt",
+  sortOrder = "desc",
+) {
+  const sort = { [sortBy]: sortOrder === "desc" ? -1 : 1 };
+
+  const [users, count] = await Promise.all([
+    User.find({ login: { $regex: search, $options: "i" } })
+      .limit(limit)
+      .skip((page - 1) * limit)
+      .sort(sort),
+    User.countDocuments({ login: { $regex: search, $options: "i" } }),
+  ]);
+
+  return {
+    users,
+    lastPage: Math.ceil(count / limit),
+  };
 }
 
 function getRoles() {

@@ -69,7 +69,6 @@ const UserRowContainer = ({
 
 export const UserRow = styled(UserRowContainer)`
 	display: flex;
-	margin-top: 8px;
 
 	& select {
 		width: 100%;

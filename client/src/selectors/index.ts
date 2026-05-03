@@ -6,3 +6,4 @@ export * from './select-user-favorites';
 export * from './select-restaurant';
 export * from './select-restaurants';
 export * from './select-comment';
+export * from './select-users-data';

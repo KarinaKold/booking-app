@@ -9,7 +9,7 @@ interface SearchProps {
 	onChange: (event: ChangeEvent<HTMLInputElement>) => void;
 }
 
-export const SearchContainer = ({ className, searchPhrase, onChange }: SearchProps) => {
+const SearchContainer = ({ className, searchPhrase, onChange }: SearchProps) => {
 	return (
 		<div className={className} id="restaurant-list-start">
 			<Input

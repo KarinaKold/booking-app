@@ -3,8 +3,18 @@ const mapUser = require("../helpers/mapUser");
 
 async function getUsers(req, res) {
   try {
-    const users = await userService.getUsers();
-    res.send({ data: users.map(mapUser), error: null });
+    const { search, page, limit, sortBy, sortOrder } = req.query;
+    const { users, lastPage } = await userService.getUsers(
+      search,
+      limit,
+      page,
+      sortBy,
+      sortOrder,
+    );
+    res.send({
+      error: null,
+      data: { users: users.map(mapUser), lastPage },
+    });
   } catch (e) {
     res
       .status(500)
