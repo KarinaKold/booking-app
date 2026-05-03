@@ -13,9 +13,15 @@ interface StoryBlockProps {
 	stories: Story[];
 	initialIndex: number;
 	onClose: () => void;
+	onView: (id: number) => void;
 }
 
-export const StoryBlock = ({ stories, initialIndex, onClose }: StoryBlockProps) => {
+export const StoryBlock = ({
+	stories,
+	initialIndex,
+	onClose,
+	onView,
+}: StoryBlockProps) => {
 	const [currentIndex, setCurrentIndex] = useState(initialIndex);
 	const [isActive, setIsActive] = useState(false);
 
@@ -34,6 +40,10 @@ export const StoryBlock = ({ stories, initialIndex, onClose }: StoryBlockProps) 
 			setCurrentIndex((prev) => prev - 1);
 		}
 	}, [currentIndex]);
+
+	useEffect(() => {
+		onView(stories[currentIndex].id);
+	}, [currentIndex, stories, onView]);
 
 	useEffect(() => {
 		const startTimer = setTimeout(() => setIsActive(true), 10);

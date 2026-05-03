@@ -11,11 +11,13 @@ export const StorySection = ({ stories }: StorySectionProps) => {
 	const [selectedStoryIndex, setSelectedStoryIndex] = useState<number | null>(null);
 	const [viewedIds, setViewedIds] = useState<number[]>([]);
 
+	const toViewed = (id: number) => {
+		setViewedIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+	};
+
 	const handleOpenStory = (index: number, id: number) => {
 		setSelectedStoryIndex(index);
-		if (!viewedIds.includes(id)) {
-			setViewedIds((prev) => [...prev, id]);
-		}
+		toViewed(id);
 	};
 
 	return (
@@ -47,6 +49,7 @@ export const StorySection = ({ stories }: StorySectionProps) => {
 					stories={stories}
 					initialIndex={selectedStoryIndex}
 					onClose={() => setSelectedStoryIndex(null)}
+					onView={toViewed}
 				/>
 			)}
 		</StyledSection>
