@@ -1,7 +1,8 @@
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
-import styles from './Calendar.module.css';
+import { Button } from '../../../../../../../components';
+import styled from 'styled-components';
 
 interface BookingCalendarProps {
 	selectedDate: Date;
@@ -44,21 +45,21 @@ export const Calendar = ({
 	};
 
 	return (
-		<div className={styles.container}>
-			<div className={styles.header}>
-				<span className={styles.monthLabel}>{displayMonth}</span>
+		<StyledCalendar>
+			<div className="header">
+				<span className="monthLabel">{displayMonth}</span>
 			</div>
-			<div className={styles.wrapper}>
-				<button
+			<div className="wrapper">
+				<Button
 					type="button"
-					className={styles.navBtn}
+					className="navBtn"
 					onClick={() =>
 						scrollRef.current?.scrollBy({ left: -250, behavior: 'smooth' })
 					}
 				>
 					<FaChevronLeft />
-				</button>
-				<div className={styles.scrollArea} ref={scrollRef}>
+				</Button>
+				<div className="scrollArea" ref={scrollRef}>
 					{days.map((day) => {
 						const isSelected = isSameDay(day, selectedDate);
 						const isAvailable = checkIsAvailable(day);
@@ -69,28 +70,139 @@ export const Calendar = ({
 								key={dateKey}
 								disabled={!isAvailable}
 								onClick={() => onDateChange(day)}
-								className={`${styles.dayCard} ${isSelected ? styles.selected : ''}`}
+								className={`dayCard ${isSelected ? 'selected' : ''}`}
 							>
-								<span className={styles.dayName}>
+								<span className="dayName">
 									{day.toLocaleString(i18n.language, {
 										weekday: 'short',
 									})}
 								</span>
-								<span className={styles.dayNum}>{day.getDate()}</span>
+								<span className="dayNum">{day.getDate()}</span>
 							</button>
 						);
 					})}
 				</div>
-				<button
+				<Button
 					type="button"
-					className={styles.navBtn}
+					className="navBtn"
 					onClick={() =>
 						scrollRef.current?.scrollBy({ left: 250, behavior: 'smooth' })
 					}
 				>
 					<FaChevronRight />
-				</button>
+				</Button>
 			</div>
-		</div>
+		</StyledCalendar>
 	);
 };
+
+const StyledCalendar = styled.div`
+	background: #f8fafc;
+	padding: 16px;
+	border-radius: 24px;
+	margin-bottom: 20px;
+	max-width: 500px;
+
+	.header {
+		margin-bottom: 15px;
+		padding-left: 8px;
+	}
+
+	.monthLabel {
+		font-weight: 700;
+		font-size: 0.75rem;
+		color: #64748b;
+		letter-spacing: 0.05em;
+	}
+
+	.wrapper {
+		display: flex;
+		align-items: center;
+		position: relative;
+		gap: 4px;
+	}
+
+	.scrollArea {
+		display: flex;
+		gap: 10px;
+		overflow-x: auto;
+		scroll-behavior: smooth;
+		padding: 8px 4px;
+		scrollbar-width: none;
+	}
+
+	.scrollArea::-webkit-scrollbar {
+		display: none;
+	}
+
+	.dayCard {
+		flex: 0 0 52px;
+		height: 68px;
+		border: none;
+		border-radius: 16px;
+		background: #f8fafc;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		box-shadow:
+			5px 5px 10px #e2e8f0,
+			-5px -5px 10px #ffffff;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		border: 1px solid transparent;
+
+		&:hover:not(:disabled) {
+			transform: translateY(-2px);
+		}
+
+		&:disabled {
+			opacity: 0.25;
+			cursor: not-allowed;
+			box-shadow: none;
+			background: transparent;
+		}
+	}
+
+	.selected {
+		background: #0ea5e9;
+		color: white;
+		border-color: #0ea5e9;
+	}
+
+	.dayNum {
+		font-weight: 700;
+		font-size: 1rem;
+		margin-top: 2px;
+	}
+
+	.dayName {
+		font-size: 0.6rem;
+		text-transform: uppercase;
+		font-weight: 600;
+		opacity: 0.8;
+	}
+
+	.selected .dayName {
+		opacity: 1;
+	}
+
+	.navBtn {
+		background: white;
+		border: none;
+		width: 30px;
+		border-radius: 50%;
+		display: grid;
+		align-items: center;
+		justify-content: center;
+		color: #94a3b8;
+		cursor: pointer;
+		box-shadow: 2px 2px 5px #e2e8f0;
+		z-index: 2;
+
+		&:hover {
+			color: #0ea5e9;
+			background: #fff;
+		}
+	}
+`;

@@ -74,8 +74,6 @@ const StyledRestaurantContent = styled.div`
 	margin: 0 auto;
 	padding: 20px;
 	box-sizing: border-box;
-	display: flex;
-	flex-direction: column;
 
 	.edit-icon {
 		font-size: 22px;
@@ -100,6 +98,7 @@ const StyledRestaurantContent = styled.div`
 		grid-template-columns: 1fr 350px;
 		gap: 40px;
 		width: 100%;
+		margin-top: 40px;
 	}
 
 	.comments-section {
@@ -117,16 +116,6 @@ const StyledRestaurantContent = styled.div`
 		.top-section,
 		.booking {
 			grid-template-columns: 1fr;
-		}
-
-		.bookingSidebar {
-			max-width: 100%;
-		}
-
-		.bookingCard {
-			position: static;
-			margin: 0 auto;
-			max-width: 500px;
 		}
 	}
 `;

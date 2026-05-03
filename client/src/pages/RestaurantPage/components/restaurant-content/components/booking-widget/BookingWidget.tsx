@@ -81,8 +81,10 @@ export const BookingWidget = ({
 const StyledWidget = styled.aside`
 	width: 100%;
 	max-width: 350px;
+	padding-top: 60px;
 
 	.booking-card {
+		top: 20px;
 		background: #f0f0f0;
 		padding: 30px;
 		border-radius: 28px;
@@ -90,7 +92,6 @@ const StyledWidget = styled.aside`
 			10px 10px 20px #bebebe,
 			-10px -10px 20px #ffffff;
 		position: sticky;
-		top: 40px;
 
 		h4 {
 			margin-top: 0;
@@ -138,6 +139,7 @@ const StyledWidget = styled.aside`
 
 	@media (max-width: 1200px) {
 		max-width: 100%;
+		padding-top: 0;
 
 		.booking-card {
 			position: static;

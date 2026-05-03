@@ -29,10 +29,12 @@ export const Gallery = ({ images, name }: GalleryProps) => {
 	const openViewer = (index: number) => setViewerIndex(index);
 	const closeViewer = () => setViewerIndex(null);
 	const nextImg = () => {
-		setViewerIndex((prev) => prev && ((prev + 1) % images.length));
+		setViewerIndex((prev) => (prev !== null ? (prev + 1) % images.length : 0));
 	};
 	const prevImg = () => {
-		setViewerIndex((prev) => prev && ((prev - 1 + images.length) % images.length));
+		setViewerIndex((prev) =>
+			prev !== null ? (prev - 1 + images.length) % images.length : 0,
+		);
 	};
 
 	return (
@@ -79,8 +81,8 @@ export const Gallery = ({ images, name }: GalleryProps) => {
 			<FullscreenViewer
 				isOpen={viewerIndex !== null}
 				onClose={closeViewer}
-				onNext={prevImg}
-				onPrev={nextImg}
+				onNext={nextImg}
+				onPrev={prevImg}
 				currentIndex={viewerIndex ?? 0}
 				totalItems={images.length}
 			>

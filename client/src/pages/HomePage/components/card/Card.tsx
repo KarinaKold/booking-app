@@ -66,10 +66,6 @@ const CardContainer = styled.article`
 	display: flex;
 	flex-direction: column;
 	transition: transform 0.2s;
-
-	&:hover {
-		transform: translateY(-4px);
-	}
 `;
 
 const ImageWrapper = styled.div`
@@ -125,7 +121,6 @@ const Description = styled.p`
 	font-size: 0.85rem;
 	color: #666;
 	line-height: 1.4;
-	/* Эффект многоточия для 2-х строк */
 	display: -webkit-box;
 	-webkit-line-clamp: 2;
 	-webkit-box-orient: vertical;
