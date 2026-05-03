@@ -51,7 +51,6 @@ const RestaurantFormContainer = ({
 	const [startTime, setStartTime] = useState<string>(start);
 	const [endTime, setEndTime] = useState<string>(end);
 	const [hasBarCardValue, setHasBarCardValue] = useState<boolean>(!!hasBarCard);
-	// const [imagesValue, setImagesValue] = useState<string[]>(images || ['', '', '', '']);
 	const [imagesValue, setImagesValue] = useState<string[]>(
 		images && images.length > 0 ? images : [''],
 	);
@@ -252,14 +251,6 @@ export const RestaurantForm = styled(RestaurantFormContainer)`
 		flex-direction: column;
 		gap: 10px;
 	}
-
-	// & .images-section {
-	// 	margin: 20px 0;
-	// 	padding: 20px;
-	// 	background: #f8f8f8;
-	// 	border-radius: 12px;
-	// 	border: 1px solid #eee;
-	// }
 
 	& .time-inputs-wrapper {
 		margin: 5px 0;

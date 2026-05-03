@@ -88,7 +88,7 @@ const CommentsContainer = ({ className, comments, restaurantId }: CommentsProps)
 							className="send-button"
 							disabled={isCommentSubmitting}
 							onClick={(e) => {
-								e.preventDefault(); // Блокируем нативное событие
+								e.preventDefault();
 								onNewCommentAdd(restaurantId, newComment, rating);
 							}}
 							// onClick={() =>

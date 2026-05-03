@@ -145,26 +145,4 @@ export const Comment = styled(CommentContainer)`
 		color: #cf1322;
 		transform: scale(1.1);
 	}
-	// display: flex;
-	// width: 100%;
-	// margin-top: 10px;
-
-	// & .comment {
-	// 	width: 550px;
-	// 	padding: 5px 10px;
-	// 	border: 1px solid #000;
-	// }
-
-	// & .information-panel {
-	// 	display: flex;
-	// 	justify-content: space-between;
-	// }
-
-	// & .author {
-	// 	display: flex;
-	// }
-
-	// & .published-at {
-	// 	display: flex;
-	// }
 `;
