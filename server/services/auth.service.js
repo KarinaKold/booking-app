@@ -10,7 +10,7 @@ async function registerUser(login, password) {
   const passwordHash = await bcrypt.hash(password, 10);
 
   const user = await User.create({ login, password: passwordHash });
-  const token = generate({ id: user.id });
+  const token = generate({ id: user.id, role: user.role });
 
   return { user, token };
 }
@@ -28,19 +28,20 @@ async function loginUser(login, password) {
     throw new Error("Wrong password");
   }
 
-  const token = generate({ id: user.id });
+  const token = generate({ id: user.id, role: user.role });
   return { token, user };
 }
 
-// async function getFavorites(userId) {
-//   const user = await User.findById(userId);
-//   if (!user) {
-//     throw new Error("Пользователь не найден");
-//   }
-//   return user;
-// }
+async function findUserById(userId) {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new Error("Пользователь не найден");
+  }
+  return user;
+}
 
 module.exports = {
   registerUser,
   loginUser,
+  findUserById,
 };

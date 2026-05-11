@@ -1,48 +1,62 @@
-const { registerUser, loginUser } = require("../services/auth.service");
+const {
+  registerUser,
+  loginUser,
+  findUserById,
+} = require("../services/auth.service");
 const mapUser = require("../helpers/mapUser");
 
 async function register(req, res) {
   try {
-    const { user, token } = await registerUser(
-      req.body.login,
-      req.body.password,
-    );
+    const { login, password } = req.body;
 
-    res.cookie("token", token, { httpOnly: true }).send({
-      error: null,
-      user: mapUser(user),
-    });
+    if (!login || !password) {
+      return res.status(400).json({ error: "Login and password are required" });
+    }
+
+    const { user, token } = await registerUser(login);
+
+    res.status(200).json({ token, user: mapUser(user) });
   } catch (e) {
-    res.send({ error: e.message || "Unknown error" });
+    res.status(400).send({ error: e.message || "Unknown error" });
   }
 }
 
 async function login(req, res) {
   try {
-    const { user, token } = await loginUser(req.body.login, req.body.password);
+    const { login, password } = req.body;
 
-    res.cookie("token", token, { httpOnly: true }).send({
-      error: null,
-      user: mapUser(user),
-    });
+    if (!login || !password) {
+      return res.status(400).json({ error: "Login and password are required" });
+    }
+
+    const { user, token } = await loginUser(login, password);
+
+    res.status(200).json({ token, user: mapUser(user) });
   } catch (e) {
-    res.send({ error: e.message || "Unknown error" });
+    res.status(400).send({ error: e.message || "Unknown error" });
   }
 }
 
 async function logout(req, res) {
-  res.clearCookie("token").send({});
+  try {
+    res.status(204).send();
+  } catch (e) {
+    res.status(500).send({ error: e.message || "Unknown error" });
+  }
 }
-// router.post("/logout", (req, res) => {
-//   res.cookie("token", "", { httpOnly: true }).send({});
-// });
-// async function getMe(req, res) {
-//   try {
-//     const user = await getFavorites(req.user.id);
-//     res.send({ data: mapUser(user) });
-//   } catch (e) {
-//     res.status(500).send({ error: e.message });
-//   }
-// }
 
-module.exports = { register, login, logout };
+async function getMe(req, res) {
+  try {
+    const user = await findUserById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ data: mapUser(user) });
+  } catch (e) {
+    res.status(500).send({ error: e.message || "Unknown error" });
+  }
+}
+
+module.exports = { register, login, logout, getMe };

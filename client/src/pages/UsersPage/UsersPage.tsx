@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { useAppDispatch } from '../../hooks';
 import { useGetConfirmation } from '../../providers';
 import { checkAccess } from '../../utils';
@@ -16,7 +17,7 @@ import {
 } from '../../selectors';
 import { loadUsersAsync } from '../../actions';
 import { ROLE } from '../../constants';
-import type { UserData } from '../../types';
+// import type { UserData } from '../../types';
 import styled from 'styled-components';
 import { Loader } from '../../components';
 import { Pagination, Search } from '../HomePage/components';
@@ -30,6 +31,7 @@ interface Role {
 const PAGINATION_LIMIT = 5;
 
 const UsersContainer = ({ className }: { className?: string }) => {
+	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
 	const { getConfirmation } = useGetConfirmation();
 	const users = useSelector(selectUsersData);
@@ -108,19 +110,19 @@ const UsersContainer = ({ className }: { className?: string }) => {
 	return (
 		<PrivateContent access={[ROLE.ADMIN]} serverError={error}>
 			<div className={className}>
-				<h2>Пользователи</h2>
+				<h2>{t('users.title')}</h2>
 				<Search searchPhrase={searchPhrase} onChange={onSearch} />
 				<TableRow>
 					<div className="login-column" onClick={() => handleSort('login')}>
-						Логин {sortStatus('login')}
+						{t('users.login')} {sortStatus('login')}
 					</div>
 					<div
 						className="registered-at-column"
 						onClick={() => handleSort('createdAt')}
 					>
-						Дата регистрации {sortStatus('createdAt')}
+						{t('users.createdAt')} {sortStatus('createdAt')}
 					</div>
-					<div className="role-column">Роль</div>
+					<div className="role-column">{t('users.role')}</div>
 					<div className="actions-column"></div>
 				</TableRow>
 				{loading ? (
@@ -142,7 +144,7 @@ const UsersContainer = ({ className }: { className?: string }) => {
 						))}
 					</div>
 				) : (
-					<div>Пользователи не найдены</div>
+					<div>{t('users.error')}</div>
 				)}
 				{!loading && lastPage > 1 && users.length > 0 && (
 					<Pagination page={page} setPage={setPage} lastPage={lastPage} />

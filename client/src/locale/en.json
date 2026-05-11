@@ -10,11 +10,6 @@
 		"restPage": "Restaurants",
 		"aboutPage": "About"
 	},
-	"modal": {
-		"log": "Sign in",
-		"reg": "Sign up",
-		"out": "Sign out"
-	},
 	"form": {
 		"username": "Username",
 		"email": "E-mail",
@@ -35,11 +30,14 @@
 		"backHome": "Back to Home"
 	},
 	"auth": {
-		"title": "Authorization",
+		"auth_title": "Authorization",
+		"reg_title": "Registration",
 		"login": "Sign in",
+		"logout": "Sign out",
 		"register": "Sign up",
 		"placeholder_login": "Login...",
 		"placeholder_password": "Password...",
+		"placeholder_passcheck": "Password check...",
 		"error": {
 			"login_required": "Login is required",
 			"login_matches": "Invalid login. Only letters and numbers are allowed",
@@ -75,6 +73,13 @@
 		"book_btn": "Book now",
 		"bar_card": "Bar menu available",
 		"about": "About"
+	},
+	"users": {
+		"title": "Users",
+		"login": "Login",
+		"createdAt": "Created at",
+		"role": "Role",
+		"error": "Not found"
 	},
 	"common": {
 		"confirm_cancel_title": "Cancel Booking",

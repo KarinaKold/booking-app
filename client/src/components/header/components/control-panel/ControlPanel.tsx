@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { useAppDispatch } from '../../../../hooks';
 import { Button, LangSwitcher, ThemeSwitcher } from '../../../../components';
 import { useGetConfirmation } from '../../../../providers';
@@ -39,6 +40,7 @@ const PrivateLink = styled.div`
 `;
 
 export const ControlPanelContainer = ({ className }: { className?: string }) => {
+	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
 	const { getConfirmation } = useGetConfirmation();
 	const roleId = useSelector(selectUserRole);
@@ -84,14 +86,14 @@ export const ControlPanelContainer = ({ className }: { className?: string }) => 
 			<RightAligned>
 				{roleId === ROLE.GUEST ? (
 					<Button>
-						<Link to="/login">Войти</Link>
+						<Link to="/login">{t('auth.login')}</Link>
 					</Button>
 				) : (
 					<>
 						<UserName>
 							<Link to="/profile">{login}</Link>
 						</UserName>
-						<Button onClick={onLogout}>Выйти</Button>
+						<Button onClick={onLogout}>{t('auth.logout')}</Button>
 					</>
 				)}
 			</RightAligned>

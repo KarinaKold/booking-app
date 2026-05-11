@@ -10,11 +10,6 @@
 		"restPage": "Рестораны",
 		"aboutPage": "О нас"
 	},
-	"modal": {
-		"log": "Войти",
-		"reg": "Регистрация",
-		"out": "Выйти"
-	},
 	"form": {
 		"username": "Имя",
 		"email": "E-mail",
@@ -35,11 +30,14 @@
 		"backHome": "На главную"
 	},
 	"auth": {
-		"title": "Авторизация",
+		"auth_title": "Авторизация",
+		"reg_title": "Регистрация",
 		"login": "Войти",
-		"register": "Регистрация",
+		"logout": "Выйти",
+		"register": "Зарегистрироваться",
 		"placeholder_login": "Логин...",
 		"placeholder_password": "Пароль...",
+		"placeholder_passcheck": "Проверка пароля...",
 		"error": {
 			"login_required": "Заполните логин",
 			"login_matches": "Неверно заполнен логин. Допускаются только буквы и цифры",
@@ -75,6 +73,13 @@
 		"book_btn": "Забронировать",
 		"bar_card": "Есть барная карта",
 		"about": "О заведении"
+	},
+	"users": {
+		"title": "Пользователи",
+		"login": "Логин",
+		"createdAt": "Дата регистрации",
+		"role": "Роль",
+		"error": "Пользователи не найдены"
 	},
 	"common": {
 		"confirm_cancel_title": "Отмена бронирования",

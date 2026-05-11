@@ -87,7 +87,7 @@ const AuthorizationContainer = ({ className }: { className?: string }) => {
 			}
 		} catch (error) {
 			console.error(error);
-			setServerError('Произошла непредвиденная ошибка. Попробуйте позже.');
+			setServerError('Произошла ошибка. Попробуйте позже.');
 		}
 	};
 
@@ -100,12 +100,12 @@ const AuthorizationContainer = ({ className }: { className?: string }) => {
 
 	return (
 		<div className={className}>
-			<h2>Авторизация</h2>
+			<h2>{t('auth.auth_title')}</h2>
 			<form onSubmit={handleSubmit(onSubmit)}>
 				<Input
 					type="text"
 					id="login"
-					placeholder="Логин..."
+					placeholder={t('auth.placeholder_login')}
 					{...register('login', {
 						onChange: () => setServerError(null),
 					})}
@@ -113,7 +113,7 @@ const AuthorizationContainer = ({ className }: { className?: string }) => {
 				<Input
 					type="password"
 					id="password"
-					placeholder="Пароль..."
+					placeholder={t('auth.placeholder_password')}
 					{...register('password', {
 						onChange: () => setServerError(null),
 					})}

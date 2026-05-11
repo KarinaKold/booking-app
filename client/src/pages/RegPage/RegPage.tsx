@@ -4,13 +4,13 @@ import { Navigate } from 'react-router';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useTranslation } from 'react-i18next';
 import { Button, Input } from '../../components';
 import { setUser } from '../../actions';
 import { selectUserRole } from '../../selectors';
 import { ROLE } from '../../constants';
 import { useAppDispatch, useResetForm } from '../../hooks';
 import { request } from '../../utils/request';
-
 import styled from 'styled-components';
 import type { UserData } from '../../types';
 import { AuthFormError } from '../AuthPage/AuthPage';
@@ -59,8 +59,9 @@ const RegistrationContainer = ({ className }: { className?: string }) => {
 		resolver: yupResolver(regFormSchema),
 	});
 
-	const [serverError, setServerError] = useState<string | null>(null);
+	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
+	const [serverError, setServerError] = useState<string | null>(null);
 	const roleId = useSelector(selectUserRole);
 	useResetForm(reset);
 
@@ -95,12 +96,12 @@ const RegistrationContainer = ({ className }: { className?: string }) => {
 
 	return (
 		<div className={className}>
-			<h2>Регистрация</h2>
+			<h2>{t('auth.reg_title')}</h2>
 			<form onSubmit={handleSubmit(onSubmit)}>
 				<Input
 					type="text"
 					id="login"
-					placeholder="Логин..."
+					placeholder={t('auth.placeholder_login')}
 					{...register('login', {
 						onChange: () => setServerError(null),
 					})}
@@ -108,7 +109,7 @@ const RegistrationContainer = ({ className }: { className?: string }) => {
 				<Input
 					type="password"
 					id="password"
-					placeholder="Пароль..."
+					placeholder={t('auth.placeholder_password')}
 					{...register('password', {
 						onChange: () => setServerError(null),
 					})}
@@ -116,13 +117,13 @@ const RegistrationContainer = ({ className }: { className?: string }) => {
 				<Input
 					type="password"
 					id="passcheck"
-					placeholder="Проверка пароля..."
+					placeholder={t('auth.placeholder_passcheck')}
 					{...register('passcheck', {
 						onChange: () => setServerError(null),
 					})}
 				/>
 				<Button type="submit" disabled={!!formError}>
-					Зарегистрироваться
+					{t('auth.register')}
 				</Button>
 				{errorMessage && <AuthFormError>{errorMessage}</AuthFormError>}
 			</form>
