@@ -202,16 +202,29 @@ export const ProfilePage = () => {
 
 	const handleFavorite = async (id: string | undefined) => {
 		if (!id) return;
+
 		const res = await (dispatch(updateFavoritesAsync(id)) as unknown as Promise<
 			ServerResponse<string[]>
 		>);
-		if (!res?.error) {
-			if (userFavorites.includes(id)) {
-				setFavoriteRestaurants((prev) =>
-					prev.filter((r) => (r.id || r._id) !== id),
-				);
+
+		if (res?.error) return;
+
+		const isCurrFavorite = userFavorites.includes(id);
+
+		if (isCurrFavorite) {
+			setFavoriteRestaurants((prev) => prev.filter((r) => (r.id || r._id) !== id));
+		} else {
+			const restaurantToAdd = ownedRestaurants.find((r) => (r.id || r._id) === id);
+
+			if (restaurantToAdd) {
+				setFavoriteRestaurants((prev) => [...prev, restaurantToAdd]);
 			} else {
-				loadData();
+				const fRes = await request<ServerResponse<Restaurant[]>>(
+					'/restaurants/favorites-details',
+				);
+				if (fRes.data) {
+					setFavoriteRestaurants(fRes.data);
+				}
 			}
 		}
 	};
