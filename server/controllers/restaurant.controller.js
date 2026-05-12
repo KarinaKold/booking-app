@@ -13,7 +13,8 @@ async function getFavoritesDetails(req, res) {
     const restaurants = await restaurantService.getFavoritesDetails(
       user.favorites,
     );
-    res.send({ data: restaurants.map(mapRestaurant) });
+
+    res.send({ data: restaurants.map(mapRestaurant), error: null });
   } catch (e) {
     res
       .status(500)
@@ -24,7 +25,8 @@ async function getFavoritesDetails(req, res) {
 async function getFiltersMetadata(req, res) {
   try {
     const cuisines = await restaurantService.getFiltersMetadata();
-    res.send({ data: { cuisines } });
+
+    res.send({ data: { cuisines }, error: null });
   } catch (e) {
     res
       .status(500)
@@ -37,11 +39,13 @@ async function getRestaurants(req, res) {
     const { restaurants, lastPage } = await restaurantService.getRestaurants(
       req.query,
     );
+
     res.send({
       data: {
         lastPage,
         restaurants: restaurants.map(mapRestaurant),
       },
+      error: null,
     });
   } catch (e) {
     res
@@ -55,7 +59,8 @@ async function getOwnRestaurants(req, res) {
     const myRestaurants = await restaurantService.getOwnRestaurants(
       req.user.id,
     );
-    res.send({ data: myRestaurants.map(mapRestaurant) });
+
+    res.send({ data: myRestaurants.map(mapRestaurant), error: null });
   } catch (e) {
     res
       .status(500)
@@ -66,7 +71,12 @@ async function getOwnRestaurants(req, res) {
 async function getRestaurant(req, res) {
   try {
     const restaurant = await restaurantService.getRestaurant(req.params.id);
-    res.send({ data: mapRestaurant(restaurant) });
+
+    if (!restaurant) {
+      return res.status(404).send({ error: "Ресторан не найден" });
+    }
+
+    res.send({ data: mapRestaurant(restaurant), error: null });
   } catch (e) {
     res.status(404).send({ error: e.message || "Ресторан не найден" });
   }
@@ -78,6 +88,7 @@ async function addRestaurant(req, res) {
       ...req.body,
       owner: req.user.id,
     });
+
     res.send({ data: mapRestaurant(newRestaurant), error: null });
   } catch (e) {
     res
@@ -92,6 +103,7 @@ async function editRestaurant(req, res) {
       req.params.id,
       req.body,
     );
+
     res.send({ data: mapRestaurant(updatedRestaurant), error: null });
   } catch (e) {
     res
@@ -103,6 +115,7 @@ async function editRestaurant(req, res) {
 async function deleteRestaurant(req, res) {
   try {
     await restaurantService.deleteRestaurant(req.params.id);
+
     res.send({ error: null });
   } catch (e) {
     res.status(400).send({ error: e.message || "Не удалось удалить ресторан" });

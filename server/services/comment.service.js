@@ -54,7 +54,9 @@ async function deleteComment(restaurantId, commentId) {
     $pull: { comments: commentId },
   });
 
-  return await updateRestaurantRating(restaurantId);
+  const newRating = await updateRestaurantRating(restaurantId);
+
+  return { newRating };
 }
 
 module.exports = {

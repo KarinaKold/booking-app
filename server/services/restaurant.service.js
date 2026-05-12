@@ -17,6 +17,10 @@ async function editRestaurant(id, restaurant) {
     returnDocument: "after",
   });
 
+  if (!newRestaurant) {
+    throw new Error("Ресторан не найден");
+  }
+
   await newRestaurant.populate({
     path: "comments",
     populate: "author",
@@ -26,7 +30,11 @@ async function editRestaurant(id, restaurant) {
 }
 
 async function deleteRestaurant(id) {
-  return Restaurant.deleteOne({ _id: id });
+  const res = await Restaurant.deleteOne({ _id: id });
+  if (res.deletedCount === 0) {
+    throw new Error("Ресторан не найден");
+  }
+  return res;
 }
 
 async function getRestaurants(params) {
@@ -118,9 +126,11 @@ async function getFavoritesDetails(favoriteIds) {
     if (!favoriteIds || favoriteIds.length === 0) {
       return [];
     }
+
     const validIds = favoriteIds
       .filter((id) => mongoose.Types.ObjectId.isValid(id))
       .map((id) => new mongoose.Types.ObjectId(id));
+
     return await Restaurant.find({
       _id: { $in: validIds },
     });

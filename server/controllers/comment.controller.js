@@ -17,17 +17,18 @@ async function addComment(req, res) {
         comment: mapComment(comment),
         updatedRating: newRating,
       },
+      error: null,
     });
   } catch (e) {
     res
-      .status(500)
+      .status(400)
       .send({ error: e.message || "Не удалось добавить комментарий" });
   }
 }
 
 async function deleteComment(req, res) {
   try {
-    await commentService.deleteComment(
+    const { newRating } = await commentService.deleteComment(
       req.params.restaurantId,
       req.params.commentId,
     );
@@ -38,7 +39,7 @@ async function deleteComment(req, res) {
     });
   } catch (e) {
     res
-      .status(500)
+      .status(400)
       .send({ error: e.message || "Не удалось удалить комментарий" });
   }
 }
