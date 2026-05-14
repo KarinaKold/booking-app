@@ -55,8 +55,7 @@ export const ControlPanelContainer = ({ className }: { className?: string }) => 
 		});
 
 		if (confirmed) {
-			dispatch(logout());
-			sessionStorage.removeItem('userData');
+			await dispatch(logout());
 		}
 	};
 
