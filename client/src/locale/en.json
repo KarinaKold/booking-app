@@ -72,7 +72,9 @@
 		"your_booking": "Your booking",
 		"book_btn": "Book now",
 		"bar_card": "Bar menu available",
-		"about": "About"
+		"about": "About",
+		"error": "Not found",
+		"comments": "Comments"
 	},
 	"users": {
 		"title": "Users",
