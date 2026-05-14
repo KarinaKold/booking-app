@@ -1,12 +1,11 @@
-import { useSelector } from 'react-redux';
 import { FaUserCircle, FaCalendarAlt, FaTrashAlt, FaStar } from 'react-icons/fa';
 import { useGetConfirmation } from '../../../../../../providers';
-import { useAppDispatch } from '../../../../../../hooks';
+import { useAppDispatch, useAppSelector } from '../../../../../../hooks';
 import { selectUserId, selectUserRole } from '../../../../../../selectors';
 import { removeCommentAsync } from '../../../../../../actions';
+import type { CommentData } from '../../../../../HomePage/types';
 import { ROLE } from '../../../../../../constants';
 import styled from 'styled-components';
-import type { CommentData } from '../../../../../HomePage/types';
 
 interface CommentProps extends CommentData {
 	className?: string;
@@ -25,8 +24,8 @@ const CommentContainer = ({
 }: CommentProps) => {
 	const dispatch = useAppDispatch();
 	const { getConfirmation } = useGetConfirmation();
-	const userRole = useSelector(selectUserRole);
-	const currentUserId = useSelector(selectUserId);
+	const userRole = useAppSelector(selectUserRole);
+	const currentUserId = useAppSelector(selectUserId);
 
 	const onCommentRemove = async (id: string): Promise<void> => {
 		const confirmed = await getConfirmation({

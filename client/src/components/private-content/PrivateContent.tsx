@@ -1,4 +1,4 @@
-import { useSelector } from 'react-redux';
+import { useAppSelector } from '../../hooks';
 import { Error } from '../shared/error/Error';
 import { selectUserRole } from '../../selectors';
 import { checkAccess } from '../../utils';
@@ -17,7 +17,7 @@ export const PrivateContent = ({
 	check = true,
 	serverError = null,
 }: PrivateContentProps) => {
-	const userRole = useSelector(selectUserRole);
+	const userRole = useAppSelector(selectUserRole);
 
 	const hasRoleAccess = checkAccess(access, userRole);
 

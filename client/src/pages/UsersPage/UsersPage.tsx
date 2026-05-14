@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
-import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { useAppDispatch } from '../../hooks';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import { useGetConfirmation } from '../../providers';
 import { checkAccess } from '../../utils';
 import { PrivateContent } from '../../components/private-content/PrivateContent';
@@ -34,12 +33,12 @@ const UsersContainer = ({ className }: { className?: string }) => {
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
 	const { getConfirmation } = useGetConfirmation();
-	const users = useSelector(selectUsersData);
-	const roles = useSelector(selectUsersRoles);
-	const lastPage = useSelector(selectUsersDataLastPage);
-	const loading = useSelector(selectUsersDataLoading);
-	const errorMessage = useSelector(selectUsersDataError);
-	const userRole = useSelector(selectUserRole);
+	const users = useAppSelector(selectUsersData);
+	const roles = useAppSelector(selectUsersRoles);
+	const lastPage = useAppSelector(selectUsersDataLastPage);
+	const loading = useAppSelector(selectUsersDataLoading);
+	const errorMessage = useAppSelector(selectUsersDataError);
+	const userRole = useAppSelector(selectUserRole);
 
 	const [page, setPage] = useState(1);
 	const [searchPhrase, setSearchPhrase] = useState('');

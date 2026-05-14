@@ -24,3 +24,13 @@ export interface Restaurant {
 	endTime: number;
 	hasBarCard: boolean;
 }
+
+export interface Booking {
+	_id: string;
+	date: string;
+	time: string;
+	tableNumber: number;
+	restaurant?: {
+		name: string;
+	};
+}

@@ -1,7 +1,6 @@
 import { Link } from 'react-router';
-import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { useAppDispatch } from '../../../../hooks';
+import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { Button, LangSwitcher, ThemeSwitcher } from '../../../../components';
 import { useGetConfirmation } from '../../../../providers';
 import { selectUserLogin, selectUserRole } from '../../../../selectors';
@@ -43,8 +42,8 @@ export const ControlPanelContainer = ({ className }: { className?: string }) => 
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
 	const { getConfirmation } = useGetConfirmation();
-	const roleId = useSelector(selectUserRole);
-	const login = useSelector(selectUserLogin);
+	const roleId = useAppSelector(selectUserRole);
+	const login = useAppSelector(selectUserLogin);
 
 	const onLogout = async (): Promise<void> => {
 		const confirmed = await getConfirmation({

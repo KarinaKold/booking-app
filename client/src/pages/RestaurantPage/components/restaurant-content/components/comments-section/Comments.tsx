@@ -1,8 +1,7 @@
 import { useState, type ChangeEvent } from 'react';
 import { Link } from 'react-router';
-import { useSelector } from 'react-redux';
 import { FaPaperPlane, FaStar } from 'react-icons/fa';
-import { useAppDispatch } from '../../../../../../hooks';
+import { useAppDispatch, useAppSelector } from '../../../../../../hooks';
 import {
 	selectCommentError,
 	selectCommentSubmitting,
@@ -22,9 +21,9 @@ interface CommentsProps {
 
 const CommentsContainer = ({ className, comments, restaurantId }: CommentsProps) => {
 	const dispatch = useAppDispatch();
-	const userRole = useSelector(selectUserRole);
-	const isCommentSubmitting = useSelector(selectCommentSubmitting);
-	const commentError = useSelector(selectCommentError);
+	const userRole = useAppSelector(selectUserRole);
+	const isCommentSubmitting = useAppSelector(selectCommentSubmitting);
+	const commentError = useAppSelector(selectCommentError);
 	const [newComment, setNewComment] = useState<string>('');
 	const [rating, setRating] = useState<number>(5);
 	const [hoverRating, setHoverRating] = useState<number>(0);

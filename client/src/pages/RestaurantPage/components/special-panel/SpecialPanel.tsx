@@ -1,11 +1,10 @@
 import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router';
-import { useSelector } from 'react-redux';
 import { FaRegTrashAlt } from 'react-icons/fa';
-import { useAppDispatch } from '../../../../hooks';
+import { useAppDispatch, useAppSelector } from '../../../../hooks';
 import { useGetConfirmation } from '../../../../providers';
 import { removeRestaurantAsync } from '../../../../actions';
-// import { checkAccess } from '../../../../utils';
+import { checkAccess } from '../../../../utils';
 import { selectRestaurant, selectUserId, selectUserRole } from '../../../../selectors';
 import { ROLE } from '../../../../constants';
 import styled from 'styled-components';
@@ -27,9 +26,9 @@ const SpecialPanelContainer = ({
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 	const { getConfirmation } = useGetConfirmation();
-	const userRole = useSelector(selectUserRole);
-	const userId = useSelector(selectUserId);
-	const restaurant = useSelector(selectRestaurant);
+	const userRole = useAppSelector(selectUserRole);
+	const userId = useAppSelector(selectUserId);
+	const restaurant = useAppSelector(selectRestaurant);
 
 	const onRestaurantRemove = async (restaurantId: string): Promise<void> => {
 		const confirmed = await getConfirmation({
@@ -48,8 +47,8 @@ const SpecialPanelContainer = ({
 		}
 	};
 
-	const isAdmin = userRole === ROLE.ADMIN;
-	const isModerator = userRole === ROLE.MODERATOR;
+	const isAdmin = checkAccess([ROLE.ADMIN], userRole);
+	const isModerator = checkAccess([ROLE.MODERATOR], userRole);
 	const isOwner = restaurant && restaurant.owner === userId;
 
 	const canControl = !createdAt

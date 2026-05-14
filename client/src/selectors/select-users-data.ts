@@ -1,9 +1,7 @@
-export const selectUsersData = (state) => state.users.users;
+import type { RootState } from '../store';
 
-export const selectUsersRoles = (state) => state.users.roles;
-
-export const selectUsersDataLastPage = (state) => state.users.lastPage;
-
-export const selectUsersDataLoading = (state) => state.users.loading;
-
-export const selectUsersDataError = (state) => state.users.error;
+export const selectUsersData = (state: RootState) => state.users.users;
+export const selectUsersRoles = (state: RootState) => state.users.roles;
+export const selectUsersDataLastPage = (state: RootState) => state.users.lastPage;
+export const selectUsersDataLoading = (state: RootState) => state.users.loading;
+export const selectUsersDataError = (state: RootState) => state.users.error;

@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
-import { useSelector } from 'react-redux';
-import { useAppDispatch } from '../../hooks';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import { PAGINATION_LIMIT, ROLE } from '../../constants';
 import { MOCK_STORIES } from './constants/stories';
 import { debounce } from './utils';
 import { Card, Pagination, Search, SortPanel, StorySection } from './components';
+import { ScrollToTop } from '../../components/sidebar/ScrollToTop';
 import { Loader, Sidebar } from '../../components';
 import { loadRestaurantsAsync, updateFavoritesAsync } from '../../actions';
 import {
@@ -15,19 +15,18 @@ import {
 	selectUserFavorites,
 	selectUserRole,
 } from '../../selectors';
-import { ScrollToTop } from '../../components/sidebar/ScrollToTop';
 import type { RestaurantFilters, SortField, SortOrder } from './types';
 import type { Restaurant } from '../../types';
 import styled from 'styled-components';
 
 export const HomePage = () => {
 	const dispatch = useAppDispatch();
-	const roleId = useSelector(selectUserRole);
-	const restaurants = useSelector(selectRestaurants);
-	const loading = useSelector(selectRestaurantsLoading);
-	const lastPage = useSelector(selectLastPage);
-	const serverError = useSelector(selectRestaurantsError);
-	const userFavorites = useSelector(selectUserFavorites);
+	const roleId = useAppSelector(selectUserRole);
+	const restaurants = useAppSelector(selectRestaurants);
+	const loading = useAppSelector(selectRestaurantsLoading);
+	const lastPage = useAppSelector(selectLastPage);
+	const serverError = useAppSelector(selectRestaurantsError);
+	const userFavorites = useAppSelector(selectUserFavorites);
 	const [page, setPage] = useState<number>(1);
 	const [searchPhrase, setSearchPhrase] = useState<string>('');
 	const [shouldSearch, setShouldSearch] = useState<boolean>(false);

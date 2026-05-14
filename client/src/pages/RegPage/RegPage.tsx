@@ -1,19 +1,18 @@
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useTranslation } from 'react-i18next';
+import { useAppDispatch, useAppSelector, useResetForm } from '../../hooks';
 import { Button, Input } from '../../components';
 import { setUser } from '../../actions';
 import { selectUserRole } from '../../selectors';
 import { ROLE } from '../../constants';
-import { useAppDispatch, useResetForm } from '../../hooks';
+import { AuthFormError } from '../AuthPage/AuthPage';
 import { request } from '../../utils/request';
 import styled from 'styled-components';
 import type { UserData } from '../../types';
-import { AuthFormError } from '../AuthPage/AuthPage';
 
 const regFormSchema = yup.object().shape({
 	login: yup
@@ -62,7 +61,7 @@ const RegistrationContainer = ({ className }: { className?: string }) => {
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
 	const [serverError, setServerError] = useState<string | null>(null);
-	const roleId = useSelector(selectUserRole);
+	const roleId = useAppSelector(selectUserRole);
 	useResetForm(reset);
 
 	const onSubmit = async ({ login, password }: RegFormData) => {

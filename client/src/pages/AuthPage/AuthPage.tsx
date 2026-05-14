@@ -1,19 +1,18 @@
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
 import { Link, Navigate } from 'react-router';
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useTranslation } from 'react-i18next';
-import { useAppDispatch } from '../../hooks';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import { Button, Input } from '../../components';
 import { setUser } from '../../actions';
 import { selectUserRole } from '../../selectors';
 import { useResetForm } from '../../hooks/use-reset-form';
 import { request } from '../../utils/request';
 import { ROLE } from '../../constants';
-import styled from 'styled-components';
 import type { UserData } from '../../types';
+import styled from 'styled-components';
 
 const authFormSchema = yup.object().shape({
 	login: yup
@@ -65,7 +64,7 @@ const AuthorizationContainer = ({ className }: { className?: string }) => {
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
 	const [serverError, setServerError] = useState<string | null>(null);
-	const roleId = useSelector(selectUserRole);
+	const roleId = useAppSelector(selectUserRole);
 	useResetForm(reset);
 
 	const onSubmit = async ({ login, password }: AuthFormData) => {
