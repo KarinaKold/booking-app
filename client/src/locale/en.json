@@ -55,10 +55,12 @@
 		"my_bookings": "My Bookings",
 		"favorites": "Favorites",
 		"my_restaurants": "My Restaurants",
+		"users": "Users",
 		"no_bookings": "You have no bookings yet.",
 		"no_favorites": "No favorite restaurants yet.",
 		"no_owned": "You haven't created any restaurants yet.",
-		"add_restaurant": "Add Restaurant"
+		"add_restaurant": "Add Restaurant",
+		"unauthorized_message": "Please log in to view your profile."
 	},
 	"restaurant": {
 		"date": "Date",
