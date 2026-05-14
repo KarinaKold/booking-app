@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
@@ -9,32 +9,12 @@ import {
 	FaUsers,
 	FaPlusCircle,
 } from 'react-icons/fa';
-import { useAppDispatch, useAppSelector } from '../../hooks';
 import { useGetConfirmation } from '../../providers';
-import { request } from '../../utils/request';
-import { updateFavoritesAsync } from '../../actions';
-import { Card } from '../HomePage/components';
+import { useProfileData } from '../../hooks';
+import { BookingsTab, FavoritesTab, OwnedTab } from './components';
 import { Loader } from '../../components';
-import { selectUserFavorites, selectUserRole } from '../../selectors';
-import { ROLE } from '../../constants';
-import type { Restaurant } from '../../types';
 
 type TabType = 'bookings' | 'favorites' | 'owned';
-
-interface Booking {
-	_id: string;
-	date: string;
-	time: string;
-	tableNumber: number;
-	restaurant?: {
-		name: string;
-	};
-}
-
-interface ServerResponse<T> {
-	data: T | null;
-	error: string | null;
-}
 
 const ProfileLayout = styled.div`
 	display: flex;
@@ -50,7 +30,9 @@ const ProfileLayout = styled.div`
 `;
 
 const Sidebar = styled.aside`
-	width: 300px;
+	width: 280px;
+	min-width: 280px;
+	flex-shrink: 0;
 	background: #fff;
 	border-radius: 25px;
 	padding: 20px;
@@ -106,225 +88,59 @@ const Grid = styled.div`
 	gap: 25px;
 `;
 
-const BookingCard = styled.div`
-	background: #f9f9f9;
-	padding: 20px;
-	border-radius: 15px;
-	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-	h4 {
-		margin: 0 0 10px 0;
-		color: #333;
-	}
-	.summary {
-		font-size: 14px;
-		margin-bottom: 15px;
-		p {
-			margin: 5px 0;
-		}
-	}
-	.cancel-btn {
-		background: #ff4d4f;
-		color: white;
-		border: none;
-		padding: 8px 15px;
-		border-radius: 8px;
-		cursor: pointer;
-		width: 100%;
-		font-weight: 600;
-		&:hover {
-			opacity: 0.8;
-		}
-	}
-`;
-
 export const ProfilePage = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const dispatch = useAppDispatch();
 	const { getConfirmation } = useGetConfirmation();
+	const {
+		bookings,
+		favoriteRestaurants,
+		ownedRestaurants,
+		loading,
+		isAdmin,
+		isGuest,
+		isModerator,
+		userFavorites,
+		handleCancel,
+		handleFavorite,
+	} = useProfileData(getConfirmation, t);
 
-	const roleId = useAppSelector(selectUserRole);
-	const userFavorites = useAppSelector(selectUserFavorites);
 	const [activeTab, setActiveTab] = useState<TabType>('bookings');
-	const [favoriteRestaurants, setFavoriteRestaurants] = useState<Restaurant[]>([]);
-	const [ownedRestaurants, setOwnedRestaurants] = useState<Restaurant[]>([]);
-	const [bookings, setBookings] = useState<Booking[]>([]);
-	const [loading, setLoading] = useState(true);
 
-	const isAdmin = roleId === ROLE.ADMIN;
-	const isModerator = roleId === ROLE.MODERATOR;
-
-	if (roleId === ROLE.GUEST && !loading) navigate('/');
-
-	const loadData = useCallback(async () => {
-		if (roleId === ROLE.GUEST) return;
-
-		setLoading(true);
-		try {
-			const isOwner = isAdmin || isModerator;
-			const [bRes, fRes, oRes] = await Promise.all([
-				request<ServerResponse<Booking[]>>('/bookings/user'),
-				request<ServerResponse<Restaurant[]>>('/restaurants/favorites-details'),
-				isOwner
-					? request<ServerResponse<Restaurant[]>>('/restaurants/my')
-					: Promise.resolve({ data: [], error: null }),
-			]);
-
-			setBookings(bRes.data || []);
-			setFavoriteRestaurants(fRes.data || []);
-			setOwnedRestaurants(oRes.data || []);
-		} catch (e) {
-			console.error(e);
-		} finally {
-			setLoading(false);
-		}
-	}, [roleId, isAdmin, isModerator]);
-
-	useEffect(() => {
-		loadData();
-	}, [loadData]);
-
-	const handleCancel = async (id: string) => {
-		const confirmed = await getConfirmation({
-			title: t('common.confirm_cancel_title') || 'Отмена бронирования',
-			description: t('common.confirm_cancel_desc') || 'Вы уверены?',
-			confirmText: t('common.yes') || 'Да',
-			closeText: t('common.no') || 'Нет',
-		});
-
-		if (confirmed) {
-			const { error } = await request<ServerResponse<null>>(
-				`/bookings/${id}`,
-				'DELETE',
-			);
-			if (!error) {
-				setBookings((prev) => prev.filter((book) => book._id !== id));
-			}
-		}
-	};
-
-	const handleFavorite = async (id: string | undefined) => {
-		if (!id) return;
-
-		const res = await (dispatch(updateFavoritesAsync(id)) as unknown as Promise<
-			ServerResponse<string[]>
-		>);
-
-		if (res?.error) return;
-
-		const isCurrFavorite = userFavorites.includes(id);
-
-		if (isCurrFavorite) {
-			setFavoriteRestaurants((prev) => prev.filter((r) => (r.id || r._id) !== id));
-		} else {
-			const restaurantToAdd = ownedRestaurants.find((r) => (r.id || r._id) === id);
-
-			if (restaurantToAdd) {
-				setFavoriteRestaurants((prev) => [...prev, restaurantToAdd]);
-			} else {
-				const fRes = await request<ServerResponse<Restaurant[]>>(
-					'/restaurants/favorites-details',
-				);
-				if (fRes.data) {
-					setFavoriteRestaurants(fRes.data);
-				}
-			}
-		}
-	};
+	if (isGuest && !loading) navigate('/');
 
 	const renderContent = () => {
+		if (isGuest) {
+			return <p>{t('profile.unauthorized_message')}</p>;
+		}
+
 		if (loading) return <Loader />;
 
 		switch (activeTab) {
 			case 'bookings':
 				return (
-					<>
-						<h2>{t('profile.my_bookings')}</h2>
-						{bookings.length ? (
-							<Grid>
-								{bookings.map((booking) => (
-									<BookingCard key={booking._id}>
-										<h4>
-											{booking.restaurant?.name ||
-												t('common.unknown_restaurant')}
-										</h4>
-										<div className="summary">
-											<p>
-												<strong>{t('restaurant.date')}:</strong>{' '}
-												{booking.date}
-											</p>
-											<p>
-												<strong>{t('restaurant.time')}:</strong>{' '}
-												{booking.time}
-											</p>
-											<p>
-												<strong>{t('restaurant.table')}:</strong>{' '}
-												№{booking.tableNumber}
-											</p>
-										</div>
-										<button
-											className="cancel-btn"
-											onClick={() => handleCancel(booking._id)}
-										>
-											{t('common.cancel_booking')}
-										</button>
-									</BookingCard>
-								))}
-							</Grid>
-						) : (
-							<p>{t('profile.no_bookings')}</p>
-						)}
-					</>
+					<Grid>
+						<BookingsTab bookings={bookings} onCancel={handleCancel} />
+					</Grid>
 				);
 			case 'favorites':
 				return (
-					<>
-						<h2>{t('profile.favorites')}</h2>
-						{favoriteRestaurants.length ? (
-							<Grid>
-								{favoriteRestaurants.map((rest) => (
-									<Card
-										key={rest.id || rest._id}
-										id={rest.id || rest._id || ''}
-										title={rest.name}
-										imageUrl={rest.images?.[0]}
-										description={rest.description}
-										rating={rest.rating}
-										isFavorite={true}
-										handleFavorite={() =>
-											handleFavorite(rest.id || rest._id)
-										}
-									/>
-								))}
-							</Grid>
-						) : (
-							<p>{t('profile.no_favorites')}</p>
-						)}
-					</>
+					<Grid>
+						<FavoritesTab
+							restaurants={favoriteRestaurants}
+							onFavorite={handleFavorite}
+						/>
+					</Grid>
 				);
 			case 'owned':
 				return (
-					<>
-						<h2>Мои заведения</h2>
-						{ownedRestaurants.length ? (
-							<Grid>
-								{ownedRestaurants.map((rest) => (
-									<Card
-										key={rest.id}
-										id={rest.id}
-										title={rest.name}
-										imageUrl={rest.images?.[0]}
-										description={rest.description}
-										rating={rest.rating}
-										isFavorite={userFavorites.includes(rest.id)}
-										handleFavorite={() => handleFavorite(rest.id)}
-									/>
-								))}
-							</Grid>
-						) : (
-							<p>У вас еще нет созданных заведений.</p>
-						)}
-					</>
+					<Grid>
+						<OwnedTab
+							restaurants={ownedRestaurants}
+							userFavorites={userFavorites}
+							onFavorite={handleFavorite}
+						/>
+					</Grid>
 				);
 			default:
 				return null;
@@ -351,7 +167,7 @@ export const ProfilePage = () => {
 						$active={activeTab === 'owned'}
 						onClick={() => setActiveTab('owned')}
 					>
-						<FaUtensils /> Мои заведения
+						<FaUtensils /> {t('profile.my_restaurants')}
 					</TabButton>
 				)}
 				<hr
@@ -363,12 +179,12 @@ export const ProfilePage = () => {
 				/>
 				{isAdmin && (
 					<TabButton onClick={() => navigate('/users')}>
-						<FaUsers /> Пользователи
+						<FaUsers /> {t('profile.users')}
 					</TabButton>
 				)}
 				{(isAdmin || isModerator) && (
 					<TabButton $isAction onClick={() => navigate('/rest')}>
-						<FaPlusCircle /> Создать ресторан
+						<FaPlusCircle /> {t('profile.add_restaurant')}
 					</TabButton>
 				)}
 			</Sidebar>
