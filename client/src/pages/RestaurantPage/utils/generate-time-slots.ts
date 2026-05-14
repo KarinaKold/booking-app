@@ -1,31 +1,30 @@
-export const generateTimeSlots = (workingHours: string, selectedDate: Date): string[] => {
-	if (!workingHours || !workingHours.includes(' - ')) return [];
-	const [startStr, endStr] = workingHours.split(' - ');
-	const [startH, startM] = startStr.split(':').map(Number);
-	const [endH, endM] = endStr.split(':').map(Number);
-
+export const generateTimeSlots = (
+	startTime: number,
+	endTime: number,
+	selectedDate: Date,
+): string[] => {
 	const slots: string[] = [];
 
-	const startTime = new Date(selectedDate);
-	startTime.setHours(startH, startM, 0, 0);
-
-	const endTime = new Date(selectedDate);
-	endTime.setHours(endH, endM, 0, 0);
-
 	if (endTime <= startTime) {
-		endTime.setDate(endTime.getDate() + 1);
+		endTime += 24 * 60;
 	}
 
 	const now = new Date();
-	const currentSlot = new Date(startTime);
+	const isToday = selectedDate.toDateString() === now.toDateString();
+	const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
 
-	while (currentSlot < endTime) {
-		if (currentSlot > now || selectedDate.toDateString() !== now.toDateString()) {
-			const h = currentSlot.getHours().toString().padStart(2, '0');
-			const m = currentSlot.getMinutes().toString().padStart(2, '0');
+	while (startTime < endTime) {
+		if (!isToday || startTime > currentTotalMinutes) {
+			const realMins = startTime % (24 * 60);
+			const h = Math.floor(realMins / 60)
+				.toString()
+				.padStart(2, '0');
+			const m = (realMins % 60).toString().padStart(2, '0');
+
 			slots.push(`${h}:${m}`);
 		}
-		currentSlot.setHours(currentSlot.getHours() + 1);
+
+		startTime += 60;
 	}
 	return slots;
 };

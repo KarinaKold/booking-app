@@ -12,12 +12,12 @@ import {
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { useGetConfirmation } from '../../providers';
 import { request } from '../../utils/request';
-import { updateFavoritesAsync, setUser } from '../../actions';
+import { updateFavoritesAsync } from '../../actions';
 import { Card } from '../HomePage/components';
 import { Loader } from '../../components';
 import { selectUserFavorites, selectUserRole } from '../../selectors';
 import { ROLE } from '../../constants';
-import type { Restaurant, UserData } from '../../types';
+import type { Restaurant } from '../../types';
 
 type TabType = 'bookings' | 'favorites' | 'owned';
 
@@ -142,6 +142,7 @@ export const ProfilePage = () => {
 	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
 	const { getConfirmation } = useGetConfirmation();
+
 	const roleId = useAppSelector(selectUserRole);
 	const userFavorites = useAppSelector(selectUserFavorites);
 	const [activeTab, setActiveTab] = useState<TabType>('bookings');
@@ -153,13 +154,16 @@ export const ProfilePage = () => {
 	const isAdmin = roleId === ROLE.ADMIN;
 	const isModerator = roleId === ROLE.MODERATOR;
 
+	if (roleId === ROLE.GUEST && !loading) navigate('/');
+
 	const loadData = useCallback(async () => {
+		if (roleId === ROLE.GUEST) return;
+
 		setLoading(true);
 		try {
 			const isOwner = isAdmin || isModerator;
-			const [bRes, uRes, fRes, oRes] = await Promise.all([
+			const [bRes, fRes, oRes] = await Promise.all([
 				request<ServerResponse<Booking[]>>('/bookings/user'),
-				request<ServerResponse<UserData>>('/users/me'),
 				request<ServerResponse<Restaurant[]>>('/restaurants/favorites-details'),
 				isOwner
 					? request<ServerResponse<Restaurant[]>>('/restaurants/my')
@@ -169,13 +173,12 @@ export const ProfilePage = () => {
 			setBookings(bRes.data || []);
 			setFavoriteRestaurants(fRes.data || []);
 			setOwnedRestaurants(oRes.data || []);
-			if (uRes.data) dispatch(setUser(uRes.data));
 		} catch (e) {
 			console.error(e);
 		} finally {
 			setLoading(false);
 		}
-	}, [isAdmin, isModerator, dispatch]);
+	}, [roleId, isAdmin, isModerator]);
 
 	useEffect(() => {
 		loadData();

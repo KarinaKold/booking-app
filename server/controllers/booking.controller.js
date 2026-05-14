@@ -6,9 +6,9 @@ async function getBusyTables(req, res) {
     const { id } = req.params;
     const busyTables = await bookingService.getBusyTables(id, date, time);
 
-    res.send({ data: busyTables });
+    res.send({ data: busyTables, error: null });
   } catch (e) {
-    res.status(500).send({ error: e.message });
+    res.status(500).send({ error: e.message || "Ошибка загрузки столов" });
   }
 }
 
@@ -22,9 +22,11 @@ async function addBooking(req, res) {
       time: req.body.time,
     });
 
-    res.send({ data: newBooking });
+    res.status(201).send({ data: newBooking, error: null });
   } catch (e) {
-    res.status(400).send({ error: "Этот стол уже занят на выбранное время" });
+    res
+      .status(400)
+      .send({ error: e.message || "Этот стол уже занят на выбранное время" });
   }
 }
 
@@ -37,7 +39,9 @@ async function deleteBooking(req, res) {
 
     res.send({ error: null, success: true });
   } catch (e) {
-    res.status(400).send({ error: "Не удалось отменить бронирование" });
+    res
+      .status(400)
+      .send({ error: e.message || "Не удалось отменить бронирование" });
   }
 }
 
@@ -46,9 +50,11 @@ async function getUserBookings(req, res) {
     const userId = req.user.id;
     const userBookings = await bookingService.getUserBookings(userId);
 
-    res.send({ data: userBookings });
+    res.send({ data: userBookings, error: null });
   } catch (e) {
-    res.status(500).send({ error: "Не удалось загрузить бронирования" });
+    res
+      .status(500)
+      .send({ error: e.message || "Не удалось загрузить бронирования" });
   }
 }
 

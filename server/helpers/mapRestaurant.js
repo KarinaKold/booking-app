@@ -15,7 +15,8 @@ module.exports = function (restaurant) {
     cuisine: restaurant.cuisine,
     hasBarCard: restaurant.hasBarCard,
     description: restaurant.description,
-    workingHours: restaurant.workingHours,
+    startTime: restaurant.startTime,
+    endTime: restaurant.endTime,
     tables: restaurant.tables,
     comments: restaurant.comments.map((comment) =>
       mongoose.isObjectIdOrHexString(comment) ? comment : mapComment(comment),

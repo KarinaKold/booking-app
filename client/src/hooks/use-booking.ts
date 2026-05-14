@@ -23,7 +23,7 @@ export interface BookingHandlers {
 	onBookingSubmit: () => Promise<void>;
 }
 
-export const useBooking = (restaurantId: string, workingHours: string) => {
+export const useBooking = (restaurantId: string, startTime: number, endTime: number) => {
 	const [isBooking, setIsBooking] = useState<boolean>(false);
 	const [isSuccess, setIsSuccess] = useState<boolean>(false);
 	const [selectedDate, setSelectedDate] = useState<Date>(() => {
@@ -38,7 +38,8 @@ export const useBooking = (restaurantId: string, workingHours: string) => {
 	useEffect(() => {
 		if (selectedDate && selectedTime && restaurantId) {
 			const dateStr = formatDate(selectedDate);
-			request<string[]>(
+
+			request<{ data: string[] }>(
 				`/restaurants/${restaurantId}/busy-tables?date=${dateStr}&time=${selectedTime}`,
 			)
 				.then(({ data }) => {
@@ -50,8 +51,8 @@ export const useBooking = (restaurantId: string, workingHours: string) => {
 	}, [selectedDate, selectedTime, restaurantId]);
 
 	const timeSlots = useMemo(
-		() => generateTimeSlots(workingHours, selectedDate),
-		[workingHours, selectedDate],
+		() => generateTimeSlots(startTime, endTime, selectedDate),
+		[startTime, endTime, selectedDate],
 	);
 
 	const availableDates = useMemo(
@@ -92,21 +93,25 @@ export const useBooking = (restaurantId: string, workingHours: string) => {
 		const dateStr = formatDate(selectedDate);
 
 		try {
-			const { error } = await request('/bookings', 'POST', {
-				restaurantId,
-				date: dateStr,
-				time: selectedTime,
-				tableNumber: selectedTable,
-			});
+			const { error } = await request<{ error: string | null }>(
+				'/bookings',
+				'POST',
+				{
+					restaurantId,
+					date: dateStr,
+					time: selectedTime,
+					tableNumber: selectedTable,
+				},
+			);
 			if (!error) {
 				setIsSuccess(true);
-				const { data } = await request<string[]>(
+				const { data } = await request<{ data: string[] }>(
 					`/restaurants/${restaurantId}/busy-tables?date=${dateStr}&time=${selectedTime}`,
 				);
 				setBusyTableIds(data ? data.map(Number) : []);
 			}
-		} catch (e) {
-			console.log('Ошибка при бронировании:', e);
+		} catch (err) {
+			console.log('Ошибка при бронировании:', err);
 		} finally {
 			setIsBooking(false);
 		}

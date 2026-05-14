@@ -3,17 +3,24 @@ import { FaEdit } from 'react-icons/fa';
 import { BookingSection, BookingWidget, Comments, Gallery, Info } from './components';
 import { SpecialPanel } from '../special-panel/SpecialPanel';
 import { useBooking } from '../../../../hooks/use-booking';
-import styled from 'styled-components';
+import { minutesToTime } from '../restaurant-form/utils';
 import type { RestaurantData } from '../../../HomePage/types';
+import { useTranslation } from 'react-i18next';
+import styled from 'styled-components';
 
 export const RestaurantContent = ({ restaurant }: { restaurant: RestaurantData }) => {
+	const { t } = useTranslation();
 	const navigate = useNavigate();
+
+	const workingHours = `${minutesToTime(restaurant.startTime)} — ${minutesToTime(restaurant.endTime)}`;
+
 	const { bookingState, bookingData, bookingHandlers } = useBooking(
 		restaurant.id,
-		restaurant?.workingHours,
+		restaurant.startTime,
+		restaurant.endTime,
 	);
 
-	if (!restaurant) return <div>Ресторан не найден</div>;
+	if (!restaurant) return <div>{t('restaurant.error')}</div>;
 
 	return (
 		<>
@@ -35,7 +42,7 @@ export const RestaurantContent = ({ restaurant }: { restaurant: RestaurantData }
 						name={restaurant.name}
 						rating={restaurant.rating}
 						address={restaurant.address}
-						workingHours={restaurant.workingHours}
+						workingHours={workingHours}
 						cuisine={restaurant.cuisine}
 						hasBarCard={restaurant.hasBarCard}
 						description={restaurant.description}
@@ -58,7 +65,7 @@ export const RestaurantContent = ({ restaurant }: { restaurant: RestaurantData }
 				</div>
 				<div className="comments-section">
 					<hr className="hr" />
-					<h3>Отзывы</h3>
+					<h3>{t('restaurant.comments')}</h3>
 					<Comments
 						restaurantId={restaurant.id}
 						comments={restaurant.comments}

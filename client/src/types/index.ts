@@ -20,6 +20,7 @@ export interface Restaurant {
 	rating: number;
 	cuisine: string;
 	address: string;
-	workingHours: string;
+	startTime: number;
+	endTime: number;
 	hasBarCard: boolean;
 }

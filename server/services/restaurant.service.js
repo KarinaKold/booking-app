@@ -55,46 +55,44 @@ async function getRestaurants(params) {
   if (minRating) query.rating = { $gte: Number(minRating) };
   if (hasBarCard === "true" || hasBarCard === true) query.hasBarCard = true;
 
-  const sortDirection = sortOrder === "desc" ? -1 : 1;
-  let restaurants = await Restaurant.find(query).sort({
-    [sortBy]: sortDirection,
-  });
+  const sort = { [sortBy]: sortOrder === "desc" ? -1 : 1 };
 
   if (openNow === "true" || openNow === true) {
     const now = new Date();
     const currentTime = now.getHours() * 60 + now.getMinutes();
 
-    restaurants = restaurants.filter((rest) => {
-      if (!rest.workingHours || !rest.workingHours.includes(" - "))
-        return false;
-
-      const [start, end] = rest.workingHours.split(" - ");
-      const [startH, startM] = start.split(":").map(Number);
-      const [endH, endM] = end.split(":").map(Number);
-
-      const startMinutes = startH * 60 + startM;
-      let endMinutes = endH * 60 + endM;
-      if (endMinutes <= startMinutes) {
-        endMinutes += 24 * 60;
-      }
-      const isCurrentNight =
-        currentTime < startMinutes && currentTime < endMinutes - 24 * 60;
-      const effectiveCurrentTime = isCurrentNight
-        ? currentTime + 24 * 60
-        : currentTime;
-
-      return (
-        effectiveCurrentTime >= startMinutes &&
-        effectiveCurrentTime < endMinutes
-      );
-    });
+    query.$or = [
+      {
+        $and: [
+          { startTime: { $lte: currentTime } },
+          { endTime: { $gt: currentTime } },
+          { $expr: { $gt: ["$endTime", "$startTime"] } },
+        ],
+      },
+      {
+        $and: [
+          { $expr: { $lt: ["$endTime", "$startTime"] } },
+          {
+            $or: [
+              { startTime: { $lte: currentTime } },
+              { endTime: { $gt: currentTime } },
+            ],
+          },
+        ],
+      },
+    ];
   }
 
-  const count = restaurants.length;
-  const pagedRestaurants = restaurants.slice((page - 1) * limit, page * limit);
+  const [restaurants, count] = await Promise.all([
+    Restaurant.find(query)
+      .limit(limit)
+      .skip((page - 1) * limit)
+      .sort(sort),
+    Restaurant.countDocuments(query),
+  ]);
 
   return {
-    restaurants: pagedRestaurants,
+    restaurants,
     lastPage: Math.ceil(count / limit),
   };
 }

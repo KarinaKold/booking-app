@@ -1,11 +1,5 @@
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { useAppDispatch } from '../../../../hooks';
-import { SpecialPanel } from '../special-panel/SpecialPanel';
-import { saveRestaurantAsync } from '../../../../actions';
-import { sanitizeContent } from './utils';
-import styled from 'styled-components';
-import { Button, Input } from '../../../../components';
 import {
 	FaGlassMartiniAlt,
 	FaPlus,
@@ -13,7 +7,13 @@ import {
 	FaTrash,
 	FaUserFriends,
 } from 'react-icons/fa';
+import { useAppDispatch } from '../../../../hooks';
+import { SpecialPanel } from '../special-panel/SpecialPanel';
+import { Button, Input } from '../../../../components';
+import { saveRestaurantAsync } from '../../../../actions';
+import { minutesToTime, sanitizeContent, timeToMinutes } from './utils';
 import type { RestaurantData, Table } from '../../../HomePage/types';
+import styled from 'styled-components';
 
 interface RestaurantFormProps {
 	className?: string;
@@ -32,7 +32,8 @@ const RestaurantFormContainer = ({
 		name,
 		address,
 		cuisine,
-		workingHours,
+		startTime,
+		endTime,
 		hasBarCard,
 		description,
 		images,
@@ -45,11 +46,12 @@ const RestaurantFormContainer = ({
 	const [nameValue, setNameValue] = useState<string>(name || '');
 	const [addressValue, setAddressValue] = useState<string>(address || '');
 	const [cuisineValue, setCuisineValue] = useState<string>(cuisine || '');
-	const [start, end] = workingHours?.includes(' - ')
-		? workingHours.split(' - ')
-		: ['10:00', '22:00'];
-	const [startTime, setStartTime] = useState<string>(start);
-	const [endTime, setEndTime] = useState<string>(end);
+	const [startTimeValue, setStartTimeValue] = useState<string>(
+		startTime !== undefined ? minutesToTime(startTime) : '10:00',
+	);
+	const [endTimeValue, setEndTimeValue] = useState<string>(
+		endTime !== undefined ? minutesToTime(endTime) : '22:00',
+	);
 	const [hasBarCardValue, setHasBarCardValue] = useState<boolean>(!!hasBarCard);
 	const [imagesValue, setImagesValue] = useState<string[]>(
 		images && images.length > 0 ? images : [''],
@@ -100,14 +102,14 @@ const RestaurantFormContainer = ({
 	const onSave = async () => {
 		const descriptionRefElement = descriptionRef.current?.innerHTML || '';
 		const newDescription = sanitizeContent(descriptionRefElement);
-		const formattedWorkingHours = `${startTime} - ${endTime}`;
 
 		const response = await (dispatch(
 			saveRestaurantAsync(id, {
 				name: nameValue,
 				address: addressValue,
 				cuisine: cuisineValue,
-				workingHours: formattedWorkingHours,
+				startTime: timeToMinutes(startTimeValue),
+				endTime: timeToMinutes(endTimeValue),
 				hasBarCard: hasBarCardValue,
 				images: imagesValue,
 				description: newDescription,
@@ -144,14 +146,14 @@ const RestaurantFormContainer = ({
 						<Input
 							type="time"
 							value={startTime}
-							onChange={({ target }) => setStartTime(target.value)}
+							onChange={({ target }) => setStartTimeValue(target.value)}
 							className="time-input"
 						/>
 						<span className="time-separator">—</span>
 						<Input
 							type="time"
 							value={endTime}
-							onChange={({ target }) => setEndTime(target.value)}
+							onChange={({ target }) => setEndTimeValue(target.value)}
 							className="time-input"
 						/>
 					</div>

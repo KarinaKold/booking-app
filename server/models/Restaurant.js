@@ -31,8 +31,12 @@ const RestaurantSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    workingHours: {
-      type: String,
+    startTime: {
+      type: Number,
+      required: true,
+    },
+    endTime: {
+      type: Number,
       required: true,
     },
     cuisine: {
