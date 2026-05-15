@@ -1,10 +1,12 @@
-import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { useGetConfirmation } from '../../providers';
 import { checkAccess } from '../../utils';
 import { PrivateContent } from '../../components/private-content/PrivateContent';
+import { Pagination, Search } from '../HomePage/components';
 import { UserRow, TableRow } from './components';
+import { Loader } from '../../components';
 import { request } from '../../utils/request';
 import {
 	selectUserRole,
@@ -15,24 +17,18 @@ import {
 	selectUsersRoles,
 } from '../../selectors';
 import { loadUsersAsync } from '../../actions';
-import { ROLE } from '../../constants';
-// import type { UserData } from '../../types';
+import { useSearchPaginate } from '../../hooks';
+import { PAGINATION_LIMIT, ROLE } from '../../constants';
+import type { UserSortField, UserSortState } from '../HomePage/types';
+import type { Role, UserData } from '../../types';
 import styled from 'styled-components';
-import { Loader } from '../../components';
-import { Pagination, Search } from '../HomePage/components';
-import { debounce } from '../HomePage/utils';
-
-interface Role {
-	id: number;
-	name: string;
-}
-
-const PAGINATION_LIMIT = 5;
 
 const UsersContainer = ({ className }: { className?: string }) => {
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
 	const { getConfirmation } = useGetConfirmation();
+	const { page, setPage, searchPhrase, shouldSearch, onSearch } = useSearchPaginate();
+
 	const users = useAppSelector(selectUsersData);
 	const roles = useAppSelector(selectUsersRoles);
 	const lastPage = useAppSelector(selectUsersDataLastPage);
@@ -40,12 +36,11 @@ const UsersContainer = ({ className }: { className?: string }) => {
 	const errorMessage = useAppSelector(selectUsersDataError);
 	const userRole = useAppSelector(selectUserRole);
 
-	const [page, setPage] = useState(1);
-	const [searchPhrase, setSearchPhrase] = useState('');
-	const [shouldSearch, setShouldSearch] = useState('');
-	const [sort, setSort] = useState({ field: 'createdAt', order: 'desc' });
-	const [shouldUpdateUserList, setShouldUpdateUserList] = useState(false);
-
+	const [sort, setSort] = useState<UserSortState>({
+		field: 'createdAt',
+		order: 'desc',
+	});  
+	const [shouldUpdateUserList, setShouldUpdateUserList] = useState<boolean>(false);
 	const [removeError, setRemoveError] = useState<string | null>(null);
 
 	useEffect(() => {
@@ -68,40 +63,25 @@ const UsersContainer = ({ className }: { className?: string }) => {
 			try {
 				await request(`/users/${userId}`, 'DELETE');
 				setShouldUpdateUserList(!shouldUpdateUserList);
-			} catch (error) {
+			} catch (error: unknown) {
 				console.error(error);
 				setRemoveError('Не удалось удалить пользователя');
 			}
 		}
 	};
 
-	const handleSort = (field) => {
+	const handleSort = (field: UserSortField) => {
 		setSort((prev) => ({
 			field,
 			order: prev.field === field && prev.order === 'desc' ? 'asc' : 'desc',
 		}));
 	};
 
-	const sortStatus = (field) => {
+	const sortStatus = (field: UserSortField) => {
 		if (sort.field === field) {
-			return sort.order === 'asc' ? '▲' : '▼';
+			return sort.order === 'asc' ? ' ▲' : ' ▼';
 		}
-		return '↕sort';
-	};
-
-	const startDelayedSearch = useMemo(
-		() =>
-			debounce((value) => {
-				setShouldSearch(value);
-				setPage(1);
-			}, 2000),
-		[],
-	);
-
-	const onSearch = ({ target }: ChangeEvent<HTMLInputElement>) => {
-		setRemoveError(null);
-		setSearchPhrase(target.value);
-		startDelayedSearch(target.value);
+		return ' ↕';
 	};
 
 	const error = errorMessage || removeError;
@@ -128,7 +108,7 @@ const UsersContainer = ({ className }: { className?: string }) => {
 					<Loader />
 				) : users.length ? (
 					<div className="table-content">
-						{users.map(({ id, login, registeredAt, roleId }) => (
+						{users.map(({ id, login, registeredAt, roleId }: UserData) => (
 							<UserRow
 								key={id}
 								id={id}
@@ -136,7 +116,7 @@ const UsersContainer = ({ className }: { className?: string }) => {
 								registeredAt={registeredAt}
 								roleId={roleId}
 								roles={roles.filter(
-									({ id: roleId }) => roleId !== ROLE.GUEST,
+									({ id: roleId }: Role) => roleId !== ROLE.GUEST,
 								)}
 								onUserRemove={() => onUserRemove(id, login)}
 							/>

@@ -33,6 +33,12 @@ export interface RestaurantFilters {
 export type SortField = 'createdAt' | 'rating' | 'name';
 export type SortOrder = 'asc' | 'desc';
 
+export type UserSortField = 'login' | 'createdAt';
+export interface UserSortState {
+	field: UserSortField;
+	order: SortOrder;
+}
+
 export interface SortOption {
 	id: string;
 	label: string;

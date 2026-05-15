@@ -10,6 +10,9 @@
 		"restPage": "Restaurants",
 		"aboutPage": "About"
 	},
+	"home": {
+		"no_results": "Not found"
+	},
 	"form": {
 		"username": "Username",
 		"email": "E-mail",

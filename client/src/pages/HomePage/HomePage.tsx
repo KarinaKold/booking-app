@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks';
+import { useTranslation } from 'react-i18next';
 import { PAGINATION_LIMIT, ROLE } from '../../constants';
 import { MOCK_STORIES } from './constants/stories';
-import { debounce } from './utils';
 import { Card, Pagination, Search, SortPanel, StorySection } from './components';
 import { ScrollToTop } from '../../components/sidebar/ScrollToTop';
 import { Loader, Sidebar } from '../../components';
@@ -17,19 +17,21 @@ import {
 } from '../../selectors';
 import type { RestaurantFilters, SortField, SortOrder } from './types';
 import type { Restaurant } from '../../types';
+import { useSearchPaginate } from '../../hooks';
 import styled from 'styled-components';
 
 export const HomePage = () => {
+	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
+	const { page, setPage, searchPhrase, shouldSearch, onSearch } = useSearchPaginate();
+
 	const roleId = useAppSelector(selectUserRole);
 	const restaurants = useAppSelector(selectRestaurants);
 	const loading = useAppSelector(selectRestaurantsLoading);
 	const lastPage = useAppSelector(selectLastPage);
 	const serverError = useAppSelector(selectRestaurantsError);
 	const userFavorites = useAppSelector(selectUserFavorites);
-	const [page, setPage] = useState<number>(1);
-	const [searchPhrase, setSearchPhrase] = useState<string>('');
-	const [shouldSearch, setShouldSearch] = useState<boolean>(false);
+
 	const [filters, setFilters] = useState<RestaurantFilters>({
 		cuisines: [],
 		minRating: 0,
@@ -60,16 +62,7 @@ export const HomePage = () => {
 			params.openNow = 'true';
 		}
 		dispatch(loadRestaurantsAsync(params));
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [page, shouldSearch, filters, sortBy, sortOrder]);
-
-	const startDelayedSearch = useMemo(() => debounce(setShouldSearch, 2000), []);
-
-	const onSearch = ({ target }: ChangeEvent<HTMLInputElement>) => {
-		setSearchPhrase(target.value);
-		startDelayedSearch(!shouldSearch);
-		setPage(1);
-	};
+	}, [dispatch, page, shouldSearch, filters, sortBy, sortOrder]);
 
 	const onFilterChange = (newFilters: RestaurantFilters) => {
 		setFilters(newFilters);
@@ -135,7 +128,7 @@ export const HomePage = () => {
 						</CardList>
 					) : (
 						<div className="no-results">
-							<p>Рестораны не найдены</p>
+							<p>{t('home.no_results')}</p>
 						</div>
 					)}
 				</div>

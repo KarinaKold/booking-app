@@ -10,6 +10,9 @@
 		"restPage": "Рестораны",
 		"aboutPage": "О нас"
 	},
+	"home": {
+		"no_results": "Заведения не найдены"
+	},
 	"form": {
 		"username": "Имя",
 		"email": "E-mail",
