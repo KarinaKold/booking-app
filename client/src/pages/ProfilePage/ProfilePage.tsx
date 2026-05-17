@@ -12,8 +12,7 @@ import {
 import { useGetConfirmation } from '../../providers';
 import { useProfileData } from '../../hooks';
 import { BookingsTab, FavoritesTab, OwnedTab } from './components';
-import { Loader, TabButton } from '../../components';
-import { Error } from '../../components/shared/error/Error';
+import { Error, Loader, TabButton } from '../../components';
 
 type TabType = 'bookings' | 'favorites' | 'owned';
 
@@ -91,9 +90,7 @@ export const ProfilePage = () => {
 		}
 
 		if (loading) return <Loader />;
-		if (error) {
-			return <Error>{error}</Error>;
-		}
+		if (error) <Error error={error} />;
 
 		switch (activeTab) {
 			case 'bookings':

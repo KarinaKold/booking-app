@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 
 const Div = styled.div`
@@ -7,10 +8,12 @@ const Div = styled.div`
 	font-size: 18px;
 `;
 
-export const Error = ({ error }: any) =>
-	error && (
+export const Error = ({ error }: { error: string | null | undefined }) => {
+	const { t } = useTranslation();
+	return error ? (
 		<Div>
-			<h2>Ошибка</h2>
+			<h2>{t('common.error')}</h2>
 			<div>{error}</div>
 		</Div>
-	);
+	) : null;
+};

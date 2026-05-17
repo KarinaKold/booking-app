@@ -6,5 +6,6 @@ export * from './theme-switcher/ThemeSwitcher';
 export * from './sidebar/Sidebar';
 export * from './shared/loader/Loader';
 export * from './shared/input/Input';
+export * from './shared/error/Error';
 export * from './shared/buttons';
 export * from './shared/fullscreen-viewer/FullscreenViewer';

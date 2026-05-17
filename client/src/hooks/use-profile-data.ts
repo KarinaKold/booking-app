@@ -33,11 +33,6 @@ export const useProfileData = (
 	const ownedRestaurants = useAppSelector<Restaurant[]>(selectOwnedRestaurants);
 	const loading = useAppSelector<boolean>(selectProfileLoading);
 	const error = useAppSelector<string | null>(selectProfileError);
-	// const [bookings, setBookings] = useState<Booking[]>([]);
-
-	// const [favoriteRestaurants, setFavoriteRestaurants] = useState<Restaurant[]>([]);
-	// const [ownedRestaurants, setOwnedRestaurants] = useState<Restaurant[]>([]);
-	// const [loading, setLoading] = useState(true);
 
 	const isGuest = checkAccess([ROLE.GUEST], roleId);
 	const isAdmin = checkAccess([ROLE.ADMIN], roleId);
@@ -47,28 +42,6 @@ export const useProfileData = (
 		if (isGuest) return;
 		await dispatch(loadProfileDataAsync(roleId));
 	}, [dispatch, isGuest, roleId]);
-
-	// setLoading(true);
-	// try {
-	// 	const isOwner = isAdmin || isModerator;
-
-	// const [, fRes, oRes] = await Promise.all([
-	// request<ServerResponse<Booking[]>>('/bookings/user'),
-	// request<ServerResponse<Restaurant[]>>('/restaurants/favorites-details'),
-	// 	isOwner
-	// 		? request<ServerResponse<Restaurant[]>>('/restaurants/my')
-	// 		: Promise.resolve({ data: [], error: null }),
-	// ]);
-	// setBookings(bRes.data || []);
-	// dispatch({ type: ACTION_TYPE.SET_USER_BOOKINGS, payload: bRes.data || [] });
-	// setFavoriteRestaurants(fRes.data || []);
-	// setOwnedRestaurants(oRes.data || []);
-	// 	} catch (e) {
-	// 		console.error(e);
-	// 	} finally {
-	// 		setLoading(false);
-	// 	}
-	// }, [dispatch, isAdmin, isGuest, isModerator]);
 
 	useEffect(() => {
 		loadData();
@@ -84,12 +57,6 @@ export const useProfileData = (
 
 		if (confirmed) {
 			await dispatch(removeBookingAsync(id));
-			// try {
-			// 	await request(`/bookings/${id}`, 'DELETE');
-			// 	setBookings((prev) => prev.filter((b) => b._id !== id));
-			// } catch (error) {
-			// 	console.error('Ошибка отмены бронирования:', error);
-			// }
 		}
 	};
 
@@ -99,23 +66,7 @@ export const useProfileData = (
 		const res = await dispatch(updateFavoritesAsync(id));
 		if (res?.error) return;
 
-		// const isCurrFavorite = userFavorites.includes(id);
 		await dispatch(loadFavoriteRestaurantsAsync());
-		// if (isCurrFavorite) {
-		// 	setFavoriteRestaurants((prev) => prev.filter((r) => (r.id || r._id) !== id));
-		// } else {
-		// 	const restaurantToAdd = ownedRestaurants.find((r) => (r.id || r._id) === id);
-
-		// 	if (restaurantToAdd) {
-		// 		setFavoriteRestaurants((prev) => [...prev, restaurantToAdd]);
-		// 	} else {
-		// 		const fRes = await request<ServerResponse<Restaurant[]>>(
-		// 			'/restaurants/favorites-details',
-		// 		);
-
-		// 		if (fRes.data) setFavoriteRestaurants(fRes.data);
-		// 	}
-		// }
 	};
 
 	return {

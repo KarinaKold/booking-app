@@ -95,6 +95,7 @@
 		"no": "No",
 		"cancel_booking": "Cancel booking",
 		"unknown_restaurant": "Unknown restaurant",
-		"not_selected": "not selected"
+		"not_selected": "not selected",
+		"error": "Error"
 	}
 }

@@ -95,6 +95,7 @@
 		"no": "Нет",
 		"cancel_booking": "Отменить бронь",
 		"unknown_restaurant": "Неизвестное заведение",
-		"not_selected": "не выбрано"
+		"not_selected": "не выбрано",
+		"error": "Ошибка"
 	}
 }
