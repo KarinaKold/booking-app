@@ -14,7 +14,7 @@ const initialRestaurantsState: RestaurantsState = {
 	error: null,
 };
 
-interface FetchSuccessPayload {
+export interface FetchSuccessPayload {
 	restaurants: Restaurant[];
 	lastPage: number;
 }
@@ -24,8 +24,10 @@ type RestaurantsAction =
 	| { type: typeof ACTION_TYPE.FETCH_RESTAURANTS_SUCCESS; payload: FetchSuccessPayload }
 	| { type: typeof ACTION_TYPE.FETCH_RESTAURANTS_FAILURE; payload: string };
 
-
-export const restaurantsReducer = (state = initialRestaurantsState, action: RestaurantsAction): RestaurantsState => {
+export const restaurantsReducer = (
+	state = initialRestaurantsState,
+	action: RestaurantsAction,
+): RestaurantsState => {
 	switch (action.type) {
 		case ACTION_TYPE.FETCH_RESTAURANTS_REQUEST:
 			return {

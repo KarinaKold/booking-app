@@ -1,4 +1,5 @@
 import { ACTION_TYPE } from '../actions';
+import type { RemoveCommentAction } from '../actions/remove-comment';
 import type { CommentData, RestaurantData } from '../pages/HomePage/types';
 
 interface RestaurantState {
@@ -9,14 +10,19 @@ interface RestaurantState {
 	commentError: string | null;
 }
 
+interface CommentSuccessPayload {
+	comment: CommentData;
+	updatedRating: number;
+}
+
 type RestaurantAction =
 	| { type: typeof ACTION_TYPE.SET_RESTAURANT_REQUEST }
 	| { type: typeof ACTION_TYPE.SET_RESTAURANT_SUCCESS; payload: RestaurantData }
 	| { type: typeof ACTION_TYPE.SET_RESTAURANT_FAILURE; payload: string }
 	| { type: typeof ACTION_TYPE.ADD_COMMENT_REQUEST }
-	| { type: typeof ACTION_TYPE.ADD_COMMENT_SUCCESS; payload: CommentData }
+	| { type: typeof ACTION_TYPE.ADD_COMMENT_SUCCESS; payload: CommentSuccessPayload }
 	| { type: typeof ACTION_TYPE.ADD_COMMENT_FAILURE; payload: string }
-	| { type: typeof ACTION_TYPE.REMOVE_COMMENT; payload: string }
+	| RemoveCommentAction
 	| { type: typeof ACTION_TYPE.RESET_RESTAURANT_DATA };
 
 const initialRestaurantState: RestaurantState = {
@@ -26,7 +32,8 @@ const initialRestaurantState: RestaurantState = {
 		rating: 0,
 		images: [],
 		address: '',
-		workingHours: '',
+		startTime: 0,
+		endTime: 0,
 		cuisine: '',
 		hasBarCard: false,
 		description: '',
@@ -93,8 +100,9 @@ export const restaurantReducer = (
 				data: {
 					...state.data,
 					comments: state.data.comments.filter(
-						(comment) => comment.id !== action.payload,
+						(comment) => comment.id !== action.payload.commentId,
 					),
+					rating: action.payload.updatedRating,
 				},
 			};
 		case ACTION_TYPE.RESET_RESTAURANT_DATA:

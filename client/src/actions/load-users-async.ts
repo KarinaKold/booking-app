@@ -1,6 +1,10 @@
-import type { Dispatch } from 'redux';
 import { request } from '../utils/request';
 import { ACTION_TYPE } from './action-type';
+import type { AppThunk } from '../store';
+import type { Role, ServerResponse } from '../types';
+import type { FetchUsersSuccessPayload } from '../reducers';
+
+type UsersData = Omit<FetchUsersSuccessPayload, 'roles'>;
 
 export const loadUsersAsync =
 	(
@@ -9,15 +13,15 @@ export const loadUsersAsync =
 		limit: number,
 		sortBy = 'registeredAt',
 		sortOrder = 'desc',
-	) =>
-	async (dispatch: Dispatch) => {
+	): AppThunk<ServerResponse<FetchUsersSuccessPayload>> =>
+	async (dispatch) => {
 		dispatch({ type: ACTION_TYPE.FETCH_USERS_REQUEST });
 		try {
 			const [usersResponse, rolesResponse] = await Promise.all([
-				request(
+				request<ServerResponse<UsersData>>(
 					`/users?search=${search}&page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`,
 				),
-				request('/users/roles'),
+				request<ServerResponse<Role[]>>('/users/roles'),
 			]);
 
 			if (usersResponse.error || rolesResponse.error) {
@@ -26,22 +30,26 @@ export const loadUsersAsync =
 					type: ACTION_TYPE.FETCH_USERS_FAILURE,
 					payload: errorMessage,
 				});
-				return { error: errorMessage };
+				return { data: null, error: errorMessage };
 			}
+
+			const usersData: FetchUsersSuccessPayload = {
+				users: usersResponse.data?.users || [],
+				roles: rolesResponse.data || [],
+				lastPage: usersResponse.data?.lastPage || 1,
+			};
 
 			dispatch({
 				type: ACTION_TYPE.FETCH_USERS_SUCCESS,
-				payload: {
-					users: usersResponse.data.users,
-					roles: rolesResponse.data,
-					lastPage: usersResponse.data.lastPage,
-				},
+				payload: usersData,
 			});
+			return { data: usersData, error: null };
 		} catch (err: unknown) {
 			const errorMessage = err instanceof Error ? err.message : 'Произошла ошибка';
 			dispatch({
 				type: ACTION_TYPE.FETCH_USERS_FAILURE,
 				payload: errorMessage || 'Ошибка при загрузке данных',
 			});
+			return { data: null, error: errorMessage };
 		}
 	};

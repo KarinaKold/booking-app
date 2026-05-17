@@ -34,3 +34,8 @@ export interface Booking {
 		name: string;
 	};
 }
+
+export interface ServerResponse<T> {
+	data: T | null;
+	error: string | null;
+}
