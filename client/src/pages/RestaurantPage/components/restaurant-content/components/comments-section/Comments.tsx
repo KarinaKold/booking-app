@@ -90,9 +90,6 @@ const CommentsContainer = ({ className, comments, restaurantId }: CommentsProps)
 								e.preventDefault();
 								onNewCommentAdd(restaurantId, newComment, rating);
 							}}
-							// onClick={() =>
-							// 	onNewCommentAdd(restaurantId, newComment, rating)
-							// }
 						>
 							{isCommentSubmitting ? (
 								<FaPaperPlane size="18px" style={{ opacity: 0.5 }} />
