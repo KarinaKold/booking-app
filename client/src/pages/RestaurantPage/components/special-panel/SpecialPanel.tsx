@@ -41,7 +41,7 @@ const SpecialPanelContainer = ({
 
 		if (confirmed) {
 			const response = await dispatch(removeRestaurantAsync(restaurantId));
-			if (response && !('error' in response && response.error)) {
+			if (response && !response.error) {
 				navigate('/');
 			}
 		}
