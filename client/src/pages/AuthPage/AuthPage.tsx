@@ -52,7 +52,7 @@ const AuthorizationContainer = ({ className }: { className?: string }) => {
 		register,
 		reset,
 		handleSubmit,
-		formState: { errors },
+		formState: { errors, isSubmitting },
 	} = useForm<AuthFormData>({
 		defaultValues: {
 			login: '',
@@ -94,7 +94,7 @@ const AuthorizationContainer = ({ className }: { className?: string }) => {
 	const errorMessage = formError || serverError;
 
 	if (roleId !== ROLE.GUEST) {
-		return <Navigate to="/" />;
+		return <Navigate to="/" replace />;
 	}
 
 	return (
@@ -117,8 +117,8 @@ const AuthorizationContainer = ({ className }: { className?: string }) => {
 						onChange: () => setServerError(null),
 					})}
 				/>
-				<Button type="submit" disabled={!!formError}>
-					{t('auth.login')}
+				<Button type="submit" disabled={!!formError || isSubmitting}>
+					{isSubmitting ? `...` : t('auth.login')}
 				</Button>
 				{errorMessage && <AuthFormError>{errorMessage}</AuthFormError>}
 				<StyledLink to="/register">{t('auth.register')}</StyledLink>

@@ -48,7 +48,7 @@ const RegistrationContainer = ({ className }: { className?: string }) => {
 		register,
 		reset,
 		handleSubmit,
-		formState: { errors },
+		formState: { errors, isSubmitting },
 	} = useForm({
 		defaultValues: {
 			login: '',
@@ -90,7 +90,7 @@ const RegistrationContainer = ({ className }: { className?: string }) => {
 	const errorMessage = formError || serverError;
 
 	if (roleId !== ROLE.GUEST) {
-		return <Navigate to="/" />;
+		return <Navigate to="/" replace />;
 	}
 
 	return (
@@ -121,8 +121,8 @@ const RegistrationContainer = ({ className }: { className?: string }) => {
 						onChange: () => setServerError(null),
 					})}
 				/>
-				<Button type="submit" disabled={!!formError}>
-					{t('auth.register')}
+				<Button type="submit" disabled={!!formError || isSubmitting}>
+					{isSubmitting ? `...` : t('auth.register')}
 				</Button>
 				{errorMessage && <AuthFormError>{errorMessage}</AuthFormError>}
 			</form>
