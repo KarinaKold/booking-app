@@ -19,7 +19,7 @@ export interface FetchSuccessPayload {
 	lastPage: number;
 }
 
-type RestaurantsAction =
+export type RestaurantsAction =
 	| { type: typeof ACTION_TYPE.FETCH_RESTAURANTS_REQUEST }
 	| { type: typeof ACTION_TYPE.FETCH_RESTAURANTS_SUCCESS; payload: FetchSuccessPayload }
 	| { type: typeof ACTION_TYPE.FETCH_RESTAURANTS_FAILURE; payload: string };

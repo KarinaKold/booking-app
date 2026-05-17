@@ -23,7 +23,7 @@ export interface FetchUsersSuccessPayload {
 	lastPage: number;
 }
 
-type UsersAction =
+export type UsersAction =
 	| { type: typeof ACTION_TYPE.FETCH_USERS_REQUEST }
 	| { type: typeof ACTION_TYPE.FETCH_USERS_SUCCESS; payload: FetchUsersSuccessPayload }
 	| { type: typeof ACTION_TYPE.FETCH_USERS_FAILURE; payload: string };

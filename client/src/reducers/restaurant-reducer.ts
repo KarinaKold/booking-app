@@ -15,7 +15,7 @@ interface CommentSuccessPayload {
 	updatedRating: number;
 }
 
-type RestaurantAction =
+export type RestaurantAction =
 	| { type: typeof ACTION_TYPE.SET_RESTAURANT_REQUEST }
 	| { type: typeof ACTION_TYPE.SET_RESTAURANT_SUCCESS; payload: RestaurantData }
 	| { type: typeof ACTION_TYPE.SET_RESTAURANT_FAILURE; payload: string }

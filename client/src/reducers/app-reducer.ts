@@ -7,7 +7,7 @@ const initialAppState: AppState = {
 	wasLogout: false,
 };
 
-type AppAction = {
+export type AppAction = {
 	type: typeof ACTION_TYPE.LOGOUT;
 };
 

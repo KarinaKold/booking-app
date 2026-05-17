@@ -28,7 +28,7 @@ const initialUserState: UserState = {
 	error: null,
 };
 
-type UserAction =
+export type UserAction =
 	| { type: typeof ACTION_TYPE.SET_USER; payload: Partial<UserState> }
 	| { type: typeof ACTION_TYPE.SET_USER_FAVORITES; payload: string[] }
 	| { type: typeof ACTION_TYPE.FETCH_PROFILE_REQUEST }

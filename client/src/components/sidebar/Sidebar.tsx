@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { FaFilter, FaUndoAlt } from 'react-icons/fa';
 import { request } from '../../utils/request';
 import type { RestaurantFilters } from '../../pages/HomePage/types';
+import type { ServerResponse } from '../../types';
 import styled from 'styled-components';
 
 interface SidebarProps {
@@ -26,9 +27,11 @@ export const Sidebar = ({ onFilterChange, amount, loading }: SidebarProps) => {
 	const [metadata, setMetadata] = useState<Metadata>({ cuisines: [] });
 
 	useEffect(() => {
-		request<Metadata>('/restaurants/filters/metadata').then(({ data }) => {
-			if (data) setMetadata(data);
-		});
+		request<ServerResponse<Metadata>>('/restaurants/filters/metadata').then(
+			({ data }) => {
+				if (data) setMetadata(data);
+			},
+		);
 	}, []);
 
 	useEffect(() => {
