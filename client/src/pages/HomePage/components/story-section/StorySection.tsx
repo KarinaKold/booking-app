@@ -61,12 +61,22 @@ const StyledSection = styled.section`
 	margin: 0 auto;
 	padding: 20px;
 
+	width: 100%;
+	overflow: hidden;
+
 	.preview-list {
 		display: flex;
 		gap: 20px;
-		padding: 10px 5px;
+		width: 100%;
+		max-width: 100%;
+		padding: 10px 20px;
 		overflow-x: auto;
+		overflow-y: hidden;
+		-webkit-overflow-scrolling: touch;
+		scroll-behavior: smooth;
+		justify-content: flex-start;
 		scrollbar-width: none;
+
 		&::-webkit-scrollbar {
 			display: none;
 		}
@@ -77,7 +87,8 @@ const StyledSection = styled.section`
 		flex-direction: column;
 		align-items: center;
 		cursor: pointer;
-		min-width: 100px;
+		width: 100px;
+		flex-shrink: 0;
 		transition: transform 0.2s ease;
 
 		&:hover {
@@ -95,6 +106,13 @@ const StyledSection = styled.section`
 			span {
 				color: #999;
 			}
+		}
+
+		&:first-child {
+			margin-left: auto;
+		}
+		&:last-child {
+			margin-right: auto;
 		}
 	}
 

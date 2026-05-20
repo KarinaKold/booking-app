@@ -10,10 +10,6 @@ import { ROLE } from '../../../../constants';
 import styled from 'styled-components';
 
 const RightAligned = styled.div`
-	// display: flex;
-	// justify-content: flex-end;
-	// align-items: center;
-
 	display: flex;
 	align-items: center;
 	gap: 16px;
