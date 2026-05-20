@@ -10,9 +10,20 @@ import { ROLE } from '../../../../constants';
 import styled from 'styled-components';
 
 const RightAligned = styled.div`
+	// display: flex;
+	// justify-content: flex-end;
+	// align-items: center;
+
 	display: flex;
-	justify-content: flex-end;
 	align-items: center;
+	gap: 16px;
+
+	@media (max-width: 768px) {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 20px;
+		width: 100%;
+	}
 `;
 
 const UserName = styled.div`
@@ -38,7 +49,12 @@ const PrivateLink = styled.div`
 	}
 `;
 
-export const ControlPanelContainer = ({ className }: { className?: string }) => {
+interface ControlPanelProps {
+	className?: string;
+	onClose: () => void;
+}
+
+export const ControlPanelContainer = ({ className, onClose }: ControlPanelProps) => {
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
 	const { getConfirmation } = useGetConfirmation();
@@ -55,6 +71,7 @@ export const ControlPanelContainer = ({ className }: { className?: string }) => 
 
 		if (confirmed) {
 			await dispatch(logout());
+			onClose();
 		}
 	};
 
@@ -69,14 +86,18 @@ export const ControlPanelContainer = ({ className }: { className?: string }) => 
 				{isAdmin && (
 					<>
 						<PrivateLink>
-							<Link to="/users">Users</Link>
+							<Link to="/users" onClick={onClose}>
+								Users
+							</Link>
 						</PrivateLink>
 					</>
 				)}
 				{isModerator && (
 					<>
 						<PrivateLink>
-							<Link to="/rest">Create!</Link>
+							<Link to="/rest" onClick={onClose}>
+								Create!
+							</Link>
 						</PrivateLink>
 					</>
 				)}
@@ -84,12 +105,16 @@ export const ControlPanelContainer = ({ className }: { className?: string }) => 
 			<RightAligned>
 				{roleId === ROLE.GUEST ? (
 					<Button>
-						<Link to="/login">{t('auth.login')}</Link>
+						<Link to="/login" onClick={onClose}>
+							{t('auth.login')}
+						</Link>
 					</Button>
 				) : (
 					<>
 						<UserName>
-							<Link to="/profile">{login}</Link>
+							<Link to="/profile" onClick={onClose}>
+								{login}
+							</Link>
 						</UserName>
 						<Button onClick={onLogout}>{t('auth.logout')}</Button>
 					</>
@@ -99,8 +124,55 @@ export const ControlPanelContainer = ({ className }: { className?: string }) => 
 	);
 };
 
-export const ControlPanel = styled(ControlPanelContainer)`
+export const ControlPanel = styled(ControlPanelContainer)<{ $isOpen: boolean }>`
 	display: flex;
 	align-items: center;
 	gap: 26px;
+
+	@media (max-width: 768px) {
+		position: fixed;
+		top: 0;
+		right: 0;
+		height: 100vh;
+		width: 300px;
+		background-color: #ffffff;
+		box-shadow: -10px 0 30px rgba(0, 0, 0, 0.15);
+		padding: 100px 40px 40px;
+		flex-direction: column;
+		align-items: flex-start;
+		justify-content: flex-start;
+		gap: 40px;
+		transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		transform: ${({ $isOpen }) => ($isOpen ? 'translateX(0)' : 'translateX(100%)')};
+		visibility: ${({ $isOpen }) => ($isOpen ? 'visible' : 'hidden')};
+		opacity: ${({ $isOpen }) => ($isOpen ? '1' : '0')};
+		transition:
+			transform 0.3s ease,
+			visibility 0.3s,
+			opacity 0.3s;
+		z-index: 99990;
+
+		& > ${RightAligned} {
+			align-items: flex-start;
+		}
+
+		button {
+			align-self: flex-start;
+			margin-top: 10px;
+		}
+
+		@media (max-width: 500px) {
+			width: 100vw;
+			padding: 120px 40px 40px;
+			align-items: center;
+
+			& > ${RightAligned} {
+				align-items: center;
+			}
+
+			button {
+				align-self: center;
+			}
+		}
+	}
 `;

@@ -46,11 +46,6 @@ body {
 	background: var(--background-color);
 }
 
-.logo {
-	display: flex;
-	align-items: center;
-	text-decoration: none;
-}
 .logo-img {
 	background: url(././assets/logo/logo.svg) no-repeat;
 	width: 50px;
