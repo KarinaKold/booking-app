@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FaFilter, FaUndoAlt } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 import { request } from '../../utils/request';
 import type { RestaurantFilters } from '../../pages/HomePage/types';
 import type { ServerResponse } from '../../types';
@@ -16,6 +17,7 @@ interface Metadata {
 }
 
 export const Sidebar = ({ onFilterChange, amount, loading }: SidebarProps) => {
+	const { t } = useTranslation();
 	const initialFilters: RestaurantFilters = {
 		cuisines: [],
 		minRating: 0,
@@ -55,16 +57,24 @@ export const Sidebar = ({ onFilterChange, amount, loading }: SidebarProps) => {
 		<StyledSidebar>
 			<div className="header">
 				<div className="title">
-					<FaFilter /> <span>Фильтры</span>
+					<FaFilter /> <span>{t('sidebar.title')}</span>
 				</div>
-				<button className="reset-btn" onClick={handleReset} title="Сбросить все">
+				<button
+					className="reset-btn"
+					onClick={handleReset}
+					title={t('sidebar.reset_title')}
+				>
 					<FaUndoAlt />
 				</button>
 			</div>
-			<ResultsBadge>{loading ? 'Загрузка...' : `Найдено: ${amount}`}</ResultsBadge>
+			<ResultsBadge>
+				{loading
+					? t('sidebar.loading')
+					: t('sidebar.found_count', { count: amount })}
+			</ResultsBadge>
 			<div>
 				<FilterSection>
-					<h4>Кухня</h4>
+					<h4>{t('sidebar.cuisine')}</h4>
 					<div className="cuisine-list">
 						{metadata.cuisines.map((c) => (
 							<CheckboxLabel key={c}>
@@ -79,17 +89,23 @@ export const Sidebar = ({ onFilterChange, amount, loading }: SidebarProps) => {
 					</div>
 				</FilterSection>
 				<FilterSection>
-					<h4>Рейтинг</h4>
+					<h4>{t('sidebar.rating')}</h4>
 					<StyledSelect
 						value={filters.minRating}
 						onChange={({ target }) =>
 							setFilters({ ...filters, minRating: Number(target.value) })
 						}
 					>
-						<option value="0">Любой</option>
-						<option value="3">От 3.0 ★</option>
-						<option value="4">От 4.0 ★</option>
-						<option value="4.5">От 4.5 ★</option>
+						<option value="0">{t('sidebar.any_rating')}</option>
+						<option value="3">
+							{t('sidebar.from_rating', { rating: '3.0' })}
+						</option>
+						<option value="4">
+							{t('sidebar.from_rating', { rating: '4.0' })}
+						</option>
+						<option value="4.5">
+							{t('sidebar.from_rating', { rating: '4.5' })}
+						</option>
 					</StyledSelect>
 				</FilterSection>
 				<FilterSection className="switches">
@@ -100,8 +116,8 @@ export const Sidebar = ({ onFilterChange, amount, loading }: SidebarProps) => {
 							onChange={(e) =>
 								setFilters({ ...filters, openNow: e.target.checked })
 							}
-						/>{' '}
-						Открыто сейчас
+						/>
+						{t('sidebar.open_now')}
 					</CheckboxLabel>
 					<CheckboxLabel>
 						<input
@@ -111,7 +127,7 @@ export const Sidebar = ({ onFilterChange, amount, loading }: SidebarProps) => {
 								setFilters({ ...filters, hasBarCard: e.target.checked })
 							}
 						/>{' '}
-						Барная карта
+						{t('sidebar.bar_card')}
 					</CheckboxLabel>
 				</FilterSection>
 			</div>
@@ -126,7 +142,7 @@ const FilterSection = styled.section`
 		margin-bottom: 12px;
 		font-size: 15px;
 		font-weight: 700;
-		color: #888;
+		color: var(--color);
 		text-transform: uppercase;
 		letter-spacing: 1px;
 	}
@@ -187,11 +203,11 @@ const ResultsBadge = styled.div`
 const StyledSidebar = styled.aside`
 	width: 280px;
 	padding: 24px;
-	background: #ffffff;
-	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+	background: var(--card-background);
+	box-shadow: var(--nm-shadow-flat);
 	border-radius: 20px;
 	height: fit-content;
-	border: 1px solid #f0f0f0;
+	border: var(--select-border);
 	transition: all 0.3s ease;
 
 	.header {
@@ -207,7 +223,7 @@ const StyledSidebar = styled.aside`
 		gap: 10px;
 		font-weight: 700;
 		font-size: 19px;
-		color: #333;
+		color: var(--color);
 	}
 
 	.cuisine-list {

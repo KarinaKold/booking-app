@@ -13,6 +13,18 @@
 	"home": {
 		"no_results": "Not found"
 	},
+	"sidebar": {
+		"title": "Filters",
+		"reset_title": "Reset all",
+		"loading": "Loading...",
+		"found_count": "Found: {{count}}",
+		"cuisine": "Cuisine",
+		"rating": "Rating",
+		"any_rating": "Any",
+		"from_rating": "From {{rating}} ★",
+		"open_now": "Open now",
+		"bar_card": "Bar card"
+	},
 	"form": {
 		"username": "Username",
 		"email": "E-mail",

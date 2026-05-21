@@ -13,6 +13,18 @@
 	"home": {
 		"no_results": "Заведения не найдены"
 	},
+	"sidebar": {
+		"title": "Фильтры",
+		"reset_title": "Сбросить все",
+		"loading": "Загрузка...",
+		"found_count": "Найдено: {{count}}",
+		"cuisine": "Кухня",
+		"rating": "Рейтинг",
+		"any_rating": "Любой",
+		"from_rating": "От {{rating}} ★",
+		"open_now": "Открыто сейчас",
+		"bar_card": "Барная карта"
+	},
 	"form": {
 		"username": "Имя",
 		"email": "E-mail",
