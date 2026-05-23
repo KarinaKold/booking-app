@@ -33,14 +33,12 @@ const StyledTime = styled.div`
 		padding: 12px;
 		border: none;
 		border-radius: 10px;
-		background: #f0f0f0;
+		background: var(--card-background);
+		color: var(--color-muted);
 		font-weight: 600;
-		color: #444;
 		cursor: pointer;
 		transition: 0.2s;
-		box-shadow:
-			4px 4px 8px #bebebe,
-			-4px -4px 8px #ffffff;
+		box-shadow: var(--nm-shadow-flat);
 
 		&.active {
 			background: #0ea5e9;

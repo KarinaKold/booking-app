@@ -39,7 +39,7 @@ const UsersContainer = ({ className }: { className?: string }) => {
 	const [sort, setSort] = useState<UserSortState>({
 		field: 'createdAt',
 		order: 'desc',
-	});  
+	});
 	const [shouldUpdateUserList, setShouldUpdateUserList] = useState<boolean>(false);
 	const [removeError, setRemoveError] = useState<string | null>(null);
 
@@ -123,7 +123,7 @@ const UsersContainer = ({ className }: { className?: string }) => {
 						))}
 					</div>
 				) : (
-					<div>{t('users.error')}</div>
+					<div className="empty-message">{t('users.error')}</div>
 				)}
 				{!loading && lastPage > 1 && users.length > 0 && (
 					<Pagination page={page} setPage={setPage} lastPage={lastPage} />
@@ -140,17 +140,24 @@ export const UsersPage = styled(UsersContainer)`
 	max-width: 900px;
 	width: 100%;
 	padding: 30px;
-	background: #ffffff;
+	background: var(--card-background);
+	color: var(--color);
+	box-shadow: var(--nm-shadow-flat);
 	border-radius: 25px;
-	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
 
 	& h2 {
 		font-size: 28px;
-		color: #1a1a1a;
+		color: var(--color);
 		align-self: flex-start;
 	}
 
 	& .table-content {
 		width: 100%;
+	}
+
+	& .empty-message {
+		color: var(--color-muted);
+		text-align: center;
+		padding: 20px;
 	}
 `;

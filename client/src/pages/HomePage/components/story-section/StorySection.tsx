@@ -157,7 +157,7 @@ const StyledSection = styled.section`
 	.story-title {
 		font-size: 14px;
 		font-weight: 500;
-		color: #333;
+		color: var(--color) !important;
 		max-width: 90px;
 		white-space: nowrap;
 		overflow: hidden;

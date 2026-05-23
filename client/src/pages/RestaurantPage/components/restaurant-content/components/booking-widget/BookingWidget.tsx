@@ -85,19 +85,18 @@ const StyledWidget = styled.aside`
 
 	.booking-card {
 		top: 20px;
-		background: #f0f0f0;
+		background: var(--card-background);
+		color: var(--color);
 		padding: 30px;
 		border-radius: 28px;
-		box-shadow:
-			10px 10px 20px #bebebe,
-			-10px -10px 20px #ffffff;
+		box-shadow: var(--nm-shadow-flat);
 		position: sticky;
 
 		h4 {
 			margin-top: 0;
 			margin-bottom: 20px;
 			font-size: 1.2rem;
-			color: #1a1a1a;
+			color: var(--color);
 		}
 	}
 
@@ -105,15 +104,14 @@ const StyledWidget = styled.aside`
 		margin: 20px 0;
 		padding: 15px;
 		border-radius: 15px;
-		background: #f0f0f0;
-		box-shadow:
-			inset 4px 4px 8px #bebebe,
-			inset -4px -4px 8px #ffffff;
+		background: var(--select-bg);
+		border: var(--select-border);
+		box-shadow: var(--nm-shadow-inset);
 
 		p {
 			margin-bottom: 10px;
 			font-size: 0.95rem;
-			color: #333;
+			color: var(--color);
 
 			strong {
 				color: #666;
@@ -133,7 +131,7 @@ const StyledWidget = styled.aside`
 		p {
 			margin-bottom: 20px;
 			line-height: 1.5;
-			color: #444;
+			color: var(--color);
 		}
 	}
 

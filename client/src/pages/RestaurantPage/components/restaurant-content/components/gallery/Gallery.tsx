@@ -112,12 +112,10 @@ const StyledGallery = styled.div`
 
 	.main-image {
 		height: 100%;
-		background: #f0f0f0;
+		background: var(--card-background);
 		border-radius: 24px;
 		overflow: hidden;
-		box-shadow:
-			6px 6px 12px #bebebe,
-			-6px -6px 12px #ffffff;
+		box-shadow: var(--nm-shadow-flat);
 		padding: 6px;
 		cursor: pointer;
 	}
@@ -168,7 +166,7 @@ const StyledGallery = styled.div`
 	}
 
 	.nav-btn {
-		background: #f0f0f0;
+		background: var(--card-background);
 		border: none;
 		border-radius: 50%;
 		width: 36px;
@@ -177,17 +175,13 @@ const StyledGallery = styled.div`
 		justify-content: center;
 		align-items: center;
 		cursor: pointer;
-		box-shadow:
-			3px 3px 6px #bebebe,
-			-3px -3px 6px #ffffff;
-		color: #666;
+		box-shadow: var(--nm-shadow-flat);
+		color: var(--color);
 		transition: all 0.2s;
 	}
 
 	.nav-btn:active {
-		box-shadow:
-			inset 2px 2px 5px #bebebe,
-			inset -2px -2px 5px #ffffff;
+		box-shadow: var(--nm-shadow-inset);
 	}
 
 	.viewer-overlay {

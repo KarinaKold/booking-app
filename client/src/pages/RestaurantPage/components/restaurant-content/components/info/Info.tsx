@@ -67,7 +67,7 @@ const StyledInfo = styled.section`
 	.info h2 {
 		margin: 0 0 20px 0;
 		font-size: 2.2rem;
-		color: #333;
+		color: var(--color);
 	}
 
 	.header-main {
@@ -95,7 +95,7 @@ const StyledInfo = styled.section`
 		align-items: center;
 		gap: 10px;
 		font-size: 1.1rem;
-		color: #555;
+		color: var(--color);
 	}
 
 	.about-section h3 {
@@ -107,6 +107,6 @@ const StyledInfo = styled.section`
 		font-size: 18px;
 		white-space: pre-line;
 		line-height: 1.5;
-		color: #333;
+		color: var(--color);
 	}
 `;

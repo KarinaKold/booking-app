@@ -124,6 +124,7 @@ const RestaurantFormContainer = ({
 
 	return (
 		<div className={className}>
+			<h2>Form</h2>
 			<div className="inputs">
 				<Input
 					value={nameValue}
@@ -245,8 +246,13 @@ const RestaurantFormContainer = ({
 
 export const RestaurantForm = styled(RestaurantFormContainer)`
 	max-width: 900px;
-	margin: 40px auto;
-	padding: 40px;
+	margin: 20px auto;
+	padding: 0 40px;
+
+	h2 {
+		font-size: 2.2rem;
+		color: var(--color);
+	}
 
 	& .inputs {
 		display: flex;
@@ -346,20 +352,10 @@ export const RestaurantForm = styled(RestaurantFormContainer)`
 	& .tables-constructor {
 		margin-top: 20px;
 		padding: 15px;
-		background: #f9f9f9;
 		border-radius: 8px;
-		border: 1px solid #eee;
-	}
-
-	& .table-item {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-		margin-bottom: 8px;
-		background: #fff;
-		padding: 5px 10px;
-		border-radius: 4px;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+		background: var(--select-bg);
+		border: var(--select-border);
+		box-shadow: var(--nm-shadow-inset);
 	}
 
 	& .table-item {
@@ -367,25 +363,24 @@ export const RestaurantForm = styled(RestaurantFormContainer)`
 		align-items: center;
 		gap: 15px;
 		margin-bottom: 15px;
-		padding: 10px 20px;
-		background: #f0f0f0;
+		padding: 15px 20px;
 		border-radius: 12px;
-		box-shadow:
-			4px 4px 8px #bebebe,
-			-4px -4px 8px #ffffff;
+		color: var(--color);
+		background: var(--card-background);
+		box-shadow: var(--nm-shadow-flat);
 
 		span {
 			font-weight: 600;
 			min-width: 80px;
 		}
+
 		input {
 			border: none;
-			background: #f0f0f0;
+			background: var(--select-bg);
+			color: var(--color);
 			padding: 8px;
 			border-radius: 8px;
-			box-shadow:
-				inset 2px 2px 5px #bebebe,
-				inset -2px -2px 5px #ffffff;
+			bbox-shadow: var(--nm-shadow-inset);
 			width: 60px;
 			text-align: center;
 		}
@@ -412,10 +407,10 @@ export const RestaurantForm = styled(RestaurantFormContainer)`
 		font-size: 21px;
 		margin: 0 10px 0 0;
 		cursor: pointer;
-		color: #333;
+		color: var(--color-muted);
 
 		&:hover {
-			color: #000;
+			color: var(--color);
 		}
 	}
 `;

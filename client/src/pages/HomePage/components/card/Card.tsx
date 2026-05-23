@@ -58,9 +58,10 @@ export const Card = ({
 
 const CardContainer = styled.article`
 	position: relative;
-	background: #fff;
+	background: var(--card-background);
+	color: var(--color);
 	border-radius: 16px;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+	box-shadow: var(--nm-shadow-flat);
 	overflow: hidden;
 	width: 300px;
 	display: flex;
@@ -102,7 +103,7 @@ const Title = styled.h3`
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	color: #222;
+	color: var(--color);
 `;
 
 const Rating = styled.div`
@@ -111,7 +112,7 @@ const Rating = styled.div`
 	gap: 4px;
 	font-weight: 600;
 	font-size: 0.95rem;
-
+	color: var(--color);
 	svg {
 		color: #ffc107;
 	}
@@ -119,7 +120,7 @@ const Rating = styled.div`
 
 const Description = styled.p`
 	font-size: 0.85rem;
-	color: #666;
+	color: var(--color);
 	line-height: 1.4;
 	display: -webkit-box;
 	-webkit-line-clamp: 2;

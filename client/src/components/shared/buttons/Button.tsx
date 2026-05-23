@@ -1,11 +1,7 @@
 import type { ComponentProps } from 'react';
 import styled from 'styled-components';
 
-const ButtonContainer = ({
-	children,
-	className,
-	...props
-}: ComponentProps<'button'>) => {
+const ButtonContainer = ({ children, className, ...props }: ComponentProps<'button'>) => {
 	return (
 		<button className={className} {...props}>
 			{children}
@@ -14,22 +10,18 @@ const ButtonContainer = ({
 };
 
 export const Button = styled(ButtonContainer)`
-	background: #f0f0f0;
+	background: var(--background-color);
+	color: var(--color);
 	border-radius: 12px;
-	box-shadow:
-		4px 4px 8px #bebebe,
-		-4px -4px 8px #ffffff;
+	box-shadow: var(--nm-shadow-flat);
 	border: none;
-	color: #333;
 	padding: 10px 20px;
 	font-size: 16px;
 	cursor: pointer;
 	transition: all 0.3s ease;
 
 	&:hover {
-		box-shadow:
-			4px 4px 10px #b8b8b8,
-			-4px -4px 10px #ffffff;
+		box-shadow: var(--nm-shadow-inset);
 	}
 
 	&:focus {
@@ -38,9 +30,7 @@ export const Button = styled(ButtonContainer)`
 	}
 
 	&:active {
-		box-shadow:
-			inset 4px 4px 10px #b8b8b8,
-			inset -4px -4px 10px #ffffff;
+		box-shadow: var(--nm-shadow-inset);
 	}
 
 	&:disabled {
@@ -51,7 +41,7 @@ export const Button = styled(ButtonContainer)`
 	}
 
 	a {
-		color: #444;
+		color: inherit;
 		text-decoration: none;
 		font-weight: 600;
 	}

@@ -39,6 +39,7 @@ const StyledFavorite = styled(Button)`
 	&:hover {
 		transform: scale(1.1);
 		background: #fff;
+		box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
 	}
 
 	svg {

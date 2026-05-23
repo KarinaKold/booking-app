@@ -4,20 +4,19 @@ import styled from 'styled-components';
 interface TableRowProps {
 	children: ReactNode;
 	className?: string;
-	border?: boolean;
 }
 
 const TableRowContainer = ({ className, children }: TableRowProps) => (
 	<div className={className}>{children}</div>
 );
 
-export const TableRow = styled(TableRowContainer)`
+export const TableRow = styled(TableRowContainer)<{ border?: boolean }>`
 	display: flex;
 	align-items: center;
 	padding: 10px 20px;
-	background: ${({ border }) => (border ? '#fff' : '#f8f9fa')};
-	border-bottom: 1px solid #eee;
+	background: ${({ border }) => (border ? 'var(--card-background)' : 'transparent')};
 	width: 100%;
+	border-bottom: 1px solid #888;
 
 	& > div {
 		display: flex;
@@ -44,7 +43,8 @@ export const TableRow = styled(TableRowContainer)`
 		!border &&
 		`
 		font-weight: 700;
-		color: #888;
+		color: var(--color);
+		opacity: 0.5;
 		font-size: 13px;
 		text-transform: uppercase;
 		letter-spacing: 1px;

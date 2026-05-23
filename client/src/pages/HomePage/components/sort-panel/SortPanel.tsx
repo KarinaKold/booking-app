@@ -73,11 +73,13 @@ const StyledSortPanel = styled.div`
 		display: flex;
 	}
 	.label {
+		color: var(--color);
 		flex-grow: 1;
 		text-align: left;
 	}
 
 	.chevron {
+		color: var(--color);
 		font-size: 12px;
 		transition: transform 0.3s;
 		&.open {
@@ -89,11 +91,9 @@ const StyledSortPanel = styled.div`
 		position: absolute;
 		top: calc(100% + 10px);
 		right: 0;
-		background: #f0f0f0;
 		border-radius: 15px;
-		box-shadow:
-			10px 10px 20px #bebebe,
-			-10px -10px 20px #ffffff;
+		background: var(--card-background);
+		box-shadow: var(--nm-shadow-flat);
 		list-style: none;
 		padding: 10px;
 		margin: 0;
@@ -109,7 +109,7 @@ const StyledSortPanel = styled.div`
 		border-radius: 10px;
 		cursor: pointer;
 		font-size: 14px;
-		color: #666;
+		color: var(--color);
 		transition: all 0.2s;
 
 		&:hover {
@@ -120,10 +120,8 @@ const StyledSortPanel = styled.div`
 		&.active {
 			color: #0ea5e9;
 			font-weight: bold;
-			background: #e0e0e0;
-			box-shadow:
-				inset 2px 2px 5px #bebebe,
-				inset -2px -2px 5px #ffffff;
+			background: var(--card-background);
+			box-shadow: var(--nm-shadow-inset);
 		}
 	}
 

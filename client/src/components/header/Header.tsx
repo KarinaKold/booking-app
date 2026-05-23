@@ -27,8 +27,8 @@ export const Header = styled(HeaderContainer)`
 	width: 100%;
 	height: 80px;
 	padding: 0 20px;
-	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-	background-color: #f0f0f0;
+	box-shadow: var(--nm-shadow-flat);
+	background-color: var(--background-color);
 	z-index: 1000;
 
 	.logo {

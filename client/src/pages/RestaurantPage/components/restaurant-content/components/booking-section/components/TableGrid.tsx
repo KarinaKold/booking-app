@@ -57,22 +57,19 @@ const StyledTableGrid = styled.div`
 		aspect-ratio: 1 / 1;
 		border: none;
 		border-radius: 15px;
-		background: #f0f0f0;
+		background: var(--card-background);
+		color: var(--color-muted);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
 		cursor: pointer;
 		transition: all 0.2s;
-		box-shadow:
-			6px 6px 12px #bebebe,
-			-6px -6px 12px #ffffff;
+		box-shadow: var(--nm-shadow-flat);
 	}
 
 	.selected {
-		box-shadow:
-			inset 4px 4px 8px #bebebe,
-			inset -4px -4px 8px #ffffff;
+		box-shadow: var(--nm-shadow-inset);
 		color: #ff4d4f;
 		transform: scale(0.95);
 	}
@@ -94,6 +91,6 @@ const StyledTableGrid = styled.div`
 		align-items: center;
 		gap: 5px;
 		font-size: 0.9rem;
-		color: #666;
+		color: inherit;
 	}
 `;

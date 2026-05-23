@@ -6,12 +6,24 @@
 
 :root[data-theme='light'] {
 	--background-color: #f0f0f0;
-	--color: black;
+	--color: #1a1a1a;
+	--color-muted: #555555;
+	--nm-shadow-flat: 8px 8px 16px #d1d1d1, -8px -8px 16px #ffffff;
+	--nm-shadow-inset: inset 4px 4px 8px #d1d1d1, inset -4px -4px 8px #ffffff;
+	--card-background: #f0f0f0;
+	--select-bg: #f8f9fa;
+	--select-border: 1px solid #eee;
 }
 
 :root[data-theme='dark'] {
 	--background-color: #2b3e51;
-	/* --color: #f0f0f0; */
+	--color: #f0f0f0;
+	--color-muted: #a0aec0;
+	--nm-shadow-flat: 8px 8px 20px #1b2834, -8px -8px 20px #3b546e;
+	--nm-shadow-inset: inset 4px 4px 10px #1b2834, inset -4px -4px 10px #3b546e;
+	--card-background: #243444;
+	--select-bg: #243444;
+	--select-border: none;
 }
 
 * {
@@ -90,11 +102,4 @@ body {
 	font-style: italic;
 	color: #3b8bf6;
 	font-weight: 300;
-}
-
-@media (prefers-color-scheme: light) {
-	/* :root {
-		color: #213547;
-		background-color: #ffffff;
-	} */
 }

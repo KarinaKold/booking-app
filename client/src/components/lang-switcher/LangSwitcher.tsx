@@ -15,7 +15,7 @@ const SwitcherWrapper = styled.div`
 	position: relative;
 	cursor: pointer;
 	font-size: 14px;
-	color: #444;
+	color: (--color);
 	display: flex;
 	align-items: center;
 	gap: 5px;
@@ -37,6 +37,7 @@ const Dropdown = styled.div`
 const LangOption = styled.div<LangOptionProps>`
 	padding: 8px 16px;
 	transition: background 0.2s;
+	color: grey;
 	&:hover {
 		background: #f0f0f0;
 		color: #0ea5e9;

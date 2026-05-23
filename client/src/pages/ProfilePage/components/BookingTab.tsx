@@ -42,14 +42,15 @@ export const BookingsTab = ({ bookings, onCancel }: BookingsTabProps) => {
 
 const BookingCard = styled.div`
 	width: 300px;
-	background: #f9f9f9;
+	background: var(--card-background);
+	color: var(--color);
 	padding: 20px;
 	border-radius: 15px;
-	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+	box-shadow: var(--nm-shadow-flat);
 
 	h4 {
 		margin: 0 0 10px 0;
-		color: #333;
+		color: var(--color);
 	}
 
 	.summary {
