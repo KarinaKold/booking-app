@@ -1,5 +1,8 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, type BaseSyntheticEvent } from 'react';
 import { useNavigate } from 'react-router';
+import * as yup from 'yup';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 import {
 	FaGlassMartiniAlt,
 	FaPlus,
@@ -12,17 +15,51 @@ import { SpecialPanel } from '../special-panel/SpecialPanel';
 import { Button, Input } from '../../../../components';
 import { saveRestaurantAsync } from '../../../../actions';
 import { minutesToTime, sanitizeContent, timeToMinutes } from './utils';
-import type { RestaurantData, Table } from '../../../HomePage/types';
+import type { RestaurantData } from '../../../HomePage/types';
 import styled from 'styled-components';
+
+const restaurantFormSchema = yup.object().shape({
+	name: yup
+		.string()
+		.required('Заполните название ресторана')
+		.min(2, 'Название слишком короткое (минимум 2 символа)'),
+	address: yup.string().required('Укажите адрес заведения'),
+	cuisine: yup.string().required('Укажите тип кухни'),
+	startTimeValue: yup.string().required('Укажите время открытия'),
+	endTimeValue: yup.string().required('Укажите время закрытия'),
+	hasBarCardValue: yup.boolean().required(),
+	imagesValue: yup
+		.array()
+		.of(
+			yup
+				.string()
+				.url('Введите корректный URL изображения')
+				.required('Заполните ссылку на изображение'),
+		)
+		.min(1, 'Добавьте хотя бы одно изображение')
+		.required(),
+	tablesValue: yup
+		.array()
+		.of(
+			yup.object().shape({
+				number: yup.number().required(),
+				seats: yup
+					.number()
+					.typeError('Количество мест должно быть числом')
+					.required('Укажите количество мест')
+					.min(1, 'Минимум 1 место за столом')
+					.max(20, 'Максимум 20 мест за столом'),
+			}),
+		)
+		.min(1, 'Добавьте хотя бы один стол')
+		.required(),
+});
+
+export type RestaurantFormData = yup.InferType<typeof restaurantFormSchema>;
 
 interface RestaurantFormProps {
 	className?: string;
 	restaurant: RestaurantData;
-}
-
-interface RestaurantResponse {
-	data: RestaurantData | null;
-	error: string | null;
 }
 
 const RestaurantFormContainer = ({
@@ -43,195 +80,227 @@ const RestaurantFormContainer = ({
 }: RestaurantFormProps) => {
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
-	const [nameValue, setNameValue] = useState<string>(name || '');
-	const [addressValue, setAddressValue] = useState<string>(address || '');
-	const [cuisineValue, setCuisineValue] = useState<string>(cuisine || '');
-	const [startTimeValue, setStartTimeValue] = useState<string>(
-		startTime !== undefined ? minutesToTime(startTime) : '10:00',
-	);
-	const [endTimeValue, setEndTimeValue] = useState<string>(
-		endTime !== undefined ? minutesToTime(endTime) : '22:00',
-	);
-	const [hasBarCardValue, setHasBarCardValue] = useState<boolean>(!!hasBarCard);
-	const [imagesValue, setImagesValue] = useState<string[]>(
-		images && images.length > 0 ? images : [''],
-	);
-	const [tablesValue, setTablesValue] = useState<Table[]>(
-		tables?.length ? tables : [{ number: 1, seats: 2 }],
-	);
 	const descriptionRef = useRef<HTMLDivElement>(null);
 
-	const onAddTable = () => {
-		const nextNumber =
-			tablesValue.length > 0
-				? Math.max(...tablesValue.map((t) => t.number)) + 1
-				: 1;
-		setTablesValue([...tablesValue, { number: nextNumber, seats: 2 }]);
-	};
+	const {
+		register,
+		control,
+		handleSubmit,
+		getValues,
+		formState: { errors, isValid, isSubmitting },
+	} = useForm<RestaurantFormData>({
+		mode: 'onChange',
+		resolver: yupResolver(restaurantFormSchema),
+		defaultValues: {
+			name: name || '',
+			address: address || '',
+			cuisine: cuisine || '',
+			startTimeValue: startTime !== undefined ? minutesToTime(startTime) : '10:00',
+			endTimeValue: endTime !== undefined ? minutesToTime(endTime) : '22:00',
+			hasBarCardValue: !!hasBarCard,
+			imagesValue: images && images.length > 0 ? images : [''],
+			tablesValue: tables?.length ? tables : [{ number: 1, seats: 2 }],
+		},
+	});
 
-	const onRemoveTable = (number: number) => {
-		setTablesValue(tablesValue.filter((t) => t.number !== number));
-	};
+	const {
+		fields: imageFields,
+		append: appendImage,
+		remove: removeImage,
+	} = useFieldArray({ control, name: 'imagesValue' as never });
 
-	const onSeatsChange = (number: number, seats: string) => {
-		setTablesValue(
-			tablesValue.map((t) =>
-				t.number === number ? { ...t, seats: Number(seats) } : t,
-			),
-		);
-	};
+	const {
+		fields: tableFields,
+		append: appendTable,
+		remove: removeTable,
+	} = useFieldArray({ control, name: 'tablesValue' as never });
 
-	const onAddImage = () => {
-		setImagesValue([...imagesValue, '']);
-	};
-
-	const onRemoveImage = (index: number) => {
-		if (imagesValue.length <= 1) {
-			setImagesValue(['']);
-			return;
+	useEffect(() => {
+		if (imageFields.length === 0) {
+			appendImage('');
 		}
-		setImagesValue(imagesValue.filter((_, i) => i !== index));
+	}, [imageFields, appendImage]);
+
+	const onAddTable = () => {
+		const currentTables = getValues('tablesValue') || [];
+
+		const nextNumber =
+			currentTables.length > 0
+				? Math.max(...currentTables.map((t) => t.number)) + 1
+				: 1;
+		appendTable({ number: nextNumber, seats: 2 });
 	};
 
-	const onImageChange = (index: number, value: string) => {
-		const newImages = [...imagesValue];
-		newImages[index] = value;
-		setImagesValue(newImages);
-	};
-
-	const onSave = async () => {
+	const onSave = async (data: RestaurantFormData) => {
 		const descriptionRefElement = descriptionRef.current?.innerHTML || '';
 		const newDescription = sanitizeContent(descriptionRefElement);
 
-		const response = await (dispatch(
+		const response = await dispatch(
 			saveRestaurantAsync(id, {
-				name: nameValue,
-				address: addressValue,
-				cuisine: cuisineValue,
-				startTime: timeToMinutes(startTimeValue),
-				endTime: timeToMinutes(endTimeValue),
-				hasBarCard: hasBarCardValue,
-				images: imagesValue,
+				name: data.name,
+				address: data.address,
+				cuisine: data.cuisine,
+				startTime: timeToMinutes(data.startTimeValue),
+				endTime: timeToMinutes(data.endTimeValue),
+				hasBarCard: data.hasBarCardValue,
+				images: data.imagesValue,
 				description: newDescription,
-				tables: tablesValue,
+				tables: data.tablesValue,
 			}),
-		) as unknown as RestaurantResponse);
+		);
 
 		if (response?.data?.id) {
 			navigate(`/rest/${response.data.id}`);
 		}
 	};
 
+	const onSubmit = (e: BaseSyntheticEvent) => {
+		e.preventDefault();
+		handleSubmit(onSave)(e);
+	};
+
 	return (
 		<div className={className}>
-			<h2>Form</h2>
-			<div className="inputs">
-				<Input
-					value={nameValue}
-					placeholder="Название..."
-					onChange={({ target }) => setNameValue(target.value)}
-				/>
-				<Input
-					value={addressValue}
-					placeholder="Адрес..."
-					onChange={({ target }) => setAddressValue(target.value)}
-				/>
-				<Input
-					value={cuisineValue}
-					placeholder="Кухня..."
-					onChange={({ target }) => setCuisineValue(target.value)}
-				/>
-				<div className="time-inputs-wrapper">
-					<div className="time-field">
-						<label>Часы работы:</label>
-						<Input
-							type="time"
-							value={startTime}
-							onChange={({ target }) => setStartTimeValue(target.value)}
-							className="time-input"
-						/>
-						<span className="time-separator">—</span>
-						<Input
-							type="time"
-							value={endTime}
-							onChange={({ target }) => setEndTimeValue(target.value)}
-							className="time-input"
-						/>
+			<h2>{id ? 'Редактирование ресторана' : 'Добавление ресторана'}</h2>
+			<form onSubmit={onSubmit}>
+				<div className="inputs">
+					<div className="input-field">
+						<Input placeholder="Название..." {...register('name')} />
+						{errors.name && (
+							<span className="error-text">{errors.name.message}</span>
+						)}
 					</div>
-				</div>
-				<div className="checkbox-wrapper">
-					<label className="checkbox-label">
-						<input
-							type="checkbox"
-							checked={hasBarCardValue}
-							onChange={({ target }) => setHasBarCardValue(target.checked)}
-						/>
-						<FaGlassMartiniAlt className="bar-icon" />
-						Барная карта
-					</label>
-				</div>
-				<div className="images-section">
-					<h3>Изображения (URL)</h3>
-					<div className="images-inputs">
-						{imagesValue.map((url, i) => (
-							<div key={i} className="image-input-wrapper">
-								<Input
-									value={url}
-									placeholder={`URL изображения ${i + 1}...`}
-									onChange={({ target }) =>
-										onImageChange(i, target.value)
-									}
-								/>
-								<FaTrash
-									className="delete-image"
-									onClick={() => onRemoveImage(i)}
-								/>
-							</div>
-						))}
+					<div className="input-field">
+						<Input placeholder="Адрес..." {...register('address')} />
+						{errors.address && (
+							<span className="error-text">{errors.address.message}</span>
+						)}
 					</div>
-					<Button
-						type="button"
-						onClick={onAddImage}
-						style={{ marginTop: '10px', width: 'fit-content' }}
-					>
-						<FaPlus /> Добавить фото
-					</Button>
-				</div>
-			</div>
-			<div className="tables-constructor">
-				<h3>
-					<FaUserFriends /> Столы
-				</h3>
-				<div className="tables-list">
-					{tablesValue.map((table) => (
-						<div key={table.number} className="table-item">
-							<span>Стол №{table.number}</span>
-							<input
-								type="number"
-								min="1"
-								value={table.seats}
-								onChange={({ target }) =>
-									onSeatsChange(table.number, target.value)
-								}
+					<div className="input-field">
+						<Input placeholder="Кухня..." {...register('cuisine')} />
+						{errors.cuisine && (
+							<span className="error-text">{errors.cuisine.message}</span>
+						)}
+					</div>
+					<div className="time-inputs-wrapper">
+						<div className="time-field">
+							<label>Часы работы:</label>
+							<Input
+								type="time"
+								className="time-input"
+								{...register('startTimeValue')}
 							/>
-							<label>мест</label>
-							<FaTrash
-								className="delete-table"
-								onClick={() => onRemoveTable(table.number)}
+							<span className="time-separator">—</span>
+							<Input
+								type="time"
+								className="time-input"
+								{...register('endTimeValue')}
 							/>
 						</div>
-					))}
+						{(errors.startTimeValue || errors.endTimeValue) && (
+							<span className="error-text">
+								Заполните часы работы заведения
+							</span>
+						)}
+					</div>
+					<div className="checkbox-wrapper">
+						<label className="checkbox-label">
+							<input type="checkbox" {...register('hasBarCardValue')} />
+							<FaGlassMartiniAlt className="bar-icon" /> Барная карта
+						</label>
+					</div>
+					<div className="images-section">
+						<h3>Изображения (URL)</h3>
+						<div className="images-inputs">
+							{imageFields.map((field, i) => (
+								<div key={field.id} className="image-field-container">
+									<div className="image-input-wrapper">
+										<Input
+											placeholder={`URL изображения ${i + 1}...`}
+											{...register(`imagesValue.${i}` as never)}
+										/>
+										<FaTrash
+											className="delete-image"
+											onClick={() =>
+												imageFields.length > 1 && removeImage(i)
+											}
+										/>
+									</div>
+									{errors.imagesValue?.[i] && (
+										<span className="error-text">
+											{errors.imagesValue[i]?.message}
+										</span>
+									)}
+								</div>
+							))}
+						</div>
+						<Button
+							type="button"
+							onClick={() => appendImage('')}
+							style={{ marginTop: '10px', width: 'fit-content' }}
+						>
+							<FaPlus /> Добавить фото
+						</Button>
+					</div>
 				</div>
-				<Button type="button" onClick={onAddTable}>
-					<FaPlus /> Добавить стол
-				</Button>
-			</div>
-			<SpecialPanel
-				id={id}
-				createdAt={createdAt}
-				margin="20px 0"
-				editButton={<FaSave className="save-icon" onClick={onSave} />}
-			/>
+				<div className="tables-constructor">
+					<h3>
+						<FaUserFriends /> Столы
+					</h3>
+					<div className="tables-list">
+						{tableFields.map((field, i: number) => {
+							const tableError = errors.tablesValue?.[i]?.seats;
+							const typedField = field as typeof field & {
+								number: number;
+								seats: number;
+							};
+							return (
+								<div key={field.id} className="table-field-container">
+									<div className="table-item">
+										<span>Стол №{typedField.number}</span>
+										<input
+											type="number"
+											min="1"
+											{...register(
+												`tablesValue.${i}.seats` as const,
+											)}
+										/>
+										<label>мест</label>
+										<FaTrash
+											className="delete-table"
+											onClick={() => removeTable(i)}
+										/>
+									</div>
+									{tableError && (
+										<span className="error-text">
+											{tableError.message}
+										</span>
+									)}
+								</div>
+							);
+						})}
+					</div>
+					<Button type="button" onClick={onAddTable}>
+						<FaPlus /> Добавить стол
+					</Button>
+				</div>
+				<SpecialPanel
+					id={id}
+					createdAt={createdAt}
+					margin="20px 0"
+					editButton={
+						<button
+							type="submit"
+							disabled={!isValid || isSubmitting}
+							className="save-btn-wrapper"
+						>
+							<FaSave
+								className={`save-icon ${!isValid || isSubmitting ? 'disabled' : ''}`}
+							/>
+						</button>
+					}
+				/>
+			</form>
 			<div
 				ref={descriptionRef}
 				contentEditable={true}
@@ -411,6 +480,59 @@ export const RestaurantForm = styled(RestaurantFormContainer)`
 
 		&:hover {
 			color: var(--color);
+		}
+	}
+
+	/**/
+	& .input-field {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		width: 100%;
+	}
+
+	& .image-field-container,
+	& .table-field-container {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		width: 100%;
+	}
+
+	& .error-text {
+		color: #ff4d4f;
+		font-size: 13px;
+		font-weight: 500;
+		padding-left: 10px;
+		animation: fadeIn 0.2s ease-in;
+	}
+	& .save-btn-wrapper {
+		background: none;
+		border: none;
+		padding: 0;
+		cursor: pointer;
+
+		&:disabled {
+			cursor: not-allowed;
+		}
+	}
+
+	& .save-icon.disabled {
+		color: #ccc;
+		cursor: not-allowed;
+		&:hover {
+			color: #ccc;
+		}
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+			transform: translateY(-5px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
 		}
 	}
 `;

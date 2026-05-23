@@ -9,12 +9,12 @@ import {
 	selectUserId,
 	selectUserRole,
 } from '../../selectors';
-import { loadRestaurantAsync, RESET_RESTAURANT_DATA } from '../../actions';
+import { ACTION_TYPE, loadRestaurantAsync } from '../../actions';
 import { RestaurantContent } from './components/restaurant-content/RestaurantContent';
 import { RestaurantForm } from './components/restaurant-form/RestaurantForm';
 import { PrivateContent } from '../../components/private-content/PrivateContent';
 import { Error } from '../../components/shared/error/Error';
-import { ROLE } from '../../constants';
+import { ROLE, EMPTY_RESTAURANT } from '../../constants';
 
 export const RestaurantPage = () => {
 	const dispatch = useAppDispatch();
@@ -28,7 +28,9 @@ export const RestaurantPage = () => {
 	const userRole = useAppSelector(selectUserRole);
 
 	useLayoutEffect(() => {
-		dispatch(RESET_RESTAURANT_DATA);
+		if (isCreating) {
+			dispatch({ type: ACTION_TYPE.RESET_RESTAURANT_DATA });
+		}
 	}, [dispatch, isCreating]);
 
 	useEffect(() => {
@@ -48,6 +50,8 @@ export const RestaurantPage = () => {
 		return <Error error={error} />;
 	}
 
+	const currentRestaurantData = isCreating ? EMPTY_RESTAURANT : restaurant;
+
 	const isOwner = restaurant.owner === userId;
 	const isAdmin = userRole === ROLE.ADMIN;
 	const canEdit = isAdmin || isOwner;
@@ -59,7 +63,7 @@ export const RestaurantPage = () => {
 				serverError={error}
 				check={isCreating ? true : canEdit}
 			>
-				<RestaurantForm restaurant={restaurant} />
+				<RestaurantForm restaurant={currentRestaurantData} />
 			</PrivateContent>
 		) : (
 			<RestaurantContent
