@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { useTranslation } from 'react-i18next';
 import { PAGINATION_LIMIT, ROLE } from '../../constants';
+import { useGetConfirmation } from '../../providers';
+import { useSearchPaginate } from '../../hooks';
 import { MOCK_STORIES } from './constants/stories';
 import { Card, Pagination, Search, SortPanel, StorySection } from './components';
 import { ScrollToTop } from '../../components/sidebar/ScrollToTop';
@@ -17,12 +19,12 @@ import {
 } from '../../selectors';
 import type { RestaurantFilters, SortField, SortOrder } from './types';
 import type { Restaurant } from '../../types';
-import { useSearchPaginate } from '../../hooks';
 import styled from 'styled-components';
 
 export const HomePage = () => {
 	const { t } = useTranslation();
 	const dispatch = useAppDispatch();
+	const { getConfirmation } = useGetConfirmation();
 	const { page, setPage, searchPhrase, shouldSearch, onSearch } = useSearchPaginate();
 
 	const roleId = useAppSelector(selectUserRole);
@@ -77,8 +79,15 @@ export const HomePage = () => {
 
 	const handleFavorite = (id: string) => {
 		if (roleId === ROLE.GUEST) {
-			alert('Пожалуйста, войдите в аккаунт, чтобы добавлять в избранное');
-			return;
+			getConfirmation({
+				title: t('common.auth_required_title', 'Требуется авторизация'),
+				description: t(
+					'common.auth_required_desc',
+					'Пожалуйста, войдите в аккаунт, чтобы добавлять рестораны в избранное',
+				),
+				confirmText: t('common.ok', 'Понятно'),
+				closeText: '',
+			});
 		}
 		dispatch(updateFavoritesAsync(id));
 	};
