@@ -5,7 +5,7 @@ WORKDIR /usr/src/app
 COPY . .
 
 WORKDIR /usr/src/app/client
-RUN npm i
+RUN npm install --include=dev
 RUN npm run build
 
 WORKDIR /usr/src/app/server
