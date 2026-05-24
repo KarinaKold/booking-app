@@ -5,6 +5,7 @@ WORKDIR /usr/src/app
 COPY . .
 
 WORKDIR /usr/src/app/client
+RUN npm config set registry https://npmmirror.com
 RUN npm install --include=dev
 RUN npm run build
 
