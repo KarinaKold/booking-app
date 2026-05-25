@@ -7,7 +7,7 @@ COPY . .
 
 
 WORKDIR /usr/src/app/server
-RUN npm config set registry https://npmmirror.com
+RUN npm config set registry https://registry.npmmirror.com
 RUN npm i
 
 EXPOSE 3001
